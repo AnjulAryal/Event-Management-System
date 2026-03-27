@@ -1,112 +1,134 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Calendar, Plus, LogOut, Ticket, Compass, LayoutDashboard, CalendarDays, MicVocal, HandHelping } from 'lucide-react';
-let isAdmin = true;
-let user = false
-const Navbar = () => {
+import {
+    Calendar,
+    LogOut,
+    CalendarDays,
+    MicVocal,
+    LayoutDashboard,
+    HandHelping,
+    Menu,
+    X,
+} from 'lucide-react';
 
-    const isActive = (path) => location.pathname === path; // Replace with actual admin check logic
-    const navLinkClass = (path) => `
-        flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 group
-        ${isActive(path)
-            ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/20'
-            : 'text-neutral-500 hover:bg-neutral-100 hover:text-primary-600'}
-    `;
+// Dummy state
+let isAdmin = true;
+let user = false;
+
+// Nav config
+const navItems = [
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/my-events', label: 'My Events', icon: CalendarDays },
+    { path: '/speakers', label: 'Speakers', icon: MicVocal },
+    { path: '/help', label: 'Help/support', icon: HandHelping, adminOnly: true },
+];
+
+const Navbar = () => {
+    const location = useLocation();
+    const [isOpen, setIsOpen] = useState(false);
+
+    const isActive = (path) => location.pathname === path;
+
+    // Class for link
+    const navLinkClass = (path) =>
+        `flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors duration-200 ${isActive(path)
+            ? 'bg-primary-600 text-black'
+            : 'text-neutral-500 hover:bg-neutral-100 hover:text-primary-600'
+        }`;
+
+    const iconClass = (path) =>
+        `w-5 h-5 ${isActive(path) ? 'text-black' : 'text-neutral-400 group-hover:text-primary-600'
+        }`;
+
+    const textClass = (path) => (isActive(path) ? 'text-black font-bold' : 'font-bold');
 
     return (
         <>
             {/* Mobile Top Bar */}
-            <nav className="md:hidden fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-neutral-200 z-50 px-4 h-16 flex items-center justify-between">
+            <nav className="md:hidden fixed top-0 left-0 right-0 bg-white border-b z-50 px-4 h-16 flex items-center justify-between">
+                <button onClick={() => setIsOpen(true)}>
+                    <Menu className="w-6 h-6 text-neutral-700" />
+                </button>
+
                 <Link to="/" className="flex items-center space-x-2">
-                    <div className="bg-primary-600 p-1.5 rounded-lg">
-                        <Calendar className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="text-xl font-black text-neutral-900">Eventify</span>
+                    <Calendar className="w-5 h-5 text-primary-600" />
+                    <span className="font-bold">Eventify</span>
                 </Link>
 
-                <div className="flex items-center space-x-2">
-                    <Link to="/my-events" className="p-2 text-neutral-500 hover:text-primary-600">
-                        <CalendarDays className="w-5 h-5" />
-                    </Link>
-                    <Link to="/login" className="text-sm font-bold text-primary-600 px-3 py-1.5 rounded-lg hover:bg-primary-50">
-                        Login
-                    </Link>
-                </div>
+                <div />
             </nav>
 
-            {/* Desktop Sidebar */}
-            <nav className="fixed left-0 top-0 h-screen w-64 bg-white border-r border-neutral-200 z-50 flex flex-col p-6 hidden md:flex">
-                {/* Logo Section */}
-                <Link to="/" className="flex items-center space-x-3 mb-10">
-                    <div className="bg-primary-600 p-2 rounded-xl shadow-lg shadow-primary-600/20">
-                    </div>
-                    <span className="text-2xl font-black bg-gradient-to-r from-neutral-900 to-neutral-600 bg-clip-text text-transparent">
-                        Eventify
-                    </span>
-                </Link>
+            {/* Mobile Overlay */}
+            {isOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-40 md:hidden"
+                    onClick={() => setIsOpen(false)}
+                />
+            )}
 
-                {/* Navigation Links */}
-                <div className="flex-grow space-y-2">
-                    <>
-                        <Link to="/dashboard" className={navLinkClass('/my-events')}>
-                            <LayoutDashboard className={`w-5 h-5 ${isActive('/my-events') ? 'text-white' : 'text-neutral-400 group-hover:text-primary-600'}`} />
-                            <span className="font-bold">Dashboard</span>
-                        </Link>
-
-                        <Link to="/my-events" className={navLinkClass('/my-events')}>
-                            <CalendarDays className={`w-5 h-5 ${isActive('/my-events') ? 'text-white' : 'text-neutral-400 group-hover:text-primary-600'}`} />
-                            <span className="font-bold">My Events</span>
-                        </Link>
-
-                        <Link to="/speakers" className={navLinkClass('/my-events')}>
-                            <MicVocal className={`w-5 h-5 ${isActive('/my-events') ? 'text-white' : 'text-neutral-400 group-hover:text-primary-600'}`} />
-                            <span className="font-bold">Speakers</span>
-                        </Link>
-
-                        {isAdmin && (
-                            <Link to="/add" className={navLinkClass('/add')}>
-                                <HandHelping className={`w-5 h-5 ${isActive('/add') ? 'text-white' : 'text-neutral-400 group-hover:text-primary-600'}`} />
-                                <span className="font-bold">Help/support</span>
-                            </Link>
-                        )}
-                    </>
+            {/* Mobile Sidebar */}
+            <div
+                className={`fixed top-0 left-0 h-full w-64 bg-white z-50 transform transition-transform duration-300 md:hidden ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
+            >
+                <div className="flex items-center justify-between p-4 border-b">
+                    <span className="font-bold text-lg">Menu</span>
+                    <button onClick={() => setIsOpen(false)}>
+                        <X className="w-6 h-6" />
+                    </button>
                 </div>
 
-                {/* Bottom Section */}
-                <div className="mt-auto pt-6 border-t border-neutral-100 space-y-2">
+                <div className="p-4 space-y-2">
+                    {navItems.map((item) => {
+                        if (item.adminOnly && !isAdmin) return null;
+                        const Icon = item.icon;
+
+                        return (
+                            <Link
+                                key={item.path}
+                                to={item.path}
+                                onClick={() => setIsOpen(false)}
+                                className={navLinkClass(item.path)}
+                            >
+                                <Icon className={iconClass(item.path)} />
+                                <span className={textClass(item.path)}>{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* Desktop Sidebar */}
+            <nav className="fixed left-0 top-0 h-screen w-64 bg-white border-r z-50 hidden md:flex flex-col p-6">
+                <Link to="/" className="flex items-center space-x-2 mb-10">
+                    <Calendar className="w-5 h-5 text-primary-600" />
+                    <span className="text-xl font-bold">Eventify</span>
+                </Link>
+
+                <div className="flex-grow space-y-2">
+                    {navItems.map((item) => {
+                        if (item.adminOnly && !isAdmin) return null;
+                        const Icon = item.icon;
+
+                        return (
+                            <Link key={item.path} to={item.path} className={navLinkClass(item.path)}>
+                                <Icon className={iconClass(item.path)} />
+                                <span className={textClass(item.path)}>{item.label}</span>
+                            </Link>
+                        );
+                    })}
+                </div>
+
+                <div className="mt-auto pt-4 border-t">
                     {user ? (
-                        <>
-                            <div className="flex items-center space-x-3 px-4 py-3 mb-2">
-                                <div className="w-10 h-10 rounded-full bg-neutral-100 flex items-center justify-center font-bold text-neutral-600">
-                                    {user.name?.[0]?.toUpperCase() || 'U'}
-                                </div>
-                                <div className="overflow-hidden">
-                                    <p className="text-sm font-bold truncate">{user.name || 'User'}</p>
-                                    <p className="text-xs text-neutral-400 truncate">{user.email}</p>
-                                </div>
-                            </div>
-                            <button
-                                onClick={logout}
-                                className="w-full flex items-center space-x-3 text-red-500 hover:text-red-600 font-bold px-4 py-3 rounded-xl hover:bg-red-50 transition-all font-bold"
-                            >
-                                <LogOut className="w-5 h-5" />
-                                <span>Logout</span>
-                            </button>
-                        </>
+                        <button className="flex items-center space-x-2 text-red-500">
+                            <LogOut />
+                            <span>Logout</span>
+                        </button>
                     ) : (
-                        <div className="space-y-2 px-2">
-                            <Link
-                                to="/login"
-                                className="block w-full text-center text-neutral-600 hover:text-primary-600 font-bold py-3 rounded-xl hover:bg-neutral-50 transition-all"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                to="/register"
-                                className="block w-full text-center bg-primary-600 text-white py-3 rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-600/20 font-bold"
-                            >
-                                Join Now
-                            </Link>
-                        </div>
+                        <Link to="/login" className="text-primary-600 font-bold">
+                            Login
+                        </Link>
                     )}
                 </div>
             </nav>
@@ -115,4 +137,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-
