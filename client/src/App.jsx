@@ -2,15 +2,12 @@ import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import Login from './pages/Login';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
-
-        {/* Navbar */}
-        <Navbar />
-
         {/* Main Content */}
         <main className="flex-grow md:ml-64 pt-16 md:pt-0 px-4 pb-10">
           <Routes>
@@ -20,13 +17,10 @@ function App() {
             <Route path="/register" element={<h1>Register Page</h1>} />
             <Route path="/speakers" element={<h1>Speaker Page</h1>} />
             <Route path="/help" element={<h1>Help/support Page</h1>} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
           </Routes>
         </main>
-
-        {/* Footer */}
-        <Footer />
-
       </div>
     </Router>
   );
