@@ -25,22 +25,9 @@ const navItems = [
     { id: "help", label: "Help/Support", icon: HelpCircle, path: "/help", accent: true },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ open, setOpen, isMobile }) {
     const location = useLocation();
-    const [open, setOpen] = useState(true);
     const [hovered, setHovered] = useState(null);
-    const [isMobile, setIsMobile] = useState(false);
-
-    useEffect(() => {
-        const check = () => {
-            const mobile = window.innerWidth < 768;
-            setIsMobile(mobile);
-            setOpen(!mobile);
-        };
-        check();
-        window.addEventListener("resize", check);
-        return () => window.removeEventListener("resize", check);
-    }, []);
 
     const SIDEBAR_W = 240;
 
@@ -64,31 +51,35 @@ export default function Sidebar() {
                 />
             )}
 
-            {/* Hamburger / close toggle button */}
+            {/* Toggle button */}
             <button
                 onClick={() => setOpen(!open)}
                 style={{
                     position: "fixed",
                     top: "14px",
-                    left: open && !isMobile ? `${SIDEBAR_W + 14}px` : "14px",
+                    left: open && !isMobile ? `${SIDEBAR_W - 52}px` : "14px",
                     zIndex: 300,
                     width: "38px",
                     height: "38px",
                     borderRadius: "10px",
-                    background: "#fff",
-                    border: "1.5px solid #f0f0f0",
+                    background: open && !isMobile ? "transparent" : "#fff",
+                    border: open && !isMobile ? "none" : "1.5px solid #f0f0f0",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     cursor: "pointer",
                     color: "#1a1a2e",
-                    boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
+                    boxShadow: open && !isMobile ? "none" : "0 2px 10px rgba(0,0,0,0.08)",
                     transition: "left 0.3s cubic-bezier(.4,0,.2,1), background 0.15s",
                 }}
-                onMouseEnter={e => (e.currentTarget.style.background = "#f0f0f0")}
-                onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                onMouseEnter={e => {
+                    if (!open || isMobile) e.currentTarget.style.background = "#f0f0f0";
+                }}
+                onMouseLeave={e => {
+                    if (!open || isMobile) e.currentTarget.style.background = "#fff";
+                }}
             >
-                {open ? <X size={18} /> : <Menu size={18} />}
+                {open ? <X size={20} /> : <Menu size={20} />}
             </button>
 
             {/* Sidebar panel */}
@@ -270,7 +261,8 @@ export default function Sidebar() {
 
                 {/* Logout */}
                 <div style={{ padding: "16px 12px" }}>
-                    <button
+                    <Link
+                        to ={"/login"}
                         onMouseEnter={e => {
                             e.currentTarget.style.background = "#27a04a";
                             e.currentTarget.style.transform = "translateY(-1px)";
@@ -302,7 +294,7 @@ export default function Sidebar() {
                     >
                         <LogOut size={16} />
                         <span>Logout →</span>
-                    </button>
+                    </Link>
                 </div>
             </aside>
         </div>
