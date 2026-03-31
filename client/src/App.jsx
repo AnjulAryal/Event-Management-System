@@ -11,6 +11,11 @@ import Speakers from './pages/user/Speakers';
 import UserFeedback from './pages/user/UserFeedback';
 import HelpSupport from './pages/HelpSupport';
 import { Toaster } from 'react-hot-toast';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import AdminEvent from './pages/Admin/AdminEvent';
+import AdminFeedback from './pages/Admin/AdminFeedback';
+import AdminSpeakers from './pages/Admin/AdminSpeakers';
+import AdminSpeakersEdit from './pages/Admin/AdminSpeakersEdit';
 
 function App() {
   const [open, setOpen] = useState(true);
@@ -55,6 +60,11 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/Admindashboard" element={<AdminDashboard />} />
+            <Route path="/Adminevent" element={<AdminEvent />} />
+            <Route path="/Adminfeedback" element={<AdminFeedback />} />
+            <Route path="/AdminSpeakers" element={<AdminSpeakers />} />
+            <Route path="/AdminSpeakersEdit" element={<AdminSpeakersEdit />} />
           </Routes>
         </main>
       </div>
