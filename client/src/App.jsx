@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import Login from './pages/Login';
+import Signup from "./pages/signup";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/user/UserDashboard';
@@ -46,6 +47,7 @@ function App() {
             <Route path="/help" element={<h1>Help/support Page</h1>} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           </Routes>
         </main>
       </div>
