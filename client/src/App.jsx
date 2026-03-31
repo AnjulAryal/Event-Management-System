@@ -7,7 +7,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/user/UserDashboard';
 import RegisteredEvents from './pages/user/RegisteredEvents';
-import Speakers from './pages/admin/Speakers';
+import Speakers from './pages/user/Speakers';
 import UserFeedback from './pages/user/UserFeedback';
 import HelpSupport from './pages/HelpSupport';
 import { Toaster } from 'react-hot-toast';
@@ -33,7 +33,7 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
-                <Toaster position="top-right" reverseOrder={false} />
+        <Toaster position="top-right" reverseOrder={false} />
         <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />
         {/* Main Content */}
         <main
