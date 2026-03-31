@@ -12,6 +12,7 @@ import UserFeedback from './pages/user/UserFeedback';
 import HelpSupport from './pages/HelpSupport';
 import { Toaster } from 'react-hot-toast';
 
+
 function App() {
   const [open, setOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
