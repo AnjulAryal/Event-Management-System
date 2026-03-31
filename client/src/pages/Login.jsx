@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
 const Login = () => {
@@ -45,7 +45,9 @@ const Login = () => {
 
         setLoading(true);
         try {
-            await login(email, password); // Make sure your login function exists
+            // Simulated login
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            toast.success('Logged in successfully!');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {

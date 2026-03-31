@@ -6,10 +6,15 @@ import Signup from "./pages/signup";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/user/UserDashboard';
+import RegisteredEvents from './pages/user/RegisteredEvents';
+import Speakers from './pages/admin/Speakers';
+import UserFeedback from './pages/user/UserFeedback';
+import HelpSupport from './pages/HelpSupport';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const [open, setOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
     const check = () => {
@@ -28,9 +33,10 @@ function App() {
   return (
     <Router>
       <div className="flex flex-col min-h-screen">
+                <Toaster position="top-right" reverseOrder={false} />
         <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />
         {/* Main Content */}
-        <main 
+        <main
           className="flex-grow pt-16 md:pt-0"
           style={{
             marginLeft: !isMobile && open ? `${SIDEBAR_W}px` : "0px",
@@ -39,12 +45,13 @@ function App() {
           }}
         >
           <Routes>
-            <Route path="/" element={<h1>Events Page</h1>} />
+            <Route path="/" element={<RegisteredEvents />} />
             <Route path="/dashboard" element={<UserDashboard />} />
-            <Route path="/my-events" element={<h1>My Events Only</h1>} />
+            <Route path="/user-events" element={<RegisteredEvents />} />
             <Route path="/register" element={<h1>Register Page</h1>} />
-            <Route path="/speakers" element={<h1>Speaker Page</h1>} />
-            <Route path="/help" element={<h1>Help/support Page</h1>} />
+            <Route path="/speakers" element={<Speakers />} />
+            <Route path="/feedback" element={<UserFeedback />} />
+            <Route path="/help" element={<HelpSupport />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />

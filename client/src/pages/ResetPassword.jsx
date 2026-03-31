@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Shield, ArrowRight, ArrowLeft } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
 const ResetPassword = () => {

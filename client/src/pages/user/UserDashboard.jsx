@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { toast } from "react-hot-toast";
 
 const EVENTS = [
     { id: 1, title: "UI/UX Design Summit", location: "Creative Hub, NYC", date: "Apr 01, 2026", category: "UI/UX DES", categoryColor: "#6c8ebf" },
@@ -62,16 +63,20 @@ const EventCard = ({ event, showButtons = true }) => (
             )}
             {showButtons && (
                 <>
-                    <button style={{
-                        width: "100%", background: "#4caf50", color: "#fff",
-                        border: "none", borderRadius: 8, padding: "9px 0",
-                        fontWeight: 700, fontSize: 13, cursor: "pointer",
-                        fontFamily: "system-ui, sans-serif",
-                        marginBottom: 6, transition: "background 0.15s",
-                    }}
+                    <button 
+                        style={{
+                            width: "100%", background: "#4caf50", color: "#fff",
+                            border: "none", borderRadius: 8, padding: "9px 0",
+                            fontWeight: 700, fontSize: 13, cursor: "pointer",
+                            fontFamily: "system-ui, sans-serif",
+                            marginBottom: 6, transition: "background 0.15s",
+                        }}
+                        onClick={() => toast.success("Registered successfully!")}
                         onMouseEnter={e => e.target.style.background = "#43a047"}
                         onMouseLeave={e => e.target.style.background = "#4caf50"}
-                    >Register Now</button>
+                    >
+                        Register Now
+                    </button>
                     <button style={{
                         width: "100%", background: "transparent", color: "#555",
                         border: "none", padding: "6px 0",
