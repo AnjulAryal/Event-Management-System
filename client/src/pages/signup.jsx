@@ -1,16 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle, Check } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Check, User, Mail, Lock } from 'lucide-react';
 import { Link } from "react-router-dom";
 
-<p className="text-center text-sm text-gray-600 mt-6">
-  Already have an account?{" "}
-  <Link
-    to="/login"
-    className="text-green-600 font-medium hover:text-green-700 transition-colors"
-  >
-    Sign in
-  </Link>
-</p>
 export default function SignupForm() {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -78,12 +69,11 @@ export default function SignupForm() {
 
     setIsLoading(true);
     
-    // Simulate API call - replace with your actual API call
+    // Simulate API call
     setTimeout(() => {
       setIsLoading(false);
       setSubmitted(true);
       
-      // Auto-reset after 3 seconds (optional)
       setTimeout(() => {
         resetForm();
       }, 3000);
@@ -97,24 +87,32 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2">
-            <span className="text-green-500">Create</span>
-            <span className="text-gray-900"> Account</span>
-          </h1>
-          <p className="text-gray-500 text-sm">Join us and start your journey today</p>
-        </div>
-
+    <div className="min-h-screen bg-[#F8FAFB] flex items-center justify-center px-4 py-12 relative overflow-hidden font-sans">
+      {/* Decorative background element */}
+      <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-[#EEF5F1] rounded-full opacity-70 blur-3xl"></div>
+      
+      <div className="w-full max-w-[450px] relative z-10">
         {/* Form Card */}
-        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-8 border border-gray-100">
+        <div className="bg-white rounded-[25px] shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-10">
+          {/* Logo */}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-black tracking-tight">
+              <span className="text-[#5CB85C]">EVENT</span>
+              <span className="text-gray-900">IFY</span>
+            </h1>
+          </div>
+
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-gray-800">
+              Register a <span className="text-[#5CB85C]">user</span>
+            </h2>
+          </div>
+
           {submitted ? (
             <div className="text-center py-8">
               <div className="mb-4 flex justify-center">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center animate-scale-in">
-                  <Check className="w-8 h-8 text-green-600" strokeWidth={3} />
+                  <Check className="w-8 h-8 text-[#5CB85C]" strokeWidth={3} />
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome aboard!</h2>
@@ -130,14 +128,12 @@ export default function SignupForm() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Full Name */}
               <div>
-                <label htmlFor="fullName" className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                <label htmlFor="fullName" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
                   Full Name
                 </label>
                 <div className="relative">
-                  <div className="absolute left-4 top-4 text-gray-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <User className="w-4 h-4" />
                   </div>
                   <input
                     type="text"
@@ -146,16 +142,16 @@ export default function SignupForm() {
                     value={formData.fullName}
                     onChange={handleChange}
                     placeholder="Johnathan Doe"
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg border-2 transition-all ${
+                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-none transition-all ${
                       errors.fullName
-                        ? 'border-red-500 bg-red-50'
-                        : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-100'
-                    }`}
+                        ? 'bg-red-50 ring-1 ring-red-500'
+                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
+                    } text-gray-700 placeholder:text-gray-400 text-sm`}
                   />
                 </div>
                 {errors.fullName && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-xs">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
+                    <AlertCircle className="w-3 h-3" />
                     {errors.fullName}
                   </div>
                 )}
@@ -163,14 +159,12 @@ export default function SignupForm() {
 
               {/* Email Address */}
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                <label htmlFor="email" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
                   Email Address
                 </label>
                 <div className="relative">
-                  <div className="absolute left-4 top-4 text-gray-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Mail className="w-4 h-4" />
                   </div>
                   <input
                     type="email"
@@ -179,16 +173,16 @@ export default function SignupForm() {
                     value={formData.email}
                     onChange={handleChange}
                     placeholder="name@company.com"
-                    className={`w-full pl-12 pr-4 py-3 rounded-lg border-2 transition-all ${
+                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-none transition-all ${
                       errors.email
-                        ? 'border-red-500 bg-red-50'
-                        : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-100'
-                    }`}
+                        ? 'bg-red-50 ring-1 ring-red-500'
+                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
+                    } text-gray-700 placeholder:text-gray-400 text-sm`}
                   />
                 </div>
                 {errors.email && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-xs">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
+                    <AlertCircle className="w-3 h-3" />
                     {errors.email}
                   </div>
                 )}
@@ -196,14 +190,12 @@ export default function SignupForm() {
 
               {/* Password */}
               <div>
-                <label htmlFor="password" className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-3">
+                <label htmlFor="password" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <div className="absolute left-4 top-4 text-gray-400">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Lock className="w-4 h-4" />
                   </div>
                   <input
                     type={showPassword ? 'text' : 'password'}
@@ -211,24 +203,24 @@ export default function SignupForm() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="••••••••"
-                    className={`w-full pl-12 pr-12 py-3 rounded-lg border-2 transition-all ${
+                    placeholder="••••••••••••••••"
+                    className={`w-full pl-12 pr-12 py-3 rounded-xl border-none transition-all ${
                       errors.password
-                        ? 'border-red-500 bg-red-50'
-                        : 'border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-green-100'
-                    }`}
+                        ? 'bg-red-50 ring-1 ring-red-500'
+                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
+                    } text-gray-700 placeholder:text-gray-400 text-sm`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
                 {errors.password && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-xs">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
+                    <AlertCircle className="w-3 h-3" />
                     {errors.password}
                   </div>
                 )}
@@ -236,7 +228,7 @@ export default function SignupForm() {
 
               {/* Terms Checkbox */}
               <div className="pt-2">
-                <label className="flex items-start gap-3 cursor-pointer group">
+                <label className="flex items-center gap-3 cursor-pointer group">
                   <input
                     type="checkbox"
                     checked={agreedToTerms}
@@ -249,22 +241,22 @@ export default function SignupForm() {
                         }));
                       }
                     }}
-                    className="mt-1 flex-shrink-0 w-5 h-5 text-green-600 border-2 border-gray-300 rounded focus:ring-2 focus:ring-green-500 focus:ring-offset-0 cursor-pointer"
+                    className="w-5 h-5 bg-[#F3F5F9] border-none rounded-md text-[#5CB85C] focus:ring-0 cursor-pointer"
                   />
-                  <span className="text-sm text-gray-700 leading-relaxed">
+                  <span className="text-[11px] text-[#A0AEC0]">
                     I agree to the{' '}
-                    <a href="#" className="text-green-600 font-medium hover:text-green-700 transition-colors">
+                    <a href="#" className="text-[#5CB85C] font-semibold hover:underline">
                       Terms of Service
                     </a>
                     {' '}and{' '}
-                    <a href="#" className="text-green-600 font-medium hover:text-green-700 transition-colors">
+                    <a href="#" className="text-[#5CB85C] font-semibold hover:underline">
                       Privacy Policy
                     </a>
                   </span>
                 </label>
                 {errors.terms && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-xs ml-8">
-                    <AlertCircle className="w-4 h-4" />
+                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
+                    <AlertCircle className="w-3 h-3" />
                     {errors.terms}
                   </div>
                 )}
@@ -274,38 +266,35 @@ export default function SignupForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold py-3 rounded-lg mt-8 flex items-center justify-center gap-2 group transition-all hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0"
+                className="w-full bg-[#5CB85C] hover:bg-[#4AA14A] disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-6 flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-500/20"
               >
                 {isLoading ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Creating Account...
-                  </>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
                     Create Account
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
                   </>
                 )}
               </button>
 
-              {/* Sign In Link */}
-             <p className="text-center text-sm text-gray-600 mt-6">
-                 Already have an account?{" "}
-                <Link
+              {/* Log In Link */}
+              <div className="text-center pt-6 border-t border-gray-100">
+                <p className="text-[13px] text-gray-500">
+                  Already have an account?{" "}
+                  <Link
                     to="/login"
-                    className="font-extrabold text-[#5CB85C] hover:text-[#4AA14A] transition"
-                >
-                Sign in
-                 </Link>
-             </p>
+                    className="text-[#5CB85C] font-bold hover:underline ml-1"
+                  >
+                    Log In
+                  </Link>
+                </p>
+              </div>
             </form>
           )}
         </div>
-
-       
       </div>
     </div>
   );
