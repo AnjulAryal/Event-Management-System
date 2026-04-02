@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import Footer from './components/footer';
+// import Footer from './components/footer';
 import Login from './pages/Login';
 import Signup from "./pages/signup";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -11,7 +11,14 @@ import Speakers from './pages/user/Speakers';
 import UserFeedback from './pages/user/UserFeedback';
 import HelpSupport from './pages/HelpSupport';
 import { Toaster } from 'react-hot-toast';
-
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminEvent from "./pages/admin/AdminEvent";
+import AdminFeedback from './pages/admin/AdminFeedback';
+import AdminSpeakers from './pages/admin/AdminSpeakers';
+import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
+import AdminHelpSupport from './pages/admin/AdminHelpsupport';
+import AdminAddEvent from './pages/admin/AdminAddEvent';
+import AdminEditEvent from './pages/admin/AdminEditEvent';
 
 function App() {
   const [open, setOpen] = useState(true);
@@ -55,7 +62,14 @@ function App() {
             <Route path="/help" element={<HelpSupport />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
+            <Route path="/AdminDashboard" element={<AdminDashboard />} />
+            <Route path="/AdminEvent" element={<AdminEvent />} />
+            <Route path="/AdminFeedback" element={<AdminFeedback />} />
+            <Route path="/Adminspeakers" element={<AdminSpeakers />} />
+            <Route path="/AdminspeakersEdit" element={<AdminSpeakersEdit />} />
+            <Route path="/AdminHelpSupport" element={<AdminHelpSupport />} />
+            <Route path="/AdminAddEvent" element={<AdminAddEvent />} />
+            <Route path="/AdminEditEvent" element={<AdminEditEvent />} />
           </Routes>
         </main>
       </div>
