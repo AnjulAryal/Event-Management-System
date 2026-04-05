@@ -12,6 +12,10 @@ connectDB();
 const app = express();
 
 const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const speakerRoutes = require('./routes/speakerRoutes');
+const feedbackRoutes = require('./routes/feedbackRoutes');
+const supportRoutes = require('./routes/supportRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 // Body parser
@@ -27,6 +31,10 @@ app.get('/', (req, res) => {
 
 // App Routes
 app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/speakers', speakerRoutes);
+app.use('/api/feedback', feedbackRoutes);
+app.use('/api/support', supportRoutes);
 
 // Middleware
 app.use(notFound);

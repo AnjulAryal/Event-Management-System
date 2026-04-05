@@ -20,6 +20,12 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    registeredEvents: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event'
+      }
+    ]
   },
   {
     timestamps: true,
