@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle, Check, User, Mail, Lock } from 'lucide-react';
+import { Mail, Lock, User, Check, ArrowRight } from 'lucide-react';
 import { Link } from "react-router-dom";
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 export default function SignupForm() {
   const [formData, setFormData] = useState({
@@ -11,7 +13,6 @@ export default function SignupForm() {
 
   const [errors, setErrors] = useState({});
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -127,104 +128,39 @@ export default function SignupForm() {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Full Name */}
-              <div>
-                <label htmlFor="fullName" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
-                  Full Name
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Johnathan Doe"
-                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-none transition-all ${
-                      errors.fullName
-                        ? 'bg-red-50 ring-1 ring-red-500'
-                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
-                    } text-gray-700 placeholder:text-gray-400 text-sm`}
-                  />
-                </div>
-                {errors.fullName && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.fullName}
-                  </div>
-                )}
-              </div>
+              <Input 
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                placeholder="Johnathan Doe"
+                icon={User}
+                error={errors.fullName}
+              />
 
               {/* Email Address */}
-              <div>
-                <label htmlFor="email" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
-                  Email Address
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="name@company.com"
-                    className={`w-full pl-12 pr-4 py-3 rounded-xl border-none transition-all ${
-                      errors.email
-                        ? 'bg-red-50 ring-1 ring-red-500'
-                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
-                    } text-gray-700 placeholder:text-gray-400 text-sm`}
-                  />
-                </div>
-                {errors.email && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.email}
-                  </div>
-                )}
-              </div>
+              <Input 
+                label="Email Address"
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@company.com"
+                icon={Mail}
+                error={errors.email}
+              />
 
               {/* Password */}
-              <div>
-                <label htmlFor="password" className="block text-[10px] font-bold text-[#5CB85C] uppercase tracking-wider mb-2">
-                  Password
-                </label>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-                    <Lock className="w-4 h-4" />
-                  </div>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••••••••••"
-                    className={`w-full pl-12 pr-12 py-3 rounded-xl border-none transition-all ${
-                      errors.password
-                        ? 'bg-red-50 ring-1 ring-red-500'
-                        : 'bg-[#F3F5F9] focus:ring-2 focus:ring-[#5CB85C]/20 focus:outline-none'
-                    } text-gray-700 placeholder:text-gray-400 text-sm`}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
-                    <AlertCircle className="w-3 h-3" />
-                    {errors.password}
-                  </div>
-                )}
-              </div>
+              <Input 
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••••••••••"
+                icon={Lock}
+                error={errors.password}
+              />
 
               {/* Terms Checkbox */}
               <div className="pt-2">
@@ -256,29 +192,22 @@ export default function SignupForm() {
                 </label>
                 {errors.terms && (
                   <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
-                    <AlertCircle className="w-3 h-3" />
+                    <Check className="w-3 h-3" />
                     {errors.terms}
                   </div>
                 )}
               </div>
 
               {/* Submit Button */}
-              <button
+              <Button 
                 type="submit"
-                disabled={isLoading}
-                className="w-full bg-[#5CB85C] hover:bg-[#4AA14A] disabled:opacity-60 text-white font-bold py-4 rounded-xl mt-6 flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-500/20"
+                isLoading={isLoading}
+                className="w-full py-4 text-base"
+                icon={ArrowRight}
+                iconPosition="right"
               >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                ) : (
-                  <>
-                    Create Account
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </>
-                )}
-              </button>
+                Create Account
+              </Button>
 
               {/* Log In Link */}
               <div className="text-center pt-6 border-t border-gray-100">

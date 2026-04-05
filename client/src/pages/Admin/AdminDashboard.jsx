@@ -1,5 +1,8 @@
 import React from 'react';
 import { Filter, CalendarDays, MapPin } from 'lucide-react';
+import Button from '../../components/ui/Button';
+import StatCard from '../../components/ui/StatCard';
+import Badge from '../../components/ui/Badge';
 
 const AdminDashboard = () => {
     return (
@@ -16,14 +19,12 @@ const AdminDashboard = () => {
                     </p>
                 </div>
                 <div className="flex items-center space-x-3">
-                    <button className="flex items-center space-x-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 transition font-medium text-sm text-slate-700">
-                        <Filter className="w-4 h-4 text-slate-500" />
-                        <span>Filters</span>
-                    </button>
-                    <button className="flex items-center space-x-2 px-4 py-2.5 bg-white border border-slate-200 rounded-xl shadow-sm hover:bg-slate-50 transition font-medium text-sm text-slate-700">
-                        <CalendarDays className="w-4 h-4 text-slate-500" />
-                        <span>This Month</span>
-                    </button>
+                    <Button variant="secondary" icon={Filter}>
+                        Filters
+                    </Button>
+                    <Button variant="secondary" icon={CalendarDays}>
+                        This Month
+                    </Button>
                 </div>
             </div>
 
@@ -33,20 +34,14 @@ const AdminDashboard = () => {
 
                     {/* Metrics */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500">
-                            <p className="text-slate-500 text-sm font-semibold mb-2">Total Events</p>
-                            <h2 className="text-4xl font-bold text-slate-900">1,284</h2>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-green-500">
-                            <p className="text-slate-500 text-sm font-semibold mb-2">Active Attendees</p>
-                            <h2 className="text-4xl font-bold text-slate-900">18.5k</h2>
-                        </div>
+                        <StatCard label="Total Events" value="1,284" color="#5CB85C" />
+                        <StatCard label="Active Attendees" value="18.5k" color="#5CB85C" />
                     </div>
 
                     {/* Today's Events */}
                     <div>
                         <div className="flex items-center space-x-4 mb-6">
-                            <span className="px-2.5 py-1 bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wider rounded-md">Priority</span>
+                            <Badge variant="primary">Priority</Badge>
                             <h2 className="text-2xl font-bold text-slate-900">Today's Events</h2>
                         </div>
 
@@ -57,7 +52,7 @@ const AdminDashboard = () => {
                                 <div className="flex-1 flex flex-col justify-between py-1">
                                     <div>
                                         <div className="flex flex-wrap items-center gap-3 mb-3">
-                                            <span className="px-3 py-1 bg-[#e0f2fe] text-blue-700 text-xs font-bold rounded-lg">10:00 AM</span>
+                                            <Badge variant="blue">10:00 AM</Badge>
                                             <div className="flex items-center text-slate-500 text-sm font-medium">
                                                 <MapPin className="w-3.5 h-3.5 mr-1 text-[#c63636]" />
                                                 Main Auditorium
@@ -80,7 +75,7 @@ const AdminDashboard = () => {
                                 <div className="flex-1 flex flex-col justify-between py-1">
                                     <div>
                                         <div className="flex flex-wrap items-center gap-3 mb-3">
-                                            <span className="px-3 py-1 bg-[#e0f2fe] text-blue-700 text-xs font-bold rounded-lg">06:00 PM</span>
+                                            <Badge variant="blue">06:00 PM</Badge>
                                             <div className="flex items-center text-slate-500 text-sm font-medium">
                                                 <MapPin className="w-3.5 h-3.5 mr-1 text-[#c63636]" />
                                                 Rooftop Terrace
@@ -148,3 +143,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, ArrowRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({ email: '', password: '' });
+    const navigate = useNavigate();
 
     // Password validation regex
     const validatePassword = (pwd) => {
@@ -45,9 +47,24 @@ const Login = () => {
 
         setLoading(true);
         try {
-            // Simulated login
+            // Simulated login API response
             await new Promise(resolve => setTimeout(resolve, 1000));
-            toast.success('Logged in successfully!');
+            
+            // Generate role for testing (admin if email contains 'admin', else user)
+            const simulatedRole = email.toLowerCase().includes('admin') ? 'admin' : 'user';
+            const userData = { email, role: simulatedRole };
+            
+            // Save in localStorage for ProtectedRoute to access
+            localStorage.setItem('user', JSON.stringify(userData));
+            
+            toast.success(`Logged in as ${simulatedRole}!`);
+
+            // Redirect based on role
+            if (simulatedRole === 'admin') {
+                navigate('/admin-dashboard');
+            } else {
+                navigate('/dashboard');
+            }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Login failed');
         } finally {
@@ -79,49 +96,26 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
                         {/* Email */}
-                        <div className="flex flex-col">
-                            <label className="text-xs font-extrabold uppercase tracking-widest text-[#5CB85C] ml-1 mb-1">
-                                Email Address
-                            </label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="alex@example.com"
-                                    className={`w-full bg-gray-100 border rounded-lg py-3 pl-10 pr-4 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 transition
-                    ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-[#5CB85C]/20'}`}
-                                />
-                            </div>
-                            {errors.email && <p className="text-red-500 text-xs mt-1 ml-1">{errors.email}</p>}
-                        </div>
+                        <Input 
+                            label="Email Address"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="alex@example.com"
+                            icon={Mail}
+                            error={errors.email}
+                        />
 
                         {/* Password */}
-                        <div className="flex flex-col">
-                            <label className="text-xs font-extrabold uppercase tracking-widest text-[#5CB85C] ml-1 mb-1">
-                                Password
-                            </label>
-                            <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-                                <input
-                                    type={showPassword ? 'text' : 'password'}
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                    className={`w-full bg-gray-100 border rounded-lg py-3 pl-10 pr-10 text-sm text-gray-900 font-medium focus:outline-none focus:ring-2 transition
-                    ${errors.password ? 'border-red-500 focus:ring-red-200' : 'border-gray-200 focus:ring-[#5CB85C]/20'}`}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-                            {errors.password && <p className="text-red-500 text-xs mt-1 ml-1">{errors.password}</p>}
-                        </div>
+                        <Input 
+                            label="Password"
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            icon={Lock}
+                            error={errors.password}
+                        />
 
                         {/* Forgot Password Link */}
                         <div className="text-right">
@@ -134,29 +128,27 @@ const Login = () => {
                         </div>
 
                         {/* Submit Button */}
-                        <button
+                        <Button 
                             type="submit"
-                            disabled={loading}
-                            className="w-full bg-[#5CB85C] text-white py-3 sm:py-4 rounded-lg font-extrabold text-sm sm:text-base flex items-center justify-center gap-2 shadow-lg hover:bg-[#4AA14A] active:scale-95 transition"
+                            isLoading={loading}
+                            className="w-full py-4 text-base"
+                            icon={ArrowRight}
+                            iconPosition="right"
                         >
-                            {loading ? 'Logging in...' : (
-                                <>
-                                    Log In <ArrowRight size={18} />
-                                </>
-                            )}
-                        </button>
+                            Log In
+                        </Button>
                     </form>
                     {/* Sign Up Link */}
-                            <div className="mt-6 text-center">
-                            <p className="text-sm text-gray-600">
-                                Don't have an account?{' '}
+                    <div className="mt-6 text-center">
+                        <p className="text-sm text-gray-600">
+                            Don't have an account?{' '}
                             <Link
                                 to="/signup"
                                 className="font-extrabold text-[#5CB85C] hover:text-[#4AA14A] transition"
                             >
-                            Create an account
+                                Create an account
                             </Link>
-                            </p>
+                        </p>
                     </div>
                 </div>
             </div>

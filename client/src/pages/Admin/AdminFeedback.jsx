@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Search, ArrowUp, Star, Filter, Download } from 'lucide-react';
+import { useState } from 'react';
+import { Search, Star, Filter, Download } from 'lucide-react';
+import Button from '../../components/ui/Button';
+import StatCard from '../../components/ui/StatCard';
 
 const AdminFeedback = () => {
     const [userFeedback, setUserFeedback] = useState([
@@ -49,142 +51,130 @@ const AdminFeedback = () => {
         ? (userFeedback.reduce((acc, curr) => acc + curr.rating, 0) / totalResponses).toFixed(1)
         : "0.0";
 
-    // Convert avgSatisfaction to nearest integer for rendering full stars
-    const roundedStars = Math.round(Number(avgSatisfaction));
-
     return (
-        <div className="min-h-screen bg-[#F4F6F8] font-sans text-slate-800 flex flex-col">
+        <div className="min-h-screen bg-[#F4F6F8] font-sans text-slate-800 flex flex-col pb-12">
             {/* Top Navigation Bar */}
-            <header className="bg-white px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-[0_1px_2px_rgba(0,0,0,0.03)] border-b border-transparent">
+            <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm animate-in fade-in duration-500">
                 {/* Search Bar */}
-                <div className="w-full max-w-xl relative">
-                    <span className="absolute inset-y-0 left-3.5 flex items-center text-slate-400">
+                <div className="w-full max-w-xl relative group">
+                    <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-blue-500 transition-colors">
                         <Search className="w-4 h-4" />
                     </span>
                     <input
                         type="text"
                         placeholder="Search feedback..."
-                        className="w-full bg-slate-50/80 border border-slate-200 text-sm rounded-full py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition"
+                        className="w-full bg-slate-50 border border-slate-100 text-sm rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:bg-white focus:border-blue-500 transition-all"
                     />
                 </div>
             </header>
 
             {/* Main Content Area */}
-            <main className="flex-1 p-8 max-w-[1250px] w-full mx-auto space-y-7">
+            <main className="flex-1 p-8 max-w-7xl w-full mx-auto space-y-10">
+                
+                <div>
+                  <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Feedback Overview</h1>
+                  <p className="text-slate-500 font-medium">Monitor and manage all user event reviews</p>
+                </div>
 
                 {/* Top Metric Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {/* Card 1 */}
-                    <div className="bg-white rounded-xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] p-6">
-                        <p className="text-[#4caf50] text-sm font-bold mb-2">Total Responses</p>
-                        <h2 className="text-[32px] font-extrabold text-slate-800 mb-2 leading-none">{totalResponses.toLocaleString()}</h2>
-                        <div className="flex items-center text-[#4caf50] text-xs font-bold mt-3">
-                            <ArrowUp className="w-3.5 h-3.5 mr-0.5" />
-                            <span>12% from last month</span>
-                        </div>
-                    </div>
-
-                    {/* Card 2 */}
-                    <div className="bg-white rounded-xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] p-6">
-                        <p className="text-[#4caf50] text-sm font-bold mb-2">Avg. Satisfaction</p>
-                        <h2 className="text-[32px] font-extrabold text-slate-800 mb-2 leading-none">
-                            {avgSatisfaction} <span className="text-xl text-slate-500 font-semibold tracking-wide">/ 5.0</span>
-                        </h2>
-                        <div className="flex items-center space-x-1 mt-3">
-                            {[1, 2, 3, 4, 5].map(i => (
-                                <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${i <= roundedStars ? 'fill-[#ffc107] text-[#ffc107]' : 'fill-slate-200 text-slate-200'}`}
-                                />
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Card 3 */}
-                    <div className="bg-white rounded-xl shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] p-6 flex flex-col justify-between">
-                        <div>
-                            <p className="text-[#4caf50] text-sm font-bold mb-2">Response Rate</p>
-                            <h2 className="text-[32px] font-extrabold text-slate-800 mb-2 leading-none">64%</h2>
-                        </div>
-                        {/* Progress Bar */}
-                        <div className="w-full h-2.5 bg-slate-100 rounded-full flex overflow-hidden mt-3">
-                            <div className="h-full bg-[#4caf50] w-[64%]"></div>
-                            <div className="h-full bg-[#2196f3] w-[20%]"></div>
-                        </div>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <StatCard 
+                      title="Total Responses"
+                      value={totalResponses.toLocaleString()}
+                      trend={12}
+                    />
+                    <StatCard 
+                      title="Avg. Satisfaction"
+                      value={avgSatisfaction}
+                      suffix="/ 5.0"
+                      color="#FBBF24"
+                    />
+                    <StatCard 
+                      title="Response Rate"
+                      value="64%"
+                      color="#6366F1"
+                    />
                 </div>
 
                 {/* Recent Submissions Table */}
-                <div className="bg-white rounded-[16px] shadow-sm border-[3px] border-[#2196f3] flex flex-col min-h-[500px]">
+                <div className="bg-white rounded-[24px] shadow-sm border border-slate-100 overflow-hidden flex flex-col min-h-[500px]">
                     {/* Table Header Area */}
-                    <div className="px-6 py-5 flex items-center justify-between border-b border-slate-100">
-                        <h3 className="text-xl font-extrabold text-slate-800">Recent Submissions</h3>
+                    <div className="px-8 py-6 flex items-center justify-between border-b border-slate-50">
+                        <h3 className="text-xl font-bold text-slate-900">Recent Submissions</h3>
                         <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 bg-white border border-slate-200 text-slate-600 font-bold text-xs px-4 py-2 rounded-md hover:bg-slate-50 transition shadow-sm">
-                                <Filter className="w-3.5 h-3.5" />
+                            <Button variant="outline" size="sm" icon={Filter}>
                                 Filter
-                            </button>
-                            <button className="flex items-center gap-2 bg-[#5cb85c] hover:bg-[#4ea84e] text-white font-bold text-xs px-4 py-2 rounded-md transition shadow-sm">
-                                <Download className="w-3.5 h-3.5" />
+                            </Button>
+                            <Button variant="primary" size="sm" icon={Download}>
                                 Export CSV
-                            </button>
+                            </Button>
                         </div>
                     </div>
 
                     {/* Table */}
-                    <div className="overflow-x-auto flex-1">
+                    <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-slate-100">
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest w-[25%]">Event Title</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Feedback</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Action</th>
+                                <tr className="border-b border-slate-50">
+                                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Event Title</th>
+                                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Email</th>
+                                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Date</th>
+                                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Feedback</th>
+                                    <th className="px-8 py-5 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest text-right">Action</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-slate-100/60">
+                            <tbody className="divide-y divide-slate-50">
                                 {userFeedback.map((item, index) => (
-                                    <tr key={index} className="hover:bg-slate-50/40 transition duration-150">
-                                        <td className="px-6 py-5 whitespace-nowrap">
+                                    <tr key={index} className="hover:bg-slate-50/50 transition-colors group">
+                                        <td className="px-8 py-6">
                                             <div className="flex items-center gap-4">
-                                                <div className="w-8 h-8 rounded shrink-0 bg-[#eef2fc]"></div>
-                                                <span className="font-bold text-slate-800 text-[14px]">{item.title}</span>
+                                                <div className="w-10 h-10 rounded-xl bg-slate-100 shrink-0 flex items-center justify-center font-bold text-slate-400 text-xs">
+                                                  {item.title.substring(0, 2).toUpperCase()}
+                                                </div>
+                                                <span className="font-bold text-slate-900 text-sm group-hover:text-blue-600 transition-colors">{item.title}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-5 whitespace-nowrap text-[13px] text-slate-400 font-medium">
+                                        <td className="px-8 py-6 text-sm text-slate-500 font-medium whitespace-nowrap">
                                             {item.email}
                                         </td>
-                                        <td className="px-6 py-5 whitespace-nowrap text-[13px] text-slate-400 font-medium">
+                                        <td className="px-8 py-6 text-sm text-slate-500 font-medium whitespace-nowrap">
                                             {item.date}
                                         </td>
-                                        <td className="px-6 py-5 truncate max-w-[280px] text-[13px] text-slate-400 font-medium flex items-center gap-2">
-                                            <div className="flex shrink-0">
-                                                {/* Display mini stars in the table for extra clarity since the user mentioned "ratings stars" */}
-                                                <Star className={`w-3 h-3 ${item.rating >= 1 ? 'fill-[#ffc107] text-[#ffc107]' : 'fill-slate-200 text-slate-200'}`} />
-                                                <span className="text-[10px] ml-1 font-bold text-slate-500">{item.rating}</span>
+                                        <td className="px-8 py-6 min-w-[300px]">
+                                            <div className="flex flex-col gap-1.5">
+                                              <div className="flex items-center gap-1">
+                                                  {[...Array(5)].map((_, i) => (
+                                                    <Star 
+                                                      key={i} 
+                                                      size={12} 
+                                                      className={`${i < item.rating ? 'fill-amber-400 text-amber-400' : 'fill-slate-100 text-slate-100'}`} 
+                                                    />
+                                                  ))}
+                                                  <span className="text-[11px] ml-1 font-bold text-slate-500">{item.rating}.0</span>
+                                              </div>
+                                              <p className="text-sm text-slate-400 line-clamp-2 leading-relaxed italic">"{item.feedback}"</p>
                                             </div>
-                                            <span className="truncate">{item.feedback}</span>
                                         </td>
-                                        <td className="px-6 py-5 whitespace-nowrap">
-                                            <button
-                                                onClick={() => handleRemove(index)}
-                                                className="text-[#ef5350] hover:text-red-700 font-bold text-[13px] transition"
+                                        <td className="px-8 py-6 text-right">
+                                            <Button 
+                                              variant="ghost" 
+                                              size="sm" 
+                                              className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                                              onClick={() => handleRemove(index)}
                                             >
                                                 Remove
-                                            </button>
+                                            </Button>
                                         </td>
                                     </tr>
                                 ))}
-                                {userFeedback.length === 0 && (
-                                    <tr>
-                                        <td colSpan="5" className="px-6 py-10 text-center text-slate-400 text-sm font-medium">
-                                            No feedback submissions found.
-                                        </td>
-                                    </tr>
-                                )}
                             </tbody>
                         </table>
+                        {userFeedback.length === 0 && (
+                            <div className="py-20 text-center flex flex-col items-center">
+                                <div className="text-4xl mb-4 opacity-20">📫</div>
+                                <p className="text-slate-400 font-medium">No feedback submissions found.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -194,3 +184,4 @@ const AdminFeedback = () => {
 };
 
 export default AdminFeedback;
+

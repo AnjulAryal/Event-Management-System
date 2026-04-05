@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { toast } from "react-hot-toast";
+import { Search, Calendar, RefreshCcw } from "lucide-react";
+import EventCard from "../../components/ui/EventCard";
+import Button from "../../components/ui/Button";
 
 const EVENTS = [
     { id: 1, title: "UI/UX Design Summit", location: "Creative Hub, NYC", date: "Apr 01, 2026", category: "UI/UX DES", categoryColor: "#6c8ebf" },
@@ -9,122 +12,6 @@ const EVENTS = [
     { id: 5, title: "Brand Strategy Workshop", location: "Downtown Hub", date: "Nov 30, 2026", category: "BUSINESS", categoryColor: "#7b9e87" },
     { id: 6, title: "Photography Expo", location: "Art District", date: "Dec 10, 2026", category: "ART", categoryColor: "#8b8b6e" },
 ];
-
-const CardImage = ({ category, categoryColor }) => (
-    <div style={{
-        background: "linear-gradient(135deg, #1a2744 0%, #0f1a35 50%, #1e2d4a 100%)",
-        height: 120,
-        borderRadius: "10px 10px 0 0",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        position: "relative",
-        overflow: "hidden",
-    }}>
-        <span style={{ color: "rgba(255,255,255,0.12)", fontSize: 48, fontWeight: 900, letterSpacing: -2, fontFamily: "Georgia, serif" }}>UX</span>
-        {category && (
-            <span style={{
-                position: "absolute", top: 10, right: 10,
-                background: categoryColor || "#555",
-                color: "#fff",
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: 0.5,
-                padding: "3px 8px",
-                borderRadius: 20,
-                fontFamily: "monospace",
-                textTransform: "uppercase",
-            }}>{category}</span>
-        )}
-    </div>
-);
-
-const EventCard = ({ event, showButtons = true }) => (
-    <div style={{
-        background: "#fff",
-        borderRadius: 12,
-        boxShadow: "0 1px 6px rgba(0,0,0,0.08)",
-        overflow: "hidden",
-        flex: "1 1 0",
-        minWidth: 0,
-    }}>
-        <CardImage category={event.category} categoryColor={event.categoryColor} />
-        <div style={{ padding: "12px 14px" }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: "#1a1a1a", marginBottom: 6, fontFamily: "system-ui, sans-serif" }}>{event.title}</div>
-            <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: 3 }}>
-                <span style={{ color: "#e05555", fontSize: 11 }}>📍</span>
-                <span style={{ fontSize: 12, color: "#555", fontFamily: "system-ui, sans-serif" }}>{event.location}</span>
-            </div>
-            {event.date && (
-                <div style={{ display: "flex", alignItems: "center", gap: 4, marginBottom: showButtons ? 12 : 0 }}>
-                    <span style={{ fontSize: 11 }}>📅</span>
-                    <span style={{ fontSize: 12, color: "#555", fontFamily: "system-ui, sans-serif" }}>{event.date}</span>
-                </div>
-            )}
-            {showButtons && (
-                <>
-                    <button 
-                        style={{
-                            width: "100%", background: "#4caf50", color: "#fff",
-                            border: "none", borderRadius: 8, padding: "9px 0",
-                            fontWeight: 700, fontSize: 13, cursor: "pointer",
-                            fontFamily: "system-ui, sans-serif",
-                            marginBottom: 6, transition: "background 0.15s",
-                        }}
-                        onClick={() => toast.success("Registered successfully!")}
-                        onMouseEnter={e => e.target.style.background = "#43a047"}
-                        onMouseLeave={e => e.target.style.background = "#4caf50"}
-                    >
-                        Register Now
-                    </button>
-                    <button style={{
-                        width: "100%", background: "transparent", color: "#555",
-                        border: "none", padding: "6px 0",
-                        fontWeight: 500, fontSize: 13, cursor: "pointer",
-                        fontFamily: "system-ui, sans-serif",
-                    }}>View Details</button>
-                </>
-            )}
-        </div>
-    </div>
-);
-
-const SearchDropdown = ({ results, loading, visible }) => {
-    if (!visible) return null;
-    return (
-        <div style={{
-            position: "absolute", top: "calc(100% + 6px)", left: 0, right: 0,
-            background: "#fff", borderRadius: 12,
-            boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
-            zIndex: 100, overflow: "hidden",
-            border: "1px solid #e8e8e8",
-        }}>
-            {loading ? (
-                <div style={{ padding: "14px 18px", color: "#888", fontSize: 13, fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", gap: 8 }}>
-                    <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid #4caf50", borderTop: "2px solid transparent", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-                    Searching...
-                </div>
-            ) : results.length === 0 ? (
-                <div style={{ padding: "14px 18px", color: "#888", fontSize: 13, fontFamily: "system-ui, sans-serif" }}>No events found</div>
-            ) : (
-                results.map((r, i) => (
-                    <div key={i} style={{
-                        padding: "11px 18px",
-                        borderBottom: i < results.length - 1 ? "1px solid #f0f0f0" : "none",
-                        cursor: "pointer",
-                        transition: "background 0.1s",
-                    }}
-                        onMouseEnter={e => e.currentTarget.style.background = "#f7faf7"}
-                        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-                    >
-                        <div style={{ fontWeight: 600, fontSize: 13, color: "#1a1a1a", fontFamily: "system-ui, sans-serif" }}>{r.title}</div>
-                        <div style={{ fontSize: 11, color: "#888", fontFamily: "system-ui, sans-serif", marginTop: 2 }}>{r.location} · {r.date}</div>
-                    </div>
-                ))
-            )}
-        </div>
-    );
-};
 
 export default function EventsPage() {
     const [query, setQuery] = useState("");
@@ -180,8 +67,6 @@ export default function EventsPage() {
             });
         }
 
-        // If not searching, only show 'Popular' (top 3)
-        // If searching/filtering, show all specific results
         setDisplayedEvents(isSearching ? filtered : filtered.slice(0, 3));
     }, [query, category, date]);
 
@@ -192,69 +77,46 @@ export default function EventsPage() {
     const inputRef = useRef(null);
 
     return (
-        <div style={{ minHeight: "100vh", background: "#eef0ec", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px 28px" }}>
+        <div className="min-h-screen bg-[#eef0ec] font-sans pb-12">
+            <div className="max-w-[1100px] mx-auto px-7 py-6">
 
                 {/* Search Bar */}
-                <div className="search-wrapper" style={{ position: "relative", marginBottom: 28 }}>
-                    <div style={{
-                        display: "flex", alignItems: "center",
-                        background: "#fff", borderRadius: 50,
-                        padding: isMobile ? "8px 16px" : "10px 20px", gap: 10,
-                        boxShadow: "0 1px 4px rgba(0,0,0,0.07)",
-                    }}>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#aaa" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
+                <div className="relative mb-7">
+                    <div className="flex items-center bg-white rounded-[50px] px-5 py-2.5 gap-2.5 shadow-sm">
+                        <Search size={18} className="text-slate-400" />
                         <input
                             ref={inputRef}
                             type="text"
                             placeholder="Search events..."
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            style={{
-                                border: "none", outline: "none", flex: 1,
-                                fontSize: 14, color: "#333", background: "transparent",
-                                fontFamily: "system-ui, sans-serif",
-                            }}
+                            className="border-none outline-none flex-1 text-sm text-slate-800 bg-transparent"
                         />
                     </div>
                 </div>
 
                 {/* Welcome */}
-                <div style={{ marginBottom: 22 }}>
-                    <h1 style={{ fontSize: 30, fontWeight: 800, color: "#1a1a1a", margin: 0, lineHeight: 1.2 }}>
-                        Welcome back, <span style={{ color: "#4caf50" }}>Anjul</span>
+                <div className="mb-6">
+                    <h1 className="text-3xl font-extrabold text-slate-900 leading-tight">
+                        Welcome back, <span className="text-[#4caf50]">Anjul</span>
                     </h1>
-                    <p style={{ color: "#888", fontSize: 13, margin: "5px 0 0" }}>You have {upcomingCount} events coming up!</p>
+                    <p className="text-slate-500 text-sm mt-1">You have {upcomingCount} events coming up!</p>
                 </div>
 
                 {/* Filters */}
-                <div style={{
-                    background: "#fff", borderRadius: 12,
-                    padding: isMobile ? "20px" : "16px 24px", 
-                    marginBottom: 28,
-                    display: "flex", 
-                    flexDirection: isMobile ? "column" : "row",
-                    flexWrap: "wrap",
-                    alignItems: isMobile ? "stretch" : "flex-end", 
-                    gap: isMobile ? "12px" : "20px",
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
-                    border: "1px solid #f0f0f0",
-                }}>
-                    <div style={{ flex: isMobile ? "1" : "0 0 200px" }}>
-                        <label style={{ fontSize: "11px", fontWeight: 700, color: "#9ca3af", letterSpacing: "0.05em", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Event Date</label>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8, border: "1.5px solid #f3f4f6", borderRadius: 10, padding: "10px 14px", background: "#fff" }}>
-                            <span style={{ fontSize: 14, opacity: 0.7 }}>📅</span>
+                <div className="bg-white rounded-xl p-5 mb-7 flex flex-col md:flex-row md:items-end flex-wrap gap-5 shadow-sm border border-slate-100">
+                    <div className="flex-1 md:max-w-[200px]">
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Event Date</label>
+                        <div className="flex items-center gap-2 border-2 border-slate-50 rounded-xl px-3 py-2.5 bg-slate-50/50">
+                            <Calendar size={14} className="text-slate-400" />
                             <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                                style={{ border: "none", outline: "none", fontSize: 13, color: "#1f2937", background: "transparent", fontFamily: "inherit", width: "100%", cursor: "pointer" }} />
+                                className="border-none outline-none text-xs text-slate-700 bg-transparent w-full cursor-pointer" />
                         </div>
                     </div>
-                    <div style={{ flex: isMobile ? "1" : "0 0 200px" }}>
-                        <label style={{ fontSize: "11px", fontWeight: 700, color: "#9ca3af", letterSpacing: "0.05em", textTransform: "uppercase", display: "block", marginBottom: "8px" }}>Category</label>
+                    <div className="flex-1 md:max-w-[200px]">
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Category</label>
                         <select value={category} onChange={e => setCategory(e.target.value)}
-                            style={{ width: "100%", border: "1.5px solid #f3f4f6", borderRadius: 10, padding: "11px 14px", fontSize: 13, color: "#1f2937", background: "#fff", outline: "none", fontFamily: "inherit", cursor: "pointer", appearance: "none" }}>
+                            className="w-full border-2 border-slate-50 rounded-xl px-3 py-2.5 text-xs text-slate-700 bg-slate-50/50 outline-none cursor-pointer appearance-none">
                             <option>All Categories</option>
                             <option>UI/UX Design</option>
                             <option>Technology</option>
@@ -262,84 +124,46 @@ export default function EventsPage() {
                             <option>Business</option>
                         </select>
                     </div>
-                    <div style={{ 
-                        marginLeft: isMobile ? "0" : "auto",
-                        marginTop: isMobile ? "8px" : "0"
-                    }}>
-                        <button 
+                    <div className="ml-auto w-full md:w-auto">
+                        <Button 
+                            variant={hasActiveFilters ? 'secondary' : 'primary'}
                             onClick={hasActiveFilters ? resetFilters : filterEvents}
-                            style={{
-                                width: isMobile ? "100%" : "auto",
-                                background: hasActiveFilters ? "#f3f4f6" : "#3cb95e", 
-                                color: hasActiveFilters ? "#4b5563" : "#fff", 
-                                border: "none",
-                                borderRadius: 10, 
-                                padding: "12px 28px",
-                                fontWeight: 700, 
-                                fontSize: "13.5px", 
-                                cursor: "pointer",
-                                transition: "all 0.2s cubic-bezier(.4,0,.2,1)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                gap: "8px",
-                                boxShadow: hasActiveFilters ? "none" : "0 4px 12px rgba(60,185,94,0.25)",
-                            }}
-                            onMouseEnter={e => {
-                                e.currentTarget.style.transform = "translateY(-1px)";
-                                if (!hasActiveFilters) e.currentTarget.style.background = "#27a04a";
-                                else e.currentTarget.style.background = "#e5e7eb";
-                            }}
-                            onMouseLeave={e => {
-                                e.currentTarget.style.transform = "translateY(0)";
-                                if (!hasActiveFilters) e.currentTarget.style.background = "#3cb95e";
-                                else e.currentTarget.style.background = "#f3f4f6";
-                            }}
+                            className="w-full md:w-auto"
+                            icon={hasActiveFilters ? RefreshCcw : undefined}
                         >
-                            {hasActiveFilters ? (
-                                <>
-                                    <span style={{ fontSize: '16px' }}>↺</span>
-                                    <span>Clear Filters</span>
-                                </>
-                            ) : (
-                                "Apply Filters"
-                            )}
-                        </button>
+                            {hasActiveFilters ? "Clear Filters" : "Apply Filters"}
+                        </Button>
                     </div>
                 </div>
 
                 {/* Popular Events */}
-                <div style={{ marginBottom: 32 }}>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                        <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a", margin: 0 }}>
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-lg font-extrabold text-slate-900">
                             {query || category !== "All Categories" || date ? "Search Results" : "Popular Events"}
                         </h2>
-                        <a href="#" style={{ color: "#4caf50", fontSize: 13, fontWeight: 600, textDecoration: "none", display: "flex", alignItems: "center", gap: 4 }}>
-                            View all <span style={{ fontSize: 16 }}>→</span>
+                        <a href="#" className="text-[#4caf50] text-sm font-bold flex items-center gap-1 hover:underline">
+                            View all <span>→</span>
                         </a>
                     </div>
                     
                     {displayedEvents.length === 0 ? (
-                        <div style={{ padding: "40px 20px", textAlign: "center", color: "#6b7280", background: "#fff", borderRadius: 12 }}>
-                            <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
-                            <div style={{ fontWeight: 600 }}>No events match your criteria</div>
-                            <div style={{ fontSize: 13, marginTop: 4 }}>Try adjusting your search or filters</div>
+                        <div className="p-10 text-center bg-white rounded-xl">
+                            <div className="text-3xl mb-2">🔍</div>
+                            <div className="font-bold text-slate-800">No events match your criteria</div>
+                            <div className="text-xs text-slate-400 mt-1">Try adjusting your search or filters</div>
                         </div>
                     ) : (
-                        <div style={{ 
-                            display: "grid", 
-                            gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(300px, 1fr))",
-                            gap: 20 
-                        }}>
-                            {displayedEvents.map(e => <EventCard key={e.id} event={e} showButtons={true} />)}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            {displayedEvents.map(e => <EventCard key={e.id} event={e} />)}
                         </div>
                     )}
                 </div>
 
                 {/* Recommended */}
                 <div>
-                    <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1a1a1a", marginBottom: 16 }}>Recommend for You</h2>
-                    <div style={{ display: "flex", gap: 16 }}>
+                    <h2 className="text-lg font-extrabold text-slate-900 mb-4">Recommended for You</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                         {EVENTS.slice(0, 3).map(e => <EventCard key={`rec-${e.id}`} event={{ ...e, date: undefined }} showButtons={false} />)}
                     </div>
                 </div>

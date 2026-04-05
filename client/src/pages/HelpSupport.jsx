@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
-import { Mail, User, MessageSquare, ArrowRight, HelpCircle, XCircle, Info, Ticket } from "lucide-react";
+import { Mail, User, ArrowRight, HelpCircle, XCircle, Info, Ticket } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Button from "../components/ui/Button";
+import Input from "../components/ui/Input";
 
 const FAQ_CARDS = [
     {
@@ -69,59 +71,35 @@ export default function HelpSupport() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!validate()) {
-            toast.error("Please fill all required fields correctly", {
-                style: { background: "#1A1A1A", color: "#fff", borderRadius: "10px" }
-            });
+            toast.error("Please fill all required fields correctly");
             return;
         }
 
-        toast.success("Message sent successfully!", {
-            style: { background: "#1A1A1A", color: "#fff", borderRadius: "10px" }
-        });
+        toast.success("Message sent successfully!");
         setFormData({ name: "", email: "", message: "" });
     };
 
     return (
-        <div style={{ minHeight: "100vh", background: "#eef0ec", fontFamily: "system-ui, -apple-system, sans-serif" }}>
-            <div style={{ maxWidth: 1100, margin: "0 auto", padding: isMobile ? "24px 16px" : "40px 28px" }} className="animate-in fade-in duration-700">
+        <div className="min-h-screen bg-[#eef0ec] font-sans">
+            <div className={`max-w-[1100px] mx-auto px-4 md:px-7 ${isMobile ? 'py-6' : 'py-10'} animate-in fade-in duration-700`}>
                 
                 {/* Header */}
-                <div style={{ marginBottom: "32px" }}>
-                    <h1 style={{ fontSize: "32px", fontWeight: 800, color: "#1A202C", margin: 0 }}>Help & Support</h1>
-                    <p style={{ color: "#718096", fontSize: "15px", marginTop: "4px" }}>Browse FAQs or get in touch with our team.</p>
+                <div className="mb-8">
+                    <h1 className="text-4xl font-extrabold text-slate-900 leading-tight">Help & Support</h1>
+                    <p className="text-slate-500 text-lg mt-1 font-medium">Browse FAQs or get in touch with our team.</p>
                 </div>
 
                 {/* FAQ Grid */}
-                <div style={{ 
-                    display: "grid", 
-                    gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)", 
-                    gap: "24px",
-                    marginBottom: "48px"
-                }}>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                     {FAQ_CARDS.map((card, idx) => (
-                        <div key={idx} style={{
-                            background: "#fff",
-                            borderRadius: "16px",
-                            padding: "24px",
-                            display: "flex",
-                            gap: "16px",
-                            boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
-                            border: "1px solid #f0f0f0"
-                        }}>
-                            <div style={{ 
-                                width: "48px", height: "48px", borderRadius: "50%", 
-                                display: "flex", alignItems: "center", justifyContent: "center",
-                                background: card.iconBg, flexShrink: 0
-                            }}>
+                        <div key={idx} className="bg-white rounded-2xl p-6 flex gap-4 shadow-sm border border-slate-50 transform transition-all hover:translate-y-[-4px] hover:shadow-md">
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: card.iconBg }}>
                                 {card.icon}
                             </div>
-                            <div style={{ flex: 1 }}>
-                                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#1A202C", marginBottom: "8px" }}>{card.title}</h3>
-                                <p style={{ fontSize: "14px", color: "#718096", lineHeight: "1.5", marginBottom: "16px" }}>{card.description}</p>
-                                <a href="#" style={{ 
-                                    fontSize: "13px", fontWeight: 700, color: "#5CB85C", 
-                                    textDecoration: "none", display: "flex", alignItems: "center", gap: "4px" 
-                                }}>
+                            <div className="flex-1">
+                                <h3 className="text-base font-bold text-slate-900 mb-2">{card.title}</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-4">{card.description}</p>
+                                <a href="#" className="text-[13px] font-bold text-[#5CB85C] flex items-center gap-1 hover:underline">
                                     Learn more <ArrowRight size={14} />
                                 </a>
                             </div>
@@ -130,107 +108,55 @@ export default function HelpSupport() {
                 </div>
 
                 {/* Form Section */}
-                <div style={{ 
-                    background: "#fff", 
-                    borderRadius: "24px", 
-                    padding: isMobile ? "24px" : "40px",
-                    boxShadow: "0 4px 30px rgba(0,0,0,0.04)"
-                }}>
-                    <h2 style={{ fontSize: "24px", fontWeight: 800, color: "#1A202C", marginBottom: "8px" }}>Still need help? Contact Us</h2>
-                    <p style={{ color: "#718096", fontSize: "14px", marginBottom: "32px" }}>Our support team usually responds within 24 hours.</p>
+                <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-50">
+                    <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Still need help? Contact Us</h2>
+                    <p className="text-slate-500 text-sm mb-8 font-medium">Our support team usually responds within 24 hours.</p>
                     
-                    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-                        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "20px" }}>
-                            {/* Name */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <label style={{ fontSize: "10px", fontWeight: 800, color: "#A0AEC0", textTransform: "uppercase", letterSpacing: "0.05em" }}>Name</label>
-                                <div style={{ position: "relative" }}>
-                                    <User size={16} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#A0AEC0" }} />
-                                    <input 
-                                        type="text" 
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="Your name"
-                                        style={{ 
-                                            width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", 
-                                            background: "#F7FAFC", border: errors.name ? "1.5px solid #ef4444" : "1.5px solid #f3f4f6",
-                                            fontSize: "14px", outline: "none", transition: "all 0.2s"
-                                        }}
-                                    />
-                                </div>
-                                {errors.name && <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: 600 }}>{errors.name}</span>}
-                            </div>
-
-                            {/* Email */}
-                            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                                <label style={{ fontSize: "10px", fontWeight: 800, color: "#A0AEC0", textTransform: "uppercase", letterSpacing: "0.05em" }}>Email</label>
-                                <div style={{ position: "relative" }}>
-                                    <Mail size={16} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "#A0AEC0" }} />
-                                    <input 
-                                        type="email" 
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="your@email.com"
-                                        style={{ 
-                                            width: "100%", padding: "14px 16px 14px 44px", borderRadius: "12px", 
-                                            background: "#F7FAFC", border: errors.email ? "1.5px solid #ef4444" : "1.5px solid #f3f4f6",
-                                            fontSize: "14px", outline: "none", transition: "all 0.2s"
-                                        }}
-                                    />
-                                </div>
-                                {errors.email && <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: 600 }}>{errors.email}</span>}
-                            </div>
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <Input 
+                                label="Name"
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                placeholder="Your name"
+                                icon={User}
+                                error={errors.name}
+                            />
+                            <Input 
+                                label="Email"
+                                type="email"
+                                name="email"
+                                value={formData.email}
+                                onChange={handleChange}
+                                placeholder="your@email.com"
+                                icon={Mail}
+                                error={errors.email}
+                            />
                         </div>
 
-                        {/* Message */}
-                        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                            <label style={{ fontSize: "10px", fontWeight: 800, color: "#A0AEC0", textTransform: "uppercase", letterSpacing: "0.05em" }}>Message</label>
-                            <div style={{ position: "relative" }}>
-                                <textarea 
-                                    name="message"
-                                    value={formData.message}
-                                    onChange={handleChange}
-                                    placeholder="How can we help you?"
-                                    rows={6}
-                                    style={{ 
-                                        width: "100%", padding: "16px", borderRadius: "12px", 
-                                        background: "#F7FAFC", border: errors.message ? "1.5px solid #ef4444" : "1.5px solid #f3f4f6",
-                                        fontSize: "14px", outline: "none", resize: "none", transition: "all 0.2s"
-                                    }}
-                                />
-                            </div>
-                            {errors.message && <span style={{ fontSize: "11px", color: "#ef4444", fontWeight: 600 }}>{errors.message}</span>}
-                        </div>
+                        <Input 
+                            label="Message"
+                            name="message"
+                            value={formData.message}
+                            onChange={handleChange}
+                            placeholder="How can we help you?"
+                            multiline
+                            error={errors.message}
+                        />
 
-                        {/* Submit Button */}
-                        <button 
+                        <Button 
                             type="submit"
-                            style={{
-                                alignSelf: "flex-start",
-                                padding: "14px 32px",
-                                borderRadius: "12px",
-                                background: "#5CB85C",
-                                color: "#fff",
-                                fontWeight: 700,
-                                fontSize: "15px",
-                                border: "none",
-                                cursor: "pointer",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "8px",
-                                transition: "all 0.2s",
-                                boxShadow: "0 4px 14px rgba(92,184,92,0.3)"
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.background = "#4AA14A"}
-                            onMouseLeave={e => e.currentTarget.style.background = "#5CB85C"}
+                            className="self-start py-4"
+                            icon={ArrowRight}
+                            iconPosition="right"
                         >
-                            Send Message <ArrowRight size={18} />
-                        </button>
+                            Send Message
+                        </Button>
                     </form>
                 </div>
             </div>
         </div>
     );
 }
+
