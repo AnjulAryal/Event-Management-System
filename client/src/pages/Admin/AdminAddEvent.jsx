@@ -16,7 +16,8 @@ const AdminAddEvent = () => {
         location: '',
         organizer: '',
         adminNotes: '',
-        category: 'technology'
+        category: 'technology',
+        coverImage: ''
     });
 
     const handleChange = (e) => {
@@ -125,18 +126,30 @@ const AdminAddEvent = () => {
                             <label className="text-[10px] font-extrabold text-[#5CB85C] uppercase tracking-widest ml-1">
                                 Event Cover Image
                             </label>
-                            <div className="aspect-[4/3] w-full border-2 border-dashed border-slate-100 rounded-[28px] flex flex-col items-center justify-center p-8 bg-slate-50/50 hover:bg-green-50/30 transition-all cursor-pointer group">
+                            <label className="aspect-[4/3] w-full border-2 border-dashed border-slate-100 rounded-[28px] flex flex-col items-center justify-center p-8 bg-slate-50/50 hover:bg-green-50/30 transition-all cursor-pointer group">
+                                <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/png, image/jpeg, image/webp"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setFormData(prev => ({ ...prev, coverImage: file.name }));
+                                            toast.success("Image selected: " + file.name);
+                                        }
+                                    }}
+                                />
                                 <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                                     <CloudUpload className="w-6 h-6 text-[#5CB85C]" />
                                 </div>
                                 <p className="text-sm font-bold text-slate-700 text-center mb-2">
-                                    Click to upload
+                                    {formData.coverImage ? formData.coverImage : "Click to upload"}
                                 </p>
                                 <p className="text-[11px] text-slate-400 text-center leading-relaxed font-medium">
                                     PNG, JPG or WEBP (Max 5MB)<br />
                                     1600 × 900px recommended
                                 </p>
-                            </div>
+                            </label>
                         </div>
 
                         {/* Box 5: Category & Actions */}
