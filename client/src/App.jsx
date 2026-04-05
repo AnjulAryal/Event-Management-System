@@ -18,6 +18,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvent";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminSpeakers from "./pages/admin/AdminSpeakers";
+import AdminEvent from "./pages/admin/AdminEvent";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
@@ -114,7 +115,6 @@ function AppContent({ open, setOpen, isMobile }) {
     </div>
   );
 }
-
 function App() {
   const [open, setOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
