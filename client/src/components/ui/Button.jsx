@@ -10,7 +10,7 @@ const Button = ({
   iconPosition = 'left',
   ...props 
 }) => {
-  const baseStyles = "inline-flex items-center justify-center rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed";
+  const baseStyles = "inline-flex items-center justify-center rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer";
   
   const variants = {
     primary: "bg-[#5CB85C] hover:bg-[#4AA14A] text-white shadow-lg shadow-green-500/20",

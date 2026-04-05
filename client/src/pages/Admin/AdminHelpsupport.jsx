@@ -1,155 +1,97 @@
 import React from 'react';
-import { Mail, Ticket, ArrowRight, User } from 'lucide-react';
+import { Mail, Ticket, ArrowRight, User, HelpCircle, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import Button from '../../components/ui/Button';
+import Input from '../../components/ui/Input';
 
 const AdminHelpSupport = () => {
+    const navigate = useNavigate();
+
     return (
-        <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans">
-            <div className="max-w-[1200px] mx-auto">
+        <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans min-h-screen">
+            <div className="max-w-[1100px] mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-slate-800 mb-2">Help & Support</h1>
-                    <p className="text-slate-500">Browse FAQs or get in touch with our team.</p>
+                <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div>
+                        <div className="flex items-center gap-3 mb-2">
+                             <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
+                                <HelpCircle className="w-6 h-6 text-[#5CB85C]" />
+                            </div>
+                            <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Help & Support</h1>
+                        </div>
+                        <p className="text-slate-500 text-lg font-medium">Browse FAQs or get in touch with our team.</p>
+                    </div>
+                    <Button 
+                        variant="secondary" 
+                        onClick={() => navigate('/admin-dashboard')}
+                        icon={ChevronLeft}
+                        className="w-fit"
+                    >
+                        Back to Dashboard
+                    </Button>
                 </div>
 
                 {/* FAQs Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    {/* Card 1 */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-5 hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-full bg-[#ebfaef] flex items-center justify-center shrink-0">
-                            <span className="text-red-500 text-2xl font-bold leading-none block pt-1">?</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    {[
+                        { q: "How do I register for an event?", a: "Browse events, click Register Now and follow the steps to complete your registration.", icon: "?" },
+                        { q: "Can I cancel my registration?", a: "Yes, you can cancel up to 48 hours before the event from the My Events section.", icon: "×" },
+                        { q: "How do I contact the organizer?", a: "Use the Post-Event Inquiries form on the event detail page to reach the organizer.", icon: <Mail size={20} /> },
+                        { q: "Where can I find my tickets?", a: "Your tickets are emailed after registration and available in the My Events section.", icon: <Ticket size={20} /> }
+                    ].map((faq, i) => (
+                        <div key={i} className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-50 flex gap-6 hover:shadow-md transition-all group">
+                            <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center shrink-0 group-hover:bg-green-50 transition-colors">
+                                <span className="text-[#5CB85C] text-xl font-bold">{faq.icon}</span>
+                            </div>
+                            <div className="flex flex-col">
+                                <h3 className="text-lg font-bold text-slate-900 mb-2">{faq.q}</h3>
+                                <p className="text-sm text-slate-500 leading-relaxed mb-4">
+                                    {faq.a}
+                                </p>
+                                <a href="#" className="inline-flex items-center text-[#5CB85C] font-bold text-sm hover:translate-x-1 transition-transform">
+                                    Learn more <ArrowRight className="w-4 h-4 ml-1" />
+                                </a>
+                            </div>
                         </div>
-                        <div className="flex flex-col h-full">
-                            <h3 className="text-[16px] font-bold text-slate-800 mb-2">How do I register for an event?</h3>
-                            <p className="text-sm text-slate-500 mb-4 leading-relaxed flex-1">
-                                Browse events, click Register Now and follow the steps to complete your registration.
-                            </p>
-                            <a href="#" className="inline-flex items-center text-[#58bd6c] font-semibold text-sm hover:text-[#46a258] transition-colors mt-auto">
-                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Card 2 */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-5 hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-full bg-[#ebfaef] flex items-center justify-center shrink-0">
-                            <span className="text-slate-700 text-xl font-bold leading-none block pb-0.5">×</span>
-                        </div>
-                        <div className="flex flex-col h-full">
-                            <h3 className="text-[16px] font-bold text-slate-800 mb-2">Can I cancel my registration?</h3>
-                            <p className="text-sm text-slate-500 mb-4 leading-relaxed flex-1">
-                                Yes, you can cancel up to 48 hours before the event from the My Events section.
-                            </p>
-                            <a href="#" className="inline-flex items-center text-[#58bd6c] font-semibold text-sm hover:text-[#46a258] transition-colors mt-auto">
-                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Card 3 */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-5 hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-full bg-[#ebfaef] flex items-center justify-center shrink-0 text-blue-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-slate-400 fill-slate-200" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                            </svg>
-                        </div>
-                        <div className="flex flex-col h-full">
-                            <h3 className="text-[16px] font-bold text-slate-800 mb-2">How do I contact the organizer?</h3>
-                            <p className="text-sm text-slate-500 mb-4 leading-relaxed flex-1">
-                                Use the Post-Event Inquiries form on the event detail page to reach the organizer.
-                            </p>
-                            <a href="#" className="inline-flex items-center text-[#58bd6c] font-semibold text-sm hover:text-[#46a258] transition-colors mt-auto">
-                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Card 4 */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 flex gap-5 hover:shadow-md transition-shadow">
-                        <div className="w-12 h-12 rounded-full bg-[#ebfaef] flex items-center justify-center shrink-0 text-[#cbb853]">
-                            <Ticket className="w-5 h-5 fill-current opacity-60" />
-                        </div>
-                        <div className="flex flex-col h-full">
-                            <h3 className="text-[16px] font-bold text-slate-800 mb-2">Where can I find my tickets?</h3>
-                            <p className="text-sm text-slate-500 mb-4 leading-relaxed flex-1">
-                                Your tickets are emailed after registration and available in the My Events section.
-                            </p>
-                            <a href="#" className="inline-flex items-center text-[#58bd6c] font-semibold text-sm hover:text-[#46a258] transition-colors mt-auto">
-                                Learn more <ArrowRight className="w-4 h-4 ml-1" />
-                            </a>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
                 {/* Contact Form */}
-                <div className="bg-white rounded-[24px] p-8 shadow-sm border border-slate-100">
-                    <div className="mb-8">
-                        <h2 className="text-2xl font-extrabold text-[#1f2937] tracking-tight mb-2">Still need help? Contact Us</h2>
-                        <p className="text-[#64748b]">Our support team usually responds within 24 hours.</p>
+                <div className="bg-white rounded-[40px] p-8 md:p-12 shadow-sm border border-slate-50">
+                    <div className="mb-10 text-center">
+                        <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mb-3">Still need help? Contact Us</h2>
+                        <p className="text-slate-500 text-lg font-medium">Our support team usually responds within 24 hours.</p>
                     </div>
 
-                    <form className="space-y-6">
+                    <form className="max-w-3xl mx-auto space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            {/* Name Input */}
-                            <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                    NAME
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 ">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-slate-300" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Your name"
-                                        className="block w-full pl-10 pr-4 py-[14px] border border-slate-200 bg-[#f8fafc] rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#58bd6c]/20 focus:border-[#58bd6c]/50 transition-colors"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Email Input */}
-                            <div>
-                                <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-                                    EMAIL
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 fill-slate-300" viewBox="0 0 20 20" fill="currentColor">
-                                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                        </svg>
-                                    </div>
-                                    <input
-                                        type="email"
-                                        placeholder="your@email.com"
-                                        className="block w-full pl-10 pr-4 py-[14px] border border-slate-200 bg-[#f8fafc] rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#58bd6c]/20 focus:border-[#58bd6c]/50 transition-colors"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Message Input */}
-                        <div>
-                            <label className="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2 mt-4">
-                                MESSAGE
-                            </label>
-                            <textarea
-                                placeholder="How can we help you?"
-                                rows={5}
-                                className="block w-full px-4 py-[14px] border border-slate-200 bg-[#f8fafc] rounded-lg text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#58bd6c]/20 focus:border-[#58bd6c]/50 transition-colors resize-none"
+                            <Input 
+                                label="Name"
+                                placeholder="Your name"
+                                icon={User}
+                                fullWidth
+                            />
+                            <Input 
+                                label="Email"
+                                type="email"
+                                placeholder="your@email.com"
+                                icon={Mail}
+                                fullWidth
                             />
                         </div>
 
-                        {/* Submit Button */}
-                        <div className="pt-2">
-                            <button
-                                type="button"
-                                className="inline-flex items-center justify-center px-6 py-3 bg-[#5eb670] hover:bg-[#4ea860] text-white font-medium text-sm rounded-lg transition-colors"
-                            >
-                                Send Message <ArrowRight className="w-4 h-4 ml-2" />
-                            </button>
+                        <Input 
+                            label="Message"
+                            placeholder="How can we help you?"
+                            multiline
+                            rows={6}
+                            fullWidth
+                        />
+
+                        <div className="flex justify-center pt-4">
+                            <Button className="px-12 py-4 text-base" icon={ArrowRight} iconPosition="right">
+                                Send Message
+                            </Button>
                         </div>
                     </form>
                 </div>
@@ -159,3 +101,4 @@ const AdminHelpSupport = () => {
 };
 
 export default AdminHelpSupport;
+
