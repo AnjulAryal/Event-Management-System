@@ -22,6 +22,7 @@ import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
 
+
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
   const authRoutes = ['/login', '/signup', '/reset-password', '/update-password'];
