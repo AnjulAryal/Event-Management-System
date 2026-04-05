@@ -82,21 +82,8 @@ const AdminEvent = () => {
                     </div>
                 </div>
 
-                {/* Logout Button */}
-                <div className="w-1/3 flex justify-end">
-                    <Button 
-                        variant="primary" 
-                        size="sm" 
-                        icon={ArrowRight} 
-                        iconPosition="right"
-                        onClick={() => {
-                            localStorage.removeItem('user');
-                            navigate('/login');
-                        }}
-                    >
-                        Logout
-                    </Button>
-                </div>
+                {/* Placeholder for symmetry */}
+                <div className="w-1/3"></div>
             </header>
 
             {/* Main Content Area */}

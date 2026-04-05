@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ArrowRight } from 'lucide-react';
+import { Search, ArrowRight, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -8,6 +8,7 @@ import SpeakerCard from '../../components/ui/SpeakerCard';
 const AdminSpeakers = () => {
     const navigate = useNavigate();
     const [speakers, setSpeakers] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const storedSpeakers = JSON.parse(localStorage.getItem('speakers'));
@@ -41,6 +42,12 @@ const AdminSpeakers = () => {
         }
     };
 
+    const filteredSpeakers = speakers.filter(speaker => 
+        speaker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        speaker.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        speaker.category.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     return (
         <div className="min-h-screen bg-[#F7F9FB] font-sans text-slate-800 flex flex-col pb-12">
             {/* Top Navigation Bar */}
@@ -50,32 +57,21 @@ const AdminSpeakers = () => {
                 {/* Search Bar */}
                 <div className="flex-1 max-w-xl flex justify-center">
                     <div className="relative w-full max-w-md group">
-                        <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-green-500 transition-colors">
+                        <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-[#5CB85C] transition-colors">
                             <Search className="w-4 h-4" />
                         </span>
                         <input
                             type="text"
-                            placeholder="Search speakers..."
-                            className="w-full bg-slate-50 border border-slate-100 text-sm rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-green-500 transition-all shadow-sm"
+                            placeholder="Search speakers by name, role, or category..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full bg-slate-50 border border-slate-100 text-sm rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-[#5CB85C] transition-all shadow-sm"
                         />
                     </div>
                 </div>
 
-                {/* Logout Button */}
-                <div className="w-1/3 flex justify-end">
-                    <Button 
-                        variant="primary" 
-                        size="sm" 
-                        icon={ArrowRight} 
-                        iconPosition="right"
-                        onClick={() => {
-                            localStorage.removeItem('user');
-                            navigate('/login');
-                        }}
-                    >
-                        Logout
-                    </Button>
-                </div>
+                {/* Empty placeholder for symmetry */}
+                <div className="w-1/3"></div>
             </header>
 
             <div className="pt-8 px-6 lg:px-10 max-w-7xl mx-auto w-full">
@@ -89,8 +85,8 @@ const AdminSpeakers = () => {
                     </div>
 
                     {/* Speakers Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {speakers.map((speaker) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        {filteredSpeakers.map((speaker) => (
                             <SpeakerCard 
                                 key={speaker.id} 
                                 speaker={speaker} 
@@ -100,9 +96,19 @@ const AdminSpeakers = () => {
                             />
                         ))}
                     </div>
-                    {speakers.length === 0 && (
-                        <div className="col-span-full py-20 text-center">
-                            <p className="text-slate-400 text-lg font-medium">No speakers found.</p>
+                    {filteredSpeakers.length === 0 && (
+                        <div className="col-span-full py-32 flex flex-col items-center justify-center bg-white rounded-[32px] border border-dashed border-slate-200">
+                             <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mb-6">
+                                <Search className="w-8 h-8 text-slate-300" />
+                            </div>
+                            <h3 className="text-xl font-bold text-slate-900 mb-2">No speakers found</h3>
+                            <p className="text-slate-500 max-w-xs text-center">We couldn't find any speakers matching "{searchQuery}".</p>
+                            <button 
+                                onClick={() => setSearchQuery('')}
+                                className="mt-4 text-[#5CB85C] font-bold hover:underline"
+                            >
+                                Clear search
+                            </button>
                         </div>
                     )}
                 </main>
