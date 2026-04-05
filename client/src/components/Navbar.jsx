@@ -44,7 +44,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
         { id: "admin-events", label: "Events", icon: Calendar, path: "/admin-events" },
         { id: "admin-speakers", label: "Speakers", icon: Mic2, path: "/admin-speakers" },
         { id: "admin-feedback", label: "Feedback", icon: MessageSquare, path: "/admin-feedback" },
-        { id: "admin-help", label: "Help/Support", icon: HelpCircle, path: "/help" },
+        { id: "admin-help", label: "Help/Support", icon: HelpCircle, path: "/admin-help" },
     ];
 
     // Quick Action links for Admins
