@@ -128,7 +128,7 @@ export default function AdminHelpSupport() {
                         <div className="pt-2">
                             <button
                                 type="submit"
-                                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#5cb85c] hover:bg-[#4cae4c] text-white font-bold text-[14px] rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98]"
+                                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#5cb85c] hover:bg-[#4cae4c] text-white font-bold text-[14px] rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98] w-fit"
                             >
                                 Send Message <ArrowRight className="w-4 h-4 ml-2" />
                             </button>

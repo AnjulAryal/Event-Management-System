@@ -18,8 +18,10 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminEvents from "./pages/admin/AdminEvent";
 import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminSpeakers from "./pages/admin/AdminSpeakers";
-import AdminEvent from "./pages/admin/AdminEvent";
-import AdminHelpSupport from "./pages/admin/AdminHelpsupport";
+import AdminAddEvent from "./pages/admin/AdminAddEvent";
+import AdminEditEvent from "./pages/admin/AdminEditEvent";
+import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
+
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
@@ -70,14 +72,24 @@ function AppContent({ open, setOpen, isMobile }) {
               <AdminSpeakers />
             </ProtectedRoute>
           } />
-          <Route path="/admin-speakers-edit" element={
+          <Route path="/admin-speakers-edit/:id" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminSpeakersEdit />
             </ProtectedRoute>
           } />
+          <Route path="/admin-add-event" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminAddEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-edit-event/:id" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminEditEvent />
+            </ProtectedRoute>
+          } />
           <Route path="/admin-help" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <AdminHelpSupport />
+              <AdminHelpsupport />
             </ProtectedRoute>
           } />
 

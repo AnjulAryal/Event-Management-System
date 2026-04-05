@@ -49,7 +49,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
 
     // Quick Action links for Admins
     const quickActions = userRole === 'admin' ? [
-        { id: "add-event", label: "Add a Event", path: "/admin-events" },
+        { id: "add-event", label: "Add a Event", path: "/admin-add-event" },
         { id: "register-user", label: "Register a user", path: "/signup" },
     ] : [];
 
@@ -81,7 +81,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                 style={{
                     position: "fixed",
                     top: "14px",
-                    left: open ? `${SIDEBAR_W - 52}px` : "14px" ,
+                    left: open ? `${SIDEBAR_W - 52}px` : "14px",
                     zIndex: 300,
                     width: "38px",
                     height: "38px",
@@ -128,13 +128,13 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
 
                 {/* User Profile Card */}
                 <div style={{ padding: "10px 24px 30px", display: "flex", alignItems: "center", gap: "12px" }}>
-                    <div style={{ 
-                        width: "55px", 
-                        height: "55px", 
-                        borderRadius: "50%", 
-                        background: userRole === 'admin' ? "#D3A06E" : "linear-gradient(135deg, #5CB85C 0%, #4AA14A 100%)", 
-                        display: "flex", 
-                        alignItems: "center", 
+                    <div style={{
+                        width: "55px",
+                        height: "55px",
+                        borderRadius: "50%",
+                        background: userRole === 'admin' ? "#D3A06E" : "linear-gradient(135deg, #5CB85C 0%, #4AA14A 100%)",
+                        display: "flex",
+                        alignItems: "center",
                         justifyContent: "center",
                         color: "#fff",
                         fontWeight: 700,
