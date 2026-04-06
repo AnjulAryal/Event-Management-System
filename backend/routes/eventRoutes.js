@@ -7,14 +7,15 @@ const {
   updateEvent,
   deleteEvent,
 } = require('../controllers/eventController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
   .get(getEvents)
-  .post(createEvent);
+  .post(protect, admin, createEvent);
 
 router.route('/:id')
   .get(getEventById)
-  .put(updateEvent)
-  .delete(deleteEvent);
+  .put(protect, admin, updateEvent)
+  .delete(protect, admin, deleteEvent);
 
 module.exports = router;

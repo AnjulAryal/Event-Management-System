@@ -1,0 +1,134 @@
+# Event Management System API Documentation
+
+Base URL: http://localhost:5000
+
+## 1. Authentication & Users
+------------------------------------------------------------------
+### Register User
+- URL: /api/users
+- Method: POST
+- Body:
+{
+  "name": "Alex Vance",
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### Login User
+- URL: /api/users/login
+- Method: POST
+- Body:
+{
+  "email": "alex@example.com",
+  "password": "password123"
+}
+
+### Get User Profile (Protected)
+- URL: /api/users/profile
+- Method: GET
+- Headers: Authorization: Bearer <TOKEN>
+
+
+## 2. Events
+------------------------------------------------------------------
+### Create Event (Admin)
+- URL: /api/events
+- Method: POST
+- Headers: Authorization: Bearer <TOKEN>
+- Body:
+{
+  "title": "Global Tech Summit 2024",
+  "description": "The biggest tech event of the year.",
+  "date": "2024-12-01",
+  "time": "10:00 AM",
+  "venue": "Grand Hall",
+  "location": "San Francisco, CA",
+  "organizer": "Tech Innovators",
+  "category": "technology",
+  "coverImage": "summit.jpg"
+}
+
+### Get All Events
+- URL: /api/events
+- Method: GET
+
+### Update Event (Admin)
+- URL: /api/events/:id
+- Method: PUT
+- Headers: Authorization: Bearer <TOKEN>
+- Body: (Any field to update)
+{
+  "title": "Global Tech Summit 2024 (Updated)"
+}
+
+### Delete Event (Admin)
+- URL: /api/events/:id
+- Method: DELETE
+- Headers: Authorization: Bearer <TOKEN>
+
+
+## 3. Speakers
+------------------------------------------------------------------
+### Create Speaker (Admin)
+- URL: /api/speakers
+- Method: POST
+- Headers: Authorization: Bearer <TOKEN>
+- Body:
+{
+  "name": "Sarah Chen",
+  "role": "UX Director",
+  "category": "UI/UX Design",
+  "event": "Global Tech Summit 2024",
+  "date": "Dec 01, 2024",
+  "initials": "SC"
+}
+
+### Get All Speakers
+- URL: /api/speakers
+- Method: GET
+
+
+## 4. Feedback
+------------------------------------------------------------------
+### Submit Feedback
+- URL: /api/feedback
+- Method: POST
+- Body:
+{
+  "title": "Global Tech Summit 2024",
+  "email": "alex@example.com",
+  "date": "Oct 24, 2023",
+  "feedback": "Great event!"
+}
+
+### Get All Feedback (Admin)
+- URL: /api/feedback
+- Method: GET
+- Headers: Authorization: Bearer <TOKEN>
+
+
+## 5. Help & Support
+------------------------------------------------------------------
+### Submit Support Request
+- URL: /api/support
+- Method: POST
+- Body:
+{
+  "name": "Alex Vance",
+  "email": "alex@example.com",
+  "message": "I need help with my ticket."
+}
+
+### Get All Tickets (Admin)
+- URL: /api/support
+- Method: GET
+- Headers: Authorization: Bearer <TOKEN>
+
+### Update Ticket (Admin)
+- URL: /api/support/:id
+- Method: PUT
+- Headers: Authorization: Bearer <TOKEN>
+- Body:
+{
+  "status": "resolved"
+}

@@ -7,14 +7,15 @@ const {
   updateSpeaker,
   deleteSpeaker,
 } = require('../controllers/speakerController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
   .get(getSpeakers)
-  .post(createSpeaker);
+  .post(protect, admin, createSpeaker);
 
 router.route('/:id')
   .get(getSpeakerById)
-  .put(updateSpeaker)
-  .delete(deleteSpeaker);
+  .put(protect, admin, updateSpeaker)
+  .delete(protect, admin, deleteSpeaker);
 
 module.exports = router;

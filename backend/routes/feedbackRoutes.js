@@ -5,12 +5,13 @@ const {
   submitFeedback,
   removeFeedback,
 } = require('../controllers/feedbackController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .get(getAllFeedback)
+  .get(protect, admin, getAllFeedback)
   .post(submitFeedback);
 
 router.route('/:id')
-  .delete(removeFeedback);
+  .delete(protect, admin, removeFeedback);
 
 module.exports = router;

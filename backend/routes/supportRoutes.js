@@ -5,12 +5,13 @@ const {
   getAllSupportRequests,
   updateSupportRequest,
 } = require('../controllers/supportController');
+const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
-  .get(getAllSupportRequests)
+  .get(protect, admin, getAllSupportRequests)
   .post(submitSupportRequest);
 
 router.route('/:id')
-  .put(updateSupportRequest);
+  .put(protect, admin, updateSupportRequest);
 
 module.exports = router;

@@ -1,0 +1,145 @@
+{
+  "project": "Event Management System",
+  "baseURL": "http://localhost:5000",
+  "endpoints": {
+    "Users": [
+      {
+        "name": "Register",
+        "method": "POST",
+        "url": "/api/users",
+        "auth": false,
+        "body": {
+          "name": "Alex Vance",
+          "email": "alex@example.com",
+          "password": "password123"
+        }
+      },
+      {
+        "name": "Login",
+        "method": "POST",
+        "url": "/api/users/login",
+        "auth": false,
+        "body": {
+          "email": "alex@example.com",
+          "password": "password123"
+        }
+      },
+      {
+        "name": "Profile",
+        "method": "GET",
+        "url": "/api/users/profile",
+        "auth": true,
+        "headers": {
+          "Authorization": "Bearer <TOKEN>"
+        }
+      }
+    ],
+    "Events": [
+      {
+        "name": "Create Event",
+        "method": "POST",
+        "url": "/api/events",
+        "auth": true,
+        "role": "admin",
+        "body": {
+          "title": "Global Tech Summit 2024",
+          "description": "Full conference for innovators.",
+          "date": "2024-12-01",
+          "time": "10:00 AM",
+          "venue": "Grand Hall",
+          "location": "San Francisco, CA",
+          "organizer": "Tech Innovators",
+          "category": "technology",
+          "coverImage": "summit.jpg"
+        }
+      },
+      {
+        "name": "Get All Events",
+        "method": "GET",
+        "url": "/api/events",
+        "auth": false
+      },
+      {
+        "name": "Update Event",
+        "method": "PUT",
+        "url": "/api/events/:id",
+        "auth": true,
+        "role": "admin",
+        "body": {
+          "title": "Updated Summit Title"
+        }
+      },
+      {
+        "name": "Delete Event",
+        "method": "DELETE",
+        "url": "/api/events/:id",
+        "auth": true,
+        "role": "admin"
+      }
+    ],
+    "Speakers": [
+      {
+        "name": "Create Speaker",
+        "method": "POST",
+        "url": "/api/speakers",
+        "auth": true,
+        "role": "admin",
+        "body": {
+          "name": "Sarah Chen",
+          "role": "UX Director",
+          "category": "UI/UX Design",
+          "event": "Global Tech Summit 2024",
+          "date": "Dec 01, 2024",
+          "initials": "SC"
+        }
+      },
+      {
+        "name": "Get All Speakers",
+        "method": "GET",
+        "url": "/api/speakers",
+        "auth": false
+      }
+    ],
+    "Feedback": [
+      {
+        "name": "Submit Feedback",
+        "method": "POST",
+        "url": "/api/feedback",
+        "auth": false,
+        "body": {
+          "title": "Global Tech Summit 2024",
+          "email": "alex@example.com",
+          "date": "Oct 24, 2023",
+          "feedback": "Outstanding event organization!"
+        }
+      },
+      {
+        "name": "Admin View Feedback",
+        "method": "GET",
+        "url": "/api/feedback",
+        "auth": true,
+        "role": "admin"
+      }
+    ],
+    "Support": [
+      {
+        "name": "Contact Support",
+        "method": "POST",
+        "url": "/api/support",
+        "auth": false,
+        "body": {
+          "name": "Arnav Ghimire",
+          "email": "arnav@example.com",
+          "message": "Having trouble with my entry submission."
+        }
+      },
+      {
+        "name": "Admin View Tickets",
+        "method": "GET",
+        "url": "/api/support",
+        "auth": true,
+        "role": "admin"
+      }
+    ]
+  }
+}
