@@ -32,12 +32,30 @@ const UpdatePassword = () => {
 
         setLoading(true);
         try {
-            // Simulated API call
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const email = localStorage.getItem('resetEmail');
+            if (!email) {
+                toast.error('Session expired. Please request a new code.');
+                navigate('/reset-password');
+                return;
+            }
+
+            const response = await fetch('/api/users/resetpassword', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password: newPassword }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Update failed');
+            }
+
             toast.success('Password updated successfully!');
+            localStorage.removeItem('resetEmail'); // Clean up
             navigate('/login');
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Update failed');
+            toast.error(error.message || 'Update failed');
         } finally {
             setLoading(false);
         }

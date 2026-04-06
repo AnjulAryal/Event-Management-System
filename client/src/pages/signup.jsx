@@ -9,6 +9,7 @@ export default function SignupForm() {
     fullName: '',
     email: '',
     password: '',
+    isAdmin: false,
   });
 
   const [errors, setErrors] = useState({});
@@ -48,10 +49,10 @@ export default function SignupForm() {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
     if (errors[name]) {
       setErrors(prev => ({
@@ -70,19 +71,45 @@ export default function SignupForm() {
 
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const currentUser = JSON.parse(localStorage.getItem('user'));
+      
+      const payload = {
+        name: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+        isAdmin: formData.isAdmin, 
+      };
+
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': currentUser ? `Bearer ${currentUser.token}` : '',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
+      }
+
       setSubmitted(true);
       
       setTimeout(() => {
         resetForm();
       }, 3000);
-    }, 1500);
+    } catch (error) {
+      setErrors({ api: error.message });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const resetForm = () => {
-    setFormData({ fullName: '', email: '', password: '' });
+    setFormData({ fullName: '', email: '', password: '', isAdmin: false });
     setAgreedToTerms(false);
     setSubmitted(false);
   };
@@ -105,9 +132,15 @@ export default function SignupForm() {
 
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-800">
-              Register a <span className="text-[#5CB85C]">user</span>
+              Register a <span className="text-[#5CB85C]">{formData.isAdmin ? 'admin' : 'user'}</span>
             </h2>
           </div>
+
+          {errors.api && (
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-sm text-center">
+              {errors.api}
+            </div>
+          )}
 
           {submitted ? (
             <div className="text-center py-8">
@@ -116,13 +149,13 @@ export default function SignupForm() {
                   <Check className="w-8 h-8 text-[#5CB85C]" strokeWidth={3} />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome aboard!</h2>
-              <p className="text-gray-600 text-sm">Your account has been created successfully.</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
+              <p className="text-gray-600 text-sm">Account created for {formData.isAdmin ? 'Admin' : 'User'}.</p>
               <button
                 onClick={resetForm}
                 className="mt-6 px-6 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Back to Sign Up
+                Create Another
               </button>
             </div>
           ) : (
@@ -161,6 +194,20 @@ export default function SignupForm() {
                 icon={Lock}
                 error={errors.password}
               />
+
+              {/* Admin Checkbox */}
+              <div className="flex items-center gap-3 cursor-pointer group px-1">
+                <input
+                  type="checkbox"
+                  name="isAdmin"
+                  checked={formData.isAdmin}
+                  onChange={handleChange}
+                  className="w-4 h-4 bg-[#F3F5F9] border-none rounded text-[#5CB85C] focus:ring-0 cursor-pointer"
+                />
+                <span className="text-sm text-gray-600 font-medium">
+                  Register as <span className="text-[#5CB85C]">Admin</span> (only works if no admin exists)
+                </span>
+              </div>
 
               {/* Terms Checkbox */}
               <div className="pt-2">
@@ -206,7 +253,7 @@ export default function SignupForm() {
                 icon={ArrowRight}
                 iconPosition="right"
               >
-                Create Account
+                Register {formData.isAdmin ? 'Admin' : 'User'}
               </Button>
 
               {/* Log In Link */}

@@ -36,10 +36,6 @@ const Login = () => {
         if (!password.trim()) {
             newErrors.password = 'Password is required';
             valid = false;
-        } else if (!validatePassword(password)) {
-            newErrors.password =
-                'Password must be 8+ chars, include uppercase, lowercase, number & special char';
-            valid = false;
         }
 
         setErrors(newErrors);
@@ -47,26 +43,33 @@ const Login = () => {
 
         setLoading(true);
         try {
-            // Simulated login API response
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Generate role for testing (admin if email contains 'admin', else user)
-            const simulatedRole = email.toLowerCase().includes('admin') ? 'admin' : 'user';
-            const userData = { email, role: simulatedRole };
-            
+            const response = await fetch('/api/users/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Login failed');
+            }
+
             // Save in localStorage for ProtectedRoute to access
-            localStorage.setItem('user', JSON.stringify(userData));
+            localStorage.setItem('user', JSON.stringify(data));
             
-            toast.success(`Logged in as ${simulatedRole}!`);
+            toast.success(`Logged in as ${data.isAdmin ? 'Admin' : 'User'}!`);
 
             // Redirect based on role
-            if (simulatedRole === 'admin') {
+            if (data.isAdmin) {
                 navigate('/admin-dashboard');
             } else {
                 navigate('/dashboard');
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Login failed');
+            toast.error(error.message || 'Login failed');
         } finally {
             setLoading(false);
         }
@@ -138,18 +141,6 @@ const Login = () => {
                             Log In
                         </Button>
                     </form>
-                    {/* Sign Up Link */}
-                    <div className="mt-6 text-center">
-                        <p className="text-sm text-gray-600">
-                            Don't have an account?{' '}
-                            <Link
-                                to="/signup"
-                                className="font-extrabold text-[#5CB85C] hover:text-[#4AA14A] transition"
-                            >
-                                Create an account
-                            </Link>
-                        </p>
-                    </div>
                 </div>
             </div>
         </div>

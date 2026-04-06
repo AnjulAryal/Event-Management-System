@@ -21,11 +21,21 @@ const ResetPassword = () => {
         setErrors((prev) => ({ ...prev, email: '' }));
         setSendingCode(true);
         try {
-            // Simulated API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            toast.success('Verification code sent!');
+            const response = await fetch('/api/users/forgotpassword', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Failed to send code');
+            }
+
+            toast.success('Verification code sent to your email!');
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to send code');
+            toast.error(error.message || 'Failed to send code');
         } finally {
             setSendingCode(false);
         }
@@ -45,12 +55,24 @@ const ResetPassword = () => {
 
         setLoading(true);
         try {
-            // Simulated API call
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await fetch('/api/users/verifycode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, code }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Invalid code');
+            }
+
             toast.success('Code verified successfully!');
+            // Store email in localStorage for UpdatePassword component
+            localStorage.setItem('resetEmail', email);
             navigate('/update-password');
         } catch (error) {
-            toast.error('Invalid verification code');
+            toast.error(error.message || 'Invalid verification code');
         } finally {
             setLoading(false);
         }

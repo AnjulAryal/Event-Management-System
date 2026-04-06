@@ -3,7 +3,7 @@ import Navbar from './components/Navbar';
 import Footer from './components/footer';
 import Login from './pages/Login';
 import Signup from "./pages/signup";
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/user/UserDashboard';
 import RegisteredEvents from './pages/user/RegisteredEvents';
@@ -27,19 +27,28 @@ function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
   const authRoutes = ['/login', '/signup', '/reset-password', '/update-password'];
   const isAuthPage = authRoutes.includes(location.pathname);
+  
+  // Get the user from localStorage
+  const user = JSON.parse(localStorage.getItem('user'));
 
   const SIDEBAR_W = 240;
 
   return (
     <div className="flex flex-col min-h-screen">
       <Toaster position="top-right" reverseOrder={false} />
-      {!isAuthPage && <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />}
+      
+      {/* 
+        Only show Navbar if:
+        1. It's not an auth page AND
+        2. A user is logged in
+      */}
+      {!isAuthPage && user && <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />}
 
       {/* Main Content */}
       <main
-        className={`flex-grow ${!isAuthPage ? 'pt-16 md:pt-0' : ''}`}
+        className={`flex-grow ${(!isAuthPage && user) ? 'pt-16 md:pt-0' : ''}`}
         style={{
-          marginLeft: !isMobile && open && !isAuthPage ? `${SIDEBAR_W}px` : "0px",
+          marginLeft: !isMobile && open && !isAuthPage && user ? `${SIDEBAR_W}px` : "0px",
           transition: "margin-left 0.3s cubic-bezier(.4,0,.2,1)",
           minHeight: "100vh",
         }}
@@ -125,8 +134,8 @@ function AppContent({ open, setOpen, isMobile }) {
             </ProtectedRoute>
           } />
 
-          {/* Catch-all or undefined routes */}
-          <Route path="/register" element={<h1>Register Page (Under Dev)</h1>} />
+          {/* Catch-all or undefined routes: Redirect to login or home if logged in */}
+          <Route path="*" element={<Navigate to={user ? (user.isAdmin ? "/admin-dashboard" : "/dashboard") : "/login"} replace />} />
         </Routes>
         {!isAuthPage && <Footer />}
       </main>

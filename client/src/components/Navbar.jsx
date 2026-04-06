@@ -23,7 +23,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
     // Get actual user data from localStorage with defensive defaults
     const storedUser = JSON.parse(localStorage.getItem('user')) || {};
     const userName = storedUser.name || "Guest User";
-    const userRole = storedUser.role || "user";
+    const userRole = storedUser.isAdmin ? "admin" : "user";
 
     // Calculate initials if not present in the object
     const initials = storedUser.initials || userName.split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().substring(0, 2);

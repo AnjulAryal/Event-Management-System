@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Mic2, Tag, Calendar, MapPin, ArrowRight, X, User, Briefcase } from 'lucide-react';
+import { Bell, Calendar } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -51,10 +51,6 @@ const AdminSpeakersEdit = () => {
         }));
     };
 
-    const handleCancel = () => {
-        navigate('/admin-speakers');
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         
@@ -75,159 +71,82 @@ const AdminSpeakersEdit = () => {
     };
 
     return (
-        <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans min-h-screen">
-            <div className="max-w-[1000px] mx-auto">
+        <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans min-h-screen relative">
+            {/* Bell Icon in Top Right */}
+            <div className="absolute top-8 right-8 lg:top-10 lg:right-12">
+                <div className="relative">
+                    <Bell className="w-6 h-6 text-[#5CB85C] cursor-pointer" />
+                </div>
+            </div>
+
+            <div className="max-w-[700px] mx-auto mt-4">
                 {/* Header */}
-                <div className="mb-10">
-                    <h1 className="text-4xl font-extrabold text-[#111827] tracking-tight mb-2">
-                        Edit <span className="text-[#5CB85C]">Speaker</span>
+                <div className="mb-8 text-left">
+                    <h1 className="text-3xl font-extrabold text-[#111827] tracking-tight mb-1">
+                        Edit Speaker
                     </h1>
-                    <p className="text-slate-500 font-medium text-lg max-w-2xl leading-relaxed">
-                        Update the profile and appearance details for this speaker.
+                    <p className="text-slate-400 font-medium text-base">
+                        Share your event experience with the team.
                     </p>
                 </div>
 
-                {/* Content Layout */}
-                <form onSubmit={handleSubmit} className="flex flex-col lg:flex-row gap-8">
-                    {/* Left Column (Wider) */}
-                    <div className="flex-1 space-y-8">
+                {/* Main Card */}
+                <div className="bg-white rounded-[2rem] p-8 lg:p-12 shadow-xl shadow-slate-200/50">
+                    <form onSubmit={handleSubmit} className="space-y-8">
+                        <Input 
+                            id="name"
+                            label="Speaker Name"
+                            placeholder="Enter speaker name"
+                            fullWidth
+                            required
+                            value={formData.name}
+                            onChange={handleChange}
+                        />
 
-                        {/* Box 1: Speaker Profile */}
-                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 space-y-8">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                                    <User className="w-5 h-5 text-[#5CB85C]" />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">
-                                    Personal Profile
-                                </h3>
-                            </div>
+                        <Input 
+                            id="category"
+                            label="Category"
+                            placeholder="Enter category"
+                            fullWidth
+                            required
+                            value={formData.category}
+                            onChange={handleChange}
+                        />
 
-                            <div className="grid grid-cols-1 gap-6">
-                                <Input 
-                                    id="name"
-                                    label="Full Name"
-                                    placeholder="e.g. Sarah Chen"
-                                    fullWidth
-                                    required
-                                    icon={User}
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                />
-                                <Input 
-                                    id="role"
-                                    label="Professional Role"
-                                    placeholder="e.g. UX Director, Google"
-                                    fullWidth
-                                    required
-                                    icon={Briefcase}
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
+                        <Input 
+                            id="date"
+                            label="DATE"
+                            type="text"
+                            placeholder="mm/dd/yyyy"
+                            fullWidth
+                            required
+                            icon={Calendar}
+                            value={formData.date}
+                            onChange={handleChange}
+                        />
 
-                        {/* Box 2: Category & Category Info */}
-                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 space-y-8">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                                    <Tag className="w-5 h-5 text-[#5CB85C]" />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">
-                                    Classification
-                                </h3>
-                            </div>
+                        <Input 
+                            id="event"
+                            label="Speaking at"
+                            placeholder="Share your experience about this event..."
+                            fullWidth
+                            required
+                            multiline
+                            rows={3}
+                            value={formData.event}
+                            onChange={handleChange}
+                        />
 
-                            <div className="grid grid-cols-1 gap-6">
-                                <Input 
-                                    id="category"
-                                    label="Speaker Category"
-                                    placeholder="e.g. UI/UX Design"
-                                    fullWidth
-                                    required
-                                    icon={Tag}
-                                    value={formData.category}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Box 3: Event Association */}
-                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 space-y-8">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
-                                    <MapPin className="w-5 h-5 text-[#5CB85C]" />
-                                </div>
-                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">
-                                    Event Details
-                                </h3>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <Input 
-                                    id="event"
-                                    label="Speaking At"
-                                    placeholder="Event Title"
-                                    fullWidth
-                                    required
-                                    icon={Mic2}
-                                    value={formData.event}
-                                    onChange={handleChange}
-                                />
-                                <Input 
-                                    id="date"
-                                    label="Appearance Date"
-                                    placeholder="e.g. Dec 01, 2024"
-                                    fullWidth
-                                    required
-                                    icon={Calendar}
-                                    value={formData.date}
-                                    onChange={handleChange}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column (Narrower Sidebar) */}
-                    <div className="w-full lg:w-[320px] shrink-0 space-y-8">
-                        {/* Box 4: Preview Card */}
-                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col items-center">
-                            <label className="w-full text-[10px] font-extrabold text-[#5CB85C] uppercase tracking-widest mb-6 block">
-                                Profile Avatar Preview
-                            </label>
-                            
-                            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-[#5CB85C] to-[#4AA14A] flex items-center justify-center text-white text-4xl font-bold mb-6 shadow-xl shadow-green-500/20">
-                                {formData.initials || '?'}
-                            </div>
-                            
-                            <div className="text-center space-y-1">
-                                <h4 className="font-bold text-slate-900 text-xl">{formData.name || 'New Speaker'}</h4>
-                                <p className="text-slate-500 text-sm font-medium">{formData.role || 'Professional Role'}</p>
-                            </div>
-                        </div>
-
-                        {/* Box 5: Actions */}
-                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-100 flex flex-col gap-4">
+                        <div className="pt-4">
                             <Button 
                                 type="submit" 
-                                className="w-full py-4 text-base" 
-                                icon={ArrowRight}
-                                iconPosition="right"
+                                className="w-full py-4 text-base font-extrabold rounded-2xl bg-[#5CB85C] border-none hover:bg-[#4AA14A] transition-colors" 
                             >
-                                Update Profile
-                            </Button>
-                            <Button 
-                                type="button" 
-                                variant="secondary" 
-                                className="w-full py-4 text-base" 
-                                icon={X}
-                                onClick={handleCancel}
-                            >
-                                Cancel
+                                Edit a speaker
                             </Button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     );

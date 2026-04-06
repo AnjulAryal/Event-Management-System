@@ -18,10 +18,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
     }
 
     // 2. Logged in but unauthorized role: Redirect back to their respective main dashboard
-    if (allowedRoles && !allowedRoles.includes(user.role)) {
-        console.warn(`User role '${user.role}' is NOT authorized to access this page.`);
+    const userRole = user.isAdmin ? 'admin' : 'user';
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+        console.warn(`User role '${userRole}' is NOT authorized to access this page.`);
         // Simple logic: admins shouldn't see user pages, and vice versa
-        const redirectPath = user.role === 'admin' ? '/admin-dashboard' : '/dashboard';
+        const redirectPath = user.isAdmin ? '/admin-dashboard' : '/dashboard';
         return <Navigate to={redirectPath} replace />;
     }
 
