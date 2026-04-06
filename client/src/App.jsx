@@ -20,6 +20,7 @@ import AdminFeedback from "./pages/admin/AdminFeedback";
 import AdminSpeakers from "./pages/admin/AdminSpeakers";
 import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
+import AdminEventAttendees from "./pages/admin/AdminEventAttendees";
 import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
 
 
@@ -85,6 +86,11 @@ function AppContent({ open, setOpen, isMobile }) {
           <Route path="/admin-edit-event/:id" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminEditEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-event-attendees/:id" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminEventAttendees />
             </ProtectedRoute>
           } />
           <Route path="/admin-help" element={

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, CalendarDays, ChevronDown, ArrowRight, Edit, Trash2, SlidersHorizontal, Plus } from 'lucide-react';
+import { Search, MapPin, CalendarDays, ChevronDown, ArrowRight, Edit, Trash2, SlidersHorizontal, Plus, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -46,14 +46,18 @@ const AdminEvent = () => {
         navigate(`/admin-edit-event/${id}`);
     };
 
+    const handleAttendees = (id) => {
+        navigate(`/admin-event-attendees/${id}`);
+    };
+
     const filteredEvents = events.filter(event => {
-        const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                             event.location.toLowerCase().includes(searchQuery.toLowerCase());
-        
+        const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            event.location.toLowerCase().includes(searchQuery.toLowerCase());
+
         const matchesDate = !dateFilter || event.date === dateFilter;
-        
-        const matchesCategory = categoryFilter === 'All' || 
-                               event.category.toUpperCase() === categoryFilter.toUpperCase();
+
+        const matchesCategory = categoryFilter === 'All' ||
+            event.category.toUpperCase() === categoryFilter.toUpperCase();
 
         return matchesSearch && matchesDate && matchesCategory;
     });
@@ -90,8 +94,8 @@ const AdminEvent = () => {
             <main className="flex-1 p-8 max-w-7xl w-full mx-auto">
                 <div className="flex items-center justify-between mb-8">
                     <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Events</h1>
-                    <Button 
-                        variant="primary" 
+                    <Button
+                        variant="primary"
                         className="px-6 py-2.5 shadow-green-500/10"
                         icon={Plus}
                         onClick={() => navigate('/admin-add-event')}
@@ -104,29 +108,38 @@ const AdminEvent = () => {
                 {/* Events Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                     {filteredEvents.map((event) => (
-                        <EventCard 
-                            key={event.id} 
+                        <EventCard
+                            key={event.id}
                             event={event}
                             showButtons={false}
                             customActions={
                                 <div className="flex items-center justify-between gap-3">
-                                    <Button 
-                                        variant="secondary" 
-                                        size="md" 
-                                        className="flex-1 rounded-xl" 
+                                    <Button
+                                        variant="secondary"
+                                        size="md"
+                                        className="flex-1 rounded-xl"
                                         icon={Edit}
                                         onClick={() => handleEdit(event.id)}
                                     >
                                         Edit
                                     </Button>
-                                    <Button 
-                                        variant="ghost" 
-                                        size="md" 
-                                        className="flex-1 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 border border-red-50 transition-colors" 
+                                    <Button
+                                        variant="ghost"
+                                        size="md"
+                                        className="flex-1 rounded-xl text-red-500 hover:bg-red-50 hover:text-red-600 border border-red-50 transition-colors"
                                         icon={Trash2}
                                         onClick={() => handleDelete(event.id)}
                                     >
                                         Delete
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="md"
+                                        className="flex-1 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-100 transition-colors !px-[20px] !py-[6px]"
+                                        icon={Users}
+                                        onClick={() => handleAttendees(event.id)}
+                                    >
+                                        Attendees
                                     </Button>
                                 </div>
                             }
@@ -139,7 +152,7 @@ const AdminEvent = () => {
                             </div>
                             <h3 className="text-xl font-bold text-slate-900 mb-2">No matching events</h3>
                             <p className="text-slate-500 max-w-xs text-center">We couldn't find any events matching your search criteria. Try a different query.</p>
-                            <button 
+                            <button
                                 onClick={() => { setSearchQuery(''); setDateFilter(''); setCategoryFilter('All'); }}
                                 className="mt-6 text-[#5CB85C] font-bold hover:underline"
                             >
