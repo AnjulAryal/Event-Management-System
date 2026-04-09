@@ -64,18 +64,6 @@ const SpeakerCard = ({
       </div>
 
       {/* Action Button */}
-      {!isAdmin && (
-        <Button 
-          variant="ghost" 
-          fullWidth 
-          className="bg-[#5CB85C]/5 hover:bg-[#5CB85C]/10 text-[#5CB85C] font-bold py-3 mt-2 rounded-xl group/btn"
-          onClick={() => onViewProfile?.(speaker)}
-          icon={ChevronRight}
-          iconPosition="right"
-        >
-          View Profile
-        </Button>
-      )}
     </div>
   );
 };

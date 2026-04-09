@@ -1,6 +1,7 @@
 import React from 'react';
 import { MapPin, CalendarDays } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
 
 const EventCard = ({ 
@@ -9,8 +10,10 @@ const EventCard = ({
   className = '', 
   customActions 
 }) => {
+  const navigate = useNavigate();
+
   const handleRegister = () => {
-    toast.success("Registered successfully!");
+    navigate(`/complete-registration/${event.id}`);
   };
 
   return (
@@ -58,14 +61,17 @@ const EventCard = ({
             {customActions}
           </div>
         ) : showButtons && (
-          <div className="space-y-2 pt-2 border-t border-slate-50">
+          <div className="space-y-3 pt-2">
             <button 
               onClick={handleRegister}
-              className="w-full bg-[#5CB85C] hover:bg-[#4AA14A] text-white py-2.5 rounded-xl text-sm font-bold transition-colors shadow-sm"
+              className="w-full bg-[#5CB85C] hover:bg-[#4AA14A] text-white py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.98]"
             >
               Register Now
             </button>
-            <button className="w-full bg-transparent hover:bg-slate-50 text-slate-500 py-2 rounded-xl text-sm font-semibold transition-colors">
+            <button 
+              onClick={() => navigate(`/event-details/${event.id}`)}
+              className="w-full bg-[#F3F6F9] hover:bg-[#E8EDF2] text-[#5E718D] py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
+            >
               View Details
             </button>
           </div>

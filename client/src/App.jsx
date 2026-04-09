@@ -10,6 +10,12 @@ import RegisteredEvents from './pages/user/RegisteredEvents';
 import Speakers from './pages/user/Speakers';
 import UserFeedback from './pages/user/UserFeedback';
 import HelpSupport from './pages/HelpSupport';
+import CancelRegistration from './pages/help/CancelRegistration';
+import FindTickets from './pages/help/FindTickets';
+import RegisterEvent from './pages/help/RegisterEvent';
+import ContactOrganizer from './pages/help/ContactOrganizer';
+import CompleteRegistration from './pages/user/CompleteRegistration';
+import EventDetails from './pages/user/EventDetails';
 import { Toaster } from 'react-hot-toast';
 import UpdatePassword from './pages/UpdatePassword';
 import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
@@ -149,6 +155,36 @@ function AppContent({ open, setOpen, isMobile }) {
           <Route path="/help" element={
             <ProtectedRoute allowedRoles={['user']}>
               <HelpSupport />
+            </ProtectedRoute>
+          } />
+          <Route path="/help/cancellation" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <CancelRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/help/tickets" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <FindTickets />
+            </ProtectedRoute>
+          } />
+          <Route path="/help/registration" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <RegisterEvent />
+            </ProtectedRoute>
+          } />
+          <Route path="/help/organizer" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <ContactOrganizer />
+            </ProtectedRoute>
+          } />
+          <Route path="/complete-registration/:id" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <CompleteRegistration />
+            </ProtectedRoute>
+          } />
+          <Route path="/event-details/:id" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <EventDetails />
             </ProtectedRoute>
           } />
 

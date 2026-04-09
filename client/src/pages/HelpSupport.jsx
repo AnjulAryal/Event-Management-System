@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
-import { Mail, User, ArrowRight, HelpCircle, XCircle, Info, Ticket } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { HelpCircle, XCircle, Info, Ticket, User, Mail, ArrowRight } from "lucide-react";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import HelpFAQCard from "../components/help/HelpFAQCard";
 
 const FAQ_CARDS = [
     {
@@ -10,24 +12,28 @@ const FAQ_CARDS = [
         iconBg: "#fef2f2",
         title: "How do I register for an event?",
         description: "Browse events, click Register Now and follow the steps to complete your registration.",
+        link: "/help/registration"
     },
     {
         icon: <XCircle className="text-green-600" size={20} />,
         iconBg: "#f0fdf4",
         title: "Can I cancel my registration?",
         description: "Yes, you can cancel up to 48 hours before the event from the My Events section.",
+        link: "/help/cancellation"
     },
     {
         icon: <Info className="text-blue-500" size={20} />,
         iconBg: "#eff6ff",
         title: "How do I contact the organizer?",
         description: "Use the Post-Event Inquiries form on the event detail page to reach the organizer.",
+        link: "/help/organizer"
     },
     {
         icon: <Ticket className="text-yellow-600" size={20} />,
         iconBg: "#fefce8",
         title: "Where can I find my tickets?",
         description: "Your tickets are emailed after registration and available in the My Events section.",
+        link: "/help/tickets"
     }
 ];
 
@@ -92,18 +98,7 @@ export default function HelpSupport() {
                 {/* FAQ Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
                     {FAQ_CARDS.map((card, idx) => (
-                        <div key={idx} className="bg-white rounded-2xl p-6 flex gap-4 shadow-sm border border-slate-50 transform transition-all hover:translate-y-[-4px] hover:shadow-md">
-                            <div className="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: card.iconBg }}>
-                                {card.icon}
-                            </div>
-                            <div className="flex-1">
-                                <h3 className="text-base font-bold text-slate-900 mb-2">{card.title}</h3>
-                                <p className="text-sm text-slate-500 leading-relaxed mb-4">{card.description}</p>
-                                <a href="#" className="text-[13px] font-bold text-[#5CB85C] flex items-center gap-1 hover:underline">
-                                    Learn more <ArrowRight size={14} />
-                                </a>
-                            </div>
-                        </div>
+                        <HelpFAQCard key={idx} card={card} />
                     ))}
                 </div>
 
