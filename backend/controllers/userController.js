@@ -1,10 +1,14 @@
 const User = require('../models/userModel');
 const generateToken = require('../utils/generateToken');
+const asyncHandler = require('../middleware/asyncHandler');
+const jwt = require('jsonwebtoken');
+const sendEmail = require('../utils/sendEmail');
+const crypto = require('crypto');
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
 // @access  Public
-const authUser = async (req, res) => {
+const authUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -21,14 +25,12 @@ const authUser = async (req, res) => {
     res.status(401);
     throw new Error('Invalid email or password');
   }
-};
-
-const jwt = require('jsonwebtoken');
+});
 
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Private/Admin (or Public for first admin)
-const registerUser = async (req, res) => {
+const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password, isAdmin } = req.body;
 
   const userExists = await User.findOne({ email });
@@ -44,30 +46,12 @@ const registerUser = async (req, res) => {
       res.status(400);
       throw new Error('An admin already exists. Only one admin is allowed.');
     }
-    // Allow creating the first admin
   } else {
-    // Creating a regular user. This MUST be done by an existing admin.
-    // We check for req.user which should be populated by protect middleware.
+    // Regular users can be registered by non-admins or admins?
+    // Based on user feedback (Conversation fd74241e), only admin can register users.
     if (!req.user || !req.user.isAdmin) {
-      // Try to manually check token if protect middleware wasn't used in routes
-      let token;
-      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        try {
-          token = req.headers.authorization.split(' ')[1];
-          const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
-          const requestingUser = await User.findById(decoded.id);
-          if (!requestingUser || !requestingUser.isAdmin) {
-            res.status(401);
-            throw new Error('Not authorized to register users. Only admin can register users.');
-          }
-        } catch (error) {
-          res.status(401);
-          throw new Error('Not authorized, token failed');
-        }
-      } else {
-        res.status(401);
-        throw new Error('Not authorized. No token provided.');
-      }
+      res.status(401);
+      throw new Error('Not authorized to register users. Only admin can register users.');
     }
   }
 
@@ -90,12 +74,12 @@ const registerUser = async (req, res) => {
     res.status(400);
     throw new Error('Invalid user data');
   }
-};
+});
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
-const getUserProfile = async (req, res) => {
+const getUserProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
   if (user) {
@@ -109,15 +93,12 @@ const getUserProfile = async (req, res) => {
     res.status(404);
     throw new Error('User not found');
   }
-};
-
-const sendEmail = require('../utils/sendEmail');
-const crypto = require('crypto');
+});
 
 // @desc    Forgot password - send reset code
 // @route   POST /api/users/forgotpassword
 // @access  Public
-const forgotPassword = async (req, res) => {
+const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
   const user = await User.findOne({ email });
@@ -127,10 +108,8 @@ const forgotPassword = async (req, res) => {
     throw new Error('User not found with that email');
   }
 
-  // Generate 6-digit random code
   const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Set code and expiration (10 minutes)
   user.resetPasswordCode = resetCode;
   user.resetPasswordExpires = Date.now() + 10 * 60 * 1000;
 
@@ -170,14 +149,15 @@ const forgotPassword = async (req, res) => {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res.status(500).json({ success: false, message: 'Email could not be sent. Please try again later.' });
+    res.status(500);
+    throw new Error('Email could not be sent. Please try again later.');
   }
-};
+});
 
 // @desc    Verify reset code
 // @route   POST /api/users/verifycode
 // @access  Public
-const verifyResetCode = async (req, res) => {
+const verifyResetCode = asyncHandler(async (req, res) => {
   const { email, code } = req.body;
 
   const user = await User.findOne({
@@ -192,12 +172,12 @@ const verifyResetCode = async (req, res) => {
   }
 
   res.status(200).json({ success: true, message: 'Code verified' });
-};
+});
 
 // @desc    Reset password
 // @route   PUT /api/users/resetpassword
 // @access  Public
-const resetPassword = async (req, res) => {
+const resetPassword = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -207,7 +187,6 @@ const resetPassword = async (req, res) => {
     throw new Error('User not found');
   }
 
-  // Update password
   user.password = password;
   user.resetPasswordCode = undefined;
   user.resetPasswordExpires = undefined;
@@ -215,7 +194,7 @@ const resetPassword = async (req, res) => {
   await user.save();
 
   res.status(200).json({ success: true, message: 'Password updated successfully' });
-};
+});
 
 module.exports = { 
   authUser, 

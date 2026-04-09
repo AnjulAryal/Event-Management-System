@@ -1,4 +1,5 @@
 import { Headphones } from "lucide-react";
+import { Link } from "react-router-dom";
 import Button from "../ui/Button";
 
 export default function HelpFooter() {
@@ -10,12 +11,14 @@ export default function HelpFooter() {
                     Our support team is available 24/7 for complex registration issues.
                 </p>
             </div>
-            <Button 
-                className="bg-[#5CB85C] hover:bg-[#4ea64e] border-none text-slate-900 font-black px-8 py-6 rounded-2xl h-auto"
-                icon={Headphones}
-            >
-                Contact US
-            </Button>
+            <Link to="/help">
+                <Button 
+                    className="bg-[#5CB85C] hover:bg-[#4ea64e] border-none text-slate-900 font-black px-8 py-6 rounded-2xl h-auto"
+                    icon={Headphones}
+                >
+                    Contact US
+                </Button>
+            </Link>
         </div>
     );
 }

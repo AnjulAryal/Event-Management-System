@@ -11,6 +11,7 @@ export default function UserDashboard() {
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("All Categories");
     const [events, setEvents] = useState([]);
+    const [recommendedEvents, setRecommendedEvents] = useState([]);
     const [displayedEvents, setDisplayedEvents] = useState([]);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [loading, setLoading] = useState(true);
@@ -19,29 +20,43 @@ export default function UserDashboard() {
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : { name: "Guest" };
     const userName = user.name || "User";
+    const token = user.token;
 
     useEffect(() => {
-        const fetchEvents = async () => {
+        const fetchAllData = async () => {
             try {
-                const res = await fetch('/api/events');
-                const data = await res.json();
-                // Map _id to id for component compatibility
-                const mappedData = data.map(e => ({ ...e, id: e._id }));
-                setEvents(mappedData);
-                setDisplayedEvents(mappedData.slice(0, 3));
+                // Fetch all events for popular section
+                const eventsRes = await fetch('/api/events');
+                const eventsData = await eventsRes.json();
+                const mappedEvents = eventsData.map(e => ({ ...e, id: e._id }));
+                setEvents(mappedEvents);
+                setDisplayedEvents(mappedEvents.slice(0, 3));
+
+                // Fetch recommendations from backend
+                if (user._id && token) {
+                    const recRes = await fetch(`/api/events/recommendations?userId=${user._id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    const recData = await recRes.json();
+                    setRecommendedEvents(recData.map(e => ({ ...e, id: e._id })));
+                } else {
+                    // Fallback to local slice if not logged in
+                    setRecommendedEvents(mappedEvents.slice(3, 6));
+                }
             } catch (error) {
-                console.error("Error fetching events:", error);
-                toast.error("Failed to load events");
+                console.error("Error fetching dashboard data:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchEvents();
+        fetchAllData();
 
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [user?._id, token]);
 
     const hasActiveFilters = useMemo(() => 
         query.trim() !== "" || date !== "" || category !== "All Categories",
@@ -61,11 +76,25 @@ export default function UserDashboard() {
             filtered = filtered.filter(e => (e.category || "").toLowerCase() === category.toLowerCase());
         }
         if (date) {
-            const selectedDate = new Date(date).toDateString();
-            filtered = filtered.filter(e => new Date(e.date).toDateString() === selectedDate);
+            // Normalize selected date to YYYY-MM-DD
+            const selected = new Date(date);
+            const selectedStr = `${selected.getFullYear()}-${String(selected.getMonth() + 1).padStart(2, '0')}-${String(selected.getDate()).padStart(2, '0')}`;
+            
+            filtered = filtered.filter(e => {
+                if (!e.date) return false;
+                const d = new Date(e.date);
+                if (isNaN(d.getTime())) return false;
+                const dStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                return dStr === selectedStr;
+            });
         }
         setDisplayedEvents(hasActiveFilters ? filtered : filtered.slice(0, 3));
     }, [query, category, date, hasActiveFilters, events]);
+
+    // Apply filters automatically when search/filter state changes
+    useEffect(() => {
+        filterEvents();
+    }, [query, date, category, filterEvents]);
 
     const handleReset = () => {
         setQuery("");
@@ -126,19 +155,25 @@ export default function UserDashboard() {
             </div>
 
             {/* Recommendation Section - Only show when not searching */}
-            {!hasActiveFilters && !loading && events.length > 3 && (
-                <div className="space-y-6 pt-4">
+            {!hasActiveFilters && !loading && (
+                <div className="space-y-6 pt-10 border-t border-slate-50 mt-10">
                     <UserPageHeader 
                         title="Recommend for You" 
                     />
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {events.slice(3, 6).map(e => (
-                            <EventCard 
-                                key={`rec-${e.id}`} 
-                                event={e} 
-                                showButtons={true} 
-                            />
-                        ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {recommendedEvents.length > 0 ? (
+                            recommendedEvents.map(e => (
+                                <EventCard 
+                                    key={`rec-${e.id}`} 
+                                    event={e} 
+                                    showButtons={true} 
+                                />
+                            ))
+                        ) : (
+                            <div className="col-span-full py-10 text-center bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
+                                <p className="text-slate-400 font-bold">More recommendations coming soon!</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

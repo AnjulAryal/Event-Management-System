@@ -74,15 +74,39 @@ export default function HelpSupport() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) {
             toast.error("Please fill all required fields correctly");
             return;
         }
 
-        toast.success("Message sent successfully!");
-        setFormData({ name: "", email: "", message: "" });
+        const loadingToast = toast.loading("Sending message...");
+        try {
+            const res = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: `SUPPORT: ${formData.name}`,
+                    email: formData.email,
+                    date: new Date().toLocaleDateString(),
+                    feedback: formData.message,
+                    rating: 5 // Default high priority for support
+                })
+            });
+
+            if (res.ok) {
+                toast.success("Message sent successfully!", { id: loadingToast });
+                setFormData({ name: "", email: "", message: "" });
+            } else {
+                throw new Error("Failed to send message");
+            }
+        } catch (error) {
+            console.error("Support error:", error);
+            toast.error("Could not send message. Please try again.", { id: loadingToast });
+        }
     };
 
     return (
