@@ -22,6 +22,8 @@ import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminEventAttendees from "./pages/admin/AdminEventAttendees";
 import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
+import Adminviewdetails from "./pages/admin/Adminviewdetails";
+import Adminaddspeaker from "./pages/admin/adminaddspeaker";
 
 
 function AppContent({ open, setOpen, isMobile }) {
@@ -82,6 +84,11 @@ function AppContent({ open, setOpen, isMobile }) {
               <AdminSpeakers />
             </ProtectedRoute>
           } />
+          <Route path="/admin-add-speaker" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Adminaddspeaker />
+            </ProtectedRoute>
+          } />
           <Route path="/admin-speakers-edit/:id" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminSpeakersEdit />
@@ -105,6 +112,11 @@ function AppContent({ open, setOpen, isMobile }) {
           <Route path="/admin-help" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminHelpsupport />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-view-details/:id" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <Adminviewdetails />
             </ProtectedRoute>
           } />
 
