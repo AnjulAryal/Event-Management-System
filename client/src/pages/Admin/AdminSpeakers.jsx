@@ -80,8 +80,14 @@ const AdminSpeakers = () => {
                     <div className="mb-10 flex items-center justify-between">
                         <div>
                             <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">Speakers</h1>
-                            <p className="text-slate-500 font-medium text-lg">Meet our world-class speakers</p>
+                            <p className="text-slate-500 font-medium text-[15px]">Meet our world-class speakers</p>
                         </div>
+                        <button 
+                            onClick={() => navigate('/admin-add-speaker')}
+                            className="bg-[#5CB85C] hover:bg-[#4aa14a] active:bg-[#3d8b3d] text-white font-bold py-2.5 px-5 rounded-[20px] text-[13px] shadow-sm transition-colors flex items-center outline-none focus:ring-2 focus:ring-green-500/30"
+                        >
+                            Add Speaker <span className="ml-1.5 text-[16px] leading-none">+</span>
+                        </button>
                     </div>
 
                     {/* Speakers Grid */}
