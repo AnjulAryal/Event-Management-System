@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GenericCollectionPage from "../../components/user/GenericCollectionPage";
 import EventCard from "../../components/ui/EventCard";
 import Button from "../../components/ui/Button";
@@ -55,9 +55,9 @@ export default function RegisteredEvents() {
     }, [user?._id]);
 
     const ViewAllLink = () => (
-        <a href="#" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
+        <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
             View all <span className="group-hover:translate-x-1 transition-transform">→</span>
-        </a>
+        </Link>
     );
 
     return (

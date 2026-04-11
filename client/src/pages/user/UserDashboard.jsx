@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { Link } from "react-router-dom";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserPageHeader from "../../components/user/UserPageHeader";
 import UserSearch from "../../components/user/UserSearch";
@@ -103,9 +104,9 @@ export default function UserDashboard() {
     };
 
     const ViewAllLink = () => (
-        <a href="#" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
+        <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
             View all <span className="group-hover:translate-x-1 transition-transform">→</span>
-        </a>
+        </Link>
     );
 
     return (
