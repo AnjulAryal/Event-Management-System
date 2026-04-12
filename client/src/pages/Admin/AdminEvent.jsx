@@ -11,31 +11,49 @@ const AdminEvent = () => {
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
     const [appliedFilters, setAppliedFilters] = useState({ date: '', category: 'All Categories' });
 
-    // Initialize events from localStorage or dummy data
+    const [loading, setLoading] = useState(true);
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
+
+    // Initialize events from API
     useEffect(() => {
-        const storedEvents = JSON.parse(localStorage.getItem('events'));
-        if (storedEvents && storedEvents.length > 0) {
-            setEvents(storedEvents);
-        } else {
-            // Generate dummy events
-            const dummyEvents = [
-                { id: "1", title: "UI/UX Design", location: "Creative Hub, SF", date: "2024-12-01", category: "UI/UX DESIGN", categoryColor: "#3b99fc" },
-                { id: "2", title: "UI/UX Design", location: "Creative Hub, NY", date: "2024-12-01", category: "UI/UX DESIGN", categoryColor: "#3b99fc" },
-                { id: "3", title: "UI/UX Design", location: "Creative Hub, LDN", date: "2024-12-01", category: "UI/UX DESIGN", categoryColor: "#3b99fc" },
-                { id: "4", title: "Product Design Workshop", location: "Remote/Digital", date: "2024-11-02", category: "DESIGN", categoryColor: "#f59e0b" },
-                { id: "5", title: "Tech World 2024", location: "Convention Center", date: "2024-11-15", category: "TECHNOLOGY", categoryColor: "#6366f1" }
-            ];
-            setEvents(dummyEvents);
-            localStorage.setItem('events', JSON.stringify(dummyEvents));
-        }
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch('/api/events');
+                if (!res.ok) throw new Error('Failed to fetch events');
+                const data = await res.json();
+                const mappedData = data.map(e => ({ ...e, id: e._id || e.id }));
+                setEvents(mappedData);
+            } catch (error) {
+                console.error("Error fetching events:", error);
+                toast.error("Failed to load events");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchEvents();
     }, []);
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (window.confirm("Are you sure you want to delete this event?")) {
-            const updatedEvents = events.filter(e => e.id !== id);
-            setEvents(updatedEvents);
-            localStorage.setItem('events', JSON.stringify(updatedEvents));
-            toast.success("Event deleted successfully!");
+            try {
+                const res = await fetch(`/api/events/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                    }
+                });
+                
+                if (!res.ok) throw new Error('Failed to delete event');
+                
+                const updatedEvents = events.filter(e => e.id !== id);
+                setEvents(updatedEvents);
+                toast.success("Event deleted successfully!");
+            } catch (error) {
+                console.error("Error deleting event:", error);
+                toast.error("Failed to delete event");
+            }
         }
     };
 
@@ -139,13 +157,21 @@ const AdminEvent = () => {
                         <div key={event.id} className="bg-white rounded-t-xl rounded-b-[14px] shadow-[0_2px_8px_-4px_rgba(0,0,0,0.1)] flex flex-col h-full overflow-hidden border border-slate-100 transition-all hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.15)]">
                             
                             {/* Card Top / Graphic */}
-                            <div className="relative h-40 w-full flex items-center justify-center bg-[#1c2331]">
-                                <span className="text-[#5973a8] text-[56px] font-black tracking-tight select-none">
-                                    {getShortText(event.title, event.category)}
-                                </span>
+                            <div className="relative h-40 w-full flex items-center justify-center bg-[#1c2331] overflow-hidden">
+                                {event.coverImage ? (
+                                    <img 
+                                        src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000${event.coverImage}`}
+                                        alt={event.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-[#5973a8] text-[56px] font-black tracking-tight select-none">
+                                        {getShortText(event.title, event.category)}
+                                    </span>
+                                )}
                                 
                                 {event.category && (
-                                    <div className="absolute top-4 right-4">
+                                    <div className="absolute top-4 right-4 z-10">
                                         <span className="bg-[#3b82f6] text-white text-[10px] font-bold px-2 py-0.5 rounded shadow-sm tracking-wide uppercase">
                                             {event.category}
                                         </span>
@@ -199,7 +225,8 @@ const AdminEvent = () => {
                                         Attendees
                                     </button>
                                     <button 
-                                        onClick={() => navigate(`/admin-view-details/${event.id}`)} 
+                                        type="button"
+                                        onClick={() => navigate(`/admin-view-details/${event.id}`)}
                                         className="bg-[#1f2937] hover:bg-[#111827] active:bg-black text-white text-[12px] font-bold py-[6px] w-full rounded focus:outline-none transition-colors"
                                     >
                                         View Details

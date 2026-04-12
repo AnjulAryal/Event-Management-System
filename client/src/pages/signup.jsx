@@ -9,11 +9,9 @@ export default function SignupForm() {
     fullName: '',
     email: '',
     password: '',
-    isAdmin: false,
   });
 
   const [errors, setErrors] = useState({});
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -38,10 +36,6 @@ export default function SignupForm() {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 8) {
       newErrors.password = 'Password must be at least 8 characters';
-    }
-
-    if (!agreedToTerms) {
-      newErrors.terms = 'You must agree to the terms';
     }
 
     setErrors(newErrors);
@@ -78,7 +72,7 @@ export default function SignupForm() {
         name: formData.fullName,
         email: formData.email,
         password: formData.password,
-        isAdmin: formData.isAdmin, 
+        isAdmin: false, 
       };
 
       const response = await fetch('/api/users', {
@@ -109,8 +103,7 @@ export default function SignupForm() {
   };
 
   const resetForm = () => {
-    setFormData({ fullName: '', email: '', password: '', isAdmin: false });
-    setAgreedToTerms(false);
+    setFormData({ fullName: '', email: '', password: '' });
     setSubmitted(false);
   };
 
@@ -132,7 +125,7 @@ export default function SignupForm() {
 
           <div className="text-center mb-10">
             <h2 className="text-2xl font-bold text-gray-800">
-              Register a <span className="text-[#5CB85C]">{formData.isAdmin ? 'admin' : 'user'}</span>
+              Register a <span className="text-[#5CB85C]">user</span>
             </h2>
           </div>
 
@@ -150,7 +143,7 @@ export default function SignupForm() {
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Registration Successful!</h2>
-              <p className="text-gray-600 text-sm">Account created for {formData.isAdmin ? 'Admin' : 'User'}.</p>
+              <p className="text-gray-600 text-sm">Account created for User.</p>
               <button
                 onClick={resetForm}
                 className="mt-6 px-6 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
@@ -195,56 +188,6 @@ export default function SignupForm() {
                 error={errors.password}
               />
 
-              {/* Admin Checkbox */}
-              <div className="flex items-center gap-3 cursor-pointer group px-1">
-                <input
-                  type="checkbox"
-                  name="isAdmin"
-                  checked={formData.isAdmin}
-                  onChange={handleChange}
-                  className="w-4 h-4 bg-[#F3F5F9] border-none rounded text-[#5CB85C] focus:ring-0 cursor-pointer"
-                />
-                <span className="text-sm text-gray-600 font-medium">
-                  Register as <span className="text-[#5CB85C]">Admin</span> (only works if no admin exists)
-                </span>
-              </div>
-
-              {/* Terms Checkbox */}
-              <div className="pt-2">
-                <label className="flex items-center gap-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={agreedToTerms}
-                    onChange={(e) => {
-                      setAgreedToTerms(e.target.checked);
-                      if (e.target.checked && errors.terms) {
-                        setErrors(prev => ({
-                          ...prev,
-                          terms: ''
-                        }));
-                      }
-                    }}
-                    className="w-5 h-5 bg-[#F3F5F9] border-none rounded-md text-[#5CB85C] focus:ring-0 cursor-pointer"
-                  />
-                  <span className="text-[11px] text-[#A0AEC0]">
-                    I agree to the{' '}
-                    <a href="#" className="text-[#5CB85C] font-semibold hover:underline">
-                      Terms of Service
-                    </a>
-                    {' '}and{' '}
-                    <a href="#" className="text-[#5CB85C] font-semibold hover:underline">
-                      Privacy Policy
-                    </a>
-                  </span>
-                </label>
-                {errors.terms && (
-                  <div className="flex items-center gap-2 mt-2 text-red-600 text-[10px]">
-                    <Check className="w-3 h-3" />
-                    {errors.terms}
-                  </div>
-                )}
-              </div>
-
               {/* Submit Button */}
               <Button 
                 type="submit"
@@ -253,21 +196,8 @@ export default function SignupForm() {
                 icon={ArrowRight}
                 iconPosition="right"
               >
-                Register {formData.isAdmin ? 'Admin' : 'User'}
+                Register User
               </Button>
-
-              {/* Log In Link */}
-              <div className="text-center pt-6 border-t border-gray-100">
-                <p className="text-[13px] text-gray-500">
-                  Already have an account?{" "}
-                  <Link
-                    to="/login"
-                    className="text-[#5CB85C] font-bold hover:underline ml-1"
-                  >
-                    Log In
-                  </Link>
-                </p>
-              </div>
             </form>
           )}
         </div>

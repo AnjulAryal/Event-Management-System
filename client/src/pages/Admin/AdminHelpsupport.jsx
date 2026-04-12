@@ -1,47 +1,76 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User, Mail, ArrowRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-const CONTACT_CARDS = [
-    {
-        email: "ghimirearnav738@gmail",
-        description: "Having trouble submitting your entry? Check your internet connection and file format. You can also type 'support' to get guidance."
-    },
-    {
-        email: "ghimirearnav738@gmail",
-        description: "Having trouble submitting your entry? Check your internet connection and file format. You can also type 'support' to get guidance."
-    },
-    {
-        email: "ghimirearnav738@gmail",
-        description: "Having trouble submitting your entry? Check your internet connection and file format. You can also type 'support' to get guidance."
-    },
-    {
-        email: "ghimirearnav738@gmail",
-        description: "Having trouble submitting your entry? Check your internet connection and file format. You can also type 'support' to get guidance."
-    }
-];
-
 export default function AdminHelpSupport() {
+    const [supportRequests, setSupportRequests] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         message: ""
     });
 
+    useEffect(() => {
+        const fetchSupportRequests = async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                const token = user?.token;
+
+                const res = await fetch('/api/support', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                if (!res.ok) throw new Error('Failed to fetch support requests');
+                const data = await res.json();
+                setSupportRequests(data);
+            } catch (error) {
+                console.error("Error fetching support requests:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchSupportRequests();
+    }, []);
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
             toast.error("Please fill all fields");
             return;
         }
 
-        toast.success("Message sent successfully!");
-        setFormData({ name: "", email: "", message: "" });
+        const subject = encodeURIComponent(`Support Request from ${formData.name}`);
+        const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
+        window.location.href = `mailto:support@eventify.com?subject=${subject}&body=${body}`;
+
+
+        try {
+            const res = await fetch('/api/support', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (!res.ok) throw new Error('Failed to send message');
+            
+            const newRequest = await res.json();
+            setSupportRequests(prev => [newRequest, ...prev]);
+
+            toast.success("Message sent successfully!");
+            setFormData({ name: "", email: "", message: "" });
+        } catch (error) {
+            console.error("Error sending message:", error);
+            toast.error("Failed to send message. Please try again.");
+        }
     };
 
     return (
@@ -54,15 +83,31 @@ export default function AdminHelpSupport() {
 
                 {/* Cards Section */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                    {CONTACT_CARDS.map((card, idx) => (
-                        <div key={idx} className="bg-white rounded-[20px] p-6 sm:p-8 flex gap-4 sm:gap-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-[2px] transition-all duration-300">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#e6f4ea] flex-shrink-0 flex items-center justify-center"></div>
-                            <div className="flex-1">
-                                <h3 className="text-[#1e293b] text-[15px] font-bold mb-2 md:mb-3">{card.email}</h3>
-                                <p className="text-[#64748b] text-[13px] md:text-[14px] leading-relaxed">{card.description}</p>
+                    {loading ? (
+                        <div className="col-span-full py-8 text-center text-[#64748b] animate-pulse font-medium">Loading support requests...</div>
+                    ) : supportRequests.length > 0 ? (
+                        supportRequests.map((card, idx) => (
+                            <div key={card._id || idx} className="bg-white rounded-[20px] p-6 sm:p-8 flex gap-4 sm:gap-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-[2px] transition-all duration-300">
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#e6f4ea] flex-shrink-0 flex items-center justify-center">
+                                    <User size={20} className="text-[#5cb85c]" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="text-[#1e293b] text-[15px] font-bold mb-1">{card.name}</h3>
+                                    <a href={`mailto:${card.email}`} className="text-[#5cb85c] text-[13px] font-semibold mb-2 hover:underline inline-block">{card.email}</a>
+                                    <p className="text-[#64748b] text-[13px] md:text-[14px] leading-relaxed">{card.message}</p>
+                                    {card.status && (
+                                        <div className="mt-3 inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider rounded-md">
+                                            {card.status}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-12 text-center text-[#64748b] bg-white rounded-[20px] border border-dashed border-gray-200">
+                            No support requests found.
                         </div>
-                    ))}
+                    )}
                 </div>
 
                 {/* Form Section */}

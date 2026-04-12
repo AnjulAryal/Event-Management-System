@@ -19,7 +19,8 @@ const supportRoutes = require('./routes/supportRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 // Body parser
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Enable CORS
 app.use(cors());

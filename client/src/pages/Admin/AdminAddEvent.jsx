@@ -30,21 +30,35 @@ const AdminAddEvent = () => {
         navigate('/admin-events');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
+        const userString = localStorage.getItem('user');
+        const user = userString ? JSON.parse(userString) : null;
+
         const newEvent = {
-            id: Date.now().toString(),
             ...formData,
             categoryColor: formData.category === 'technology' ? '#3b99fc' : '#82c653'
         };
 
-        const existingEvents = JSON.parse(localStorage.getItem('events')) || [];
-        const updatedEvents = [newEvent, ...existingEvents];
-        localStorage.setItem('events', JSON.stringify(updatedEvents));
-        
-        toast.success("Event created successfully!");
-        navigate('/admin-events');
+        try {
+            const res = await fetch('/api/events', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                },
+                body: JSON.stringify(newEvent)
+            });
+
+            if (!res.ok) throw new Error('Failed to create event');
+            
+            toast.success("Event created successfully!");
+            navigate('/admin-events');
+        } catch (error) {
+            console.error("Error creating event:", error);
+            toast.error("Failed to create event. Please try again.");
+        }
     };
 
     return (
@@ -134,21 +148,46 @@ const AdminAddEvent = () => {
                                     onChange={(e) => {
                                         const file = e.target.files[0];
                                         if (file) {
-                                            setFormData(prev => ({ ...prev, coverImage: file.name }));
-                                            toast.success("Image selected: " + file.name);
+                                            // 5MB Limit Validation
+                                            if (file.size > 5 * 1024 * 1024) {
+                                                toast.error("Image is too large! Please upload a file smaller than 5MB.");
+                                                e.target.value = null;
+                                                return;
+                                            }
+                                            
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setFormData(prev => ({ ...prev, coverImage: reader.result }));
+                                                toast.success("Image uploaded and ready for display!");
+                                            };
+                                            reader.onerror = () => {
+                                                toast.error("Failed to read image file.");
+                                            };
+                                            reader.readAsDataURL(file);
                                         }
                                     }}
                                 />
-                                <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                    <CloudUpload className="w-6 h-6 text-[#5CB85C]" />
-                                </div>
-                                <p className="text-sm font-bold text-slate-700 text-center mb-2">
-                                    {formData.coverImage ? formData.coverImage : "Click to upload"}
-                                </p>
-                                <p className="text-[11px] text-slate-400 text-center leading-relaxed font-medium">
-                                    PNG, JPG or WEBP (Max 5MB)<br />
-                                    1600 × 900px recommended
-                                </p>
+                                {formData.coverImage ? (
+                                    <div className="w-full h-full relative group/img overflow-hidden rounded-[20px]">
+                                        <img src={formData.coverImage} className="w-full h-full object-cover" alt="Preview" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                                            <p className="text-white font-bold text-sm text-center">Click to change<br/>Upload</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <CloudUpload className="w-6 h-6 text-[#5CB85C]" />
+                                        </div>
+                                        <p className="text-sm font-bold text-slate-700 text-center mb-2">
+                                            Click to upload
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 text-center leading-relaxed font-medium">
+                                            PNG, JPG or WEBP (Max 5MB)<br />
+                                            1600 × 900px recommended
+                                        </p>
+                                    </>
+                                )}
                             </label>
                         </div>
 

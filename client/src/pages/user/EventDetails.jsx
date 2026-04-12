@@ -11,29 +11,73 @@ export default function EventDetails() {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [notes, setNotes] = useState("");
 
+    const [event, setEvent] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
+    useEffect(() => {
+        const fetchEvent = async () => {
+            try {
+                const res = await fetch(`/api/events/${id}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setEvent(data);
+                } else {
+                    toast.error('Failed to load event details');
+                }
+            } catch (error) {
+                console.error("Error fetching event:", error);
+                toast.error('Error loading event');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchEvent();
+    }, [id]);
+
     const handleSendMessage = (e) => {
         e.preventDefault();
         toast.success("Message sent to organizer!");
     };
 
+    if (loading) {
+        return (
+            <UserPageContainer isMobile={isMobile}>
+                <div className="flex h-[60vh] flex-col items-center justify-center text-slate-500 font-bold">
+                    <p>Loading Event Details...</p>
+                </div>
+            </UserPageContainer>
+        );
+    }
+
+    if (!event) {
+        return (
+            <UserPageContainer isMobile={isMobile}>
+                <div className="flex h-[60vh] flex-col items-center justify-center text-slate-500 font-bold">
+                    <p>Event not found.</p>
+                </div>
+            </UserPageContainer>
+        );
+    }
+
     const details = [
-        { icon: <Calendar size={18} className="text-green-600" />, label: "DATE", value: "October 24, 2024", bg: "bg-green-50" },
-        { icon: <Clock size={18} className="text-yellow-600" />, label: "TIME", value: "09:00 AM - 05:00 PM EST", bg: "bg-yellow-50" },
-        { icon: <MapPin size={18} className="text-blue-600" />, label: "VENUE", value: "The Glass Pavilion, NYC", bg: "bg-blue-50" },
-        { icon: <User size={18} className="text-purple-600" />, label: "ORGANIZER", value: "Orchestra Creative Labs", bg: "bg-purple-50" },
+        { icon: <Calendar size={18} className="text-green-600" />, label: "DATE", value: event.date || "TBD", bg: "bg-green-50" },
+        { icon: <Clock size={18} className="text-yellow-600" />, label: "TIME", value: event.time || "TBD", bg: "bg-yellow-50" },
+        { icon: <MapPin size={18} className="text-blue-600" />, label: "VENUE", value: event.location || "TBD", bg: "bg-blue-50" },
+        { icon: <User size={18} className="text-purple-600" />, label: "ORGANIZER", value: event.organizer || "Admin", bg: "bg-purple-50" },
     ];
 
     return (
         <UserPageContainer isMobile={isMobile}>
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-8 px-1">
-                <span className="cursor-pointer hover:text-slate-600">Events</span>
+                <span className="cursor-pointer hover:text-slate-600" onClick={() => navigate('/events')}>Events</span>
                 <ChevronRight size={14} />
                 <span className="text-slate-900">View Details</span>
             </nav>
@@ -43,16 +87,36 @@ export default function EventDetails() {
                 {/* Left Side Content */}
                 <div className="flex-1 space-y-10">
                     {/* Main Event Image */}
-                    <div className="relative rounded-[32px] overflow-hidden shadow-xl aspect-video group">
-                        <img 
-                            src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop" 
-                            alt="Event" 
-                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                    <div className="relative rounded-[32px] overflow-hidden shadow-xl aspect-video group bg-[#1c2331] flex items-center justify-center">
+                        {event.coverImage ? (
+                            <img 
+                                src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000/${event.coverImage.replace(/^\/+/, '')}`} 
+                                alt={event.title} 
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                        ) : (
+                            <span className="text-[#5973a8] text-[64px] font-black tracking-tight select-none">
+                                {event.title?.substring(0, 2).toUpperCase() || 'EV'}
+                            </span>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
                         <div className="absolute bottom-8 left-8">
                              <div className="bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-lg animate-bounce">
-                                Live in 3 days
+                                {(() => {
+                                    try {
+                                        const eDate = new Date(event.date);
+                                        const today = new Date();
+                                        eDate.setHours(0,0,0,0);
+                                        today.setHours(0,0,0,0);
+                                        const diff = Math.ceil((eDate - today) / (1000 * 60 * 60 * 24));
+                                        if (isNaN(diff)) return "LIVE";
+                                        if (diff === 0) return "LIVE TODAY";
+                                        if (diff > 0) return `LIVE IN ${diff} DAY${diff > 1 ? 'S' : ''}`;
+                                        return "PAST EVENT";
+                                    } catch {
+                                        return "LIVE";
+                                    }
+                                })()}
                              </div>
                         </div>
                     </div>
@@ -61,15 +125,12 @@ export default function EventDetails() {
                     <div className="space-y-4">
                         <div className="flex items-center gap-3 text-slate-800">
                             <FileText size={20} className="text-[#5CB85C]" />
-                            <h3 className="text-lg font-extrabold tracking-tight">Personal Orchestration Notes</h3>
+                            <h3 className="text-lg font-extrabold tracking-tight">Additional Details</h3>
                         </div>
                         <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-50 min-h-[140px]">
-                            <textarea 
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                placeholder="Jot down internal thoughts, speaker requirements, or logistical reminders for this specific event..."
-                                className="w-full h-full bg-transparent border-none outline-none text-sm text-slate-400 font-medium italic resize-none"
-                            />
+                            <p className="w-full h-full bg-transparent border-none outline-none text-sm text-slate-600 leading-relaxed font-medium">
+                                {event.description}
+                            </p>
                         </div>
                     </div>
 
@@ -85,8 +146,9 @@ export default function EventDetails() {
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Email</label>
                                 <input 
                                     type="email" 
-                                    defaultValue="orchestrator@eventify.com"
+                                    placeholder="your-email@domain.com"
                                     className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-[#5CB85C]/20 outline-none transition-all"
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
@@ -94,9 +156,10 @@ export default function EventDetails() {
                                 <textarea 
                                     placeholder="How can we help you with this event's logistics?"
                                     className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 shadow-sm min-h-[120px] focus:ring-2 focus:ring-[#5CB85C]/20 outline-none transition-all resize-none"
+                                    required
                                 />
                             </div>
-                            <Button className="w-full bg-slate-200 text-slate-500 hover:bg-slate-300 transition-all py-4 font-black uppercase text-xs tracking-widest h-auto shadow-none">
+                            <Button className="w-full bg-[#e2e8f0] text-slate-600 hover:bg-[#cbd5e1] transition-all py-4 font-black uppercase text-xs tracking-widest h-auto shadow-none">
                                 Send Message
                             </Button>
                         </form>
@@ -108,22 +171,20 @@ export default function EventDetails() {
                     <div className="bg-white rounded-[40px] p-10 shadow-xl border border-slate-50 space-y-10">
                         <div className="space-y-4">
                             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                                Modern Design Orchestration 2024
+                                {event.title}
                             </h1>
-                            <p className="text-slate-500 text-sm leading-relaxed font-medium">
-                                A masterclass in digital orchestration, focusing on the intersection of AI-driven interfaces and editorial design principles. For the visionary creator.
-                            </p>
+                            <p className="text-[#3b82f6] text-[11px] font-black uppercase tracking-widest mb-2 inline-block bg-blue-50 px-3 py-1 rounded-full">{event.category || 'Event'}</p>
                         </div>
 
                         <div className="space-y-6">
                             {details.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-5 group">
-                                    <div className={`w-12 h-12 ${item.bg} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110`}>
+                                    <div className={`w-12 h-12 ${item.bg} rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shrink-0`}>
                                         {item.icon}
                                     </div>
-                                    <div className="space-y-0.5">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">{item.label}</p>
-                                        <p className="text-sm font-bold text-slate-700">{item.value}</p>
+                                    <div className="space-y-0.5 overflow-hidden">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{item.label}</p>
+                                        <p className="text-sm font-bold text-slate-800 truncate" title={item.value}>{item.value}</p>
                                     </div>
                                 </div>
                             ))}

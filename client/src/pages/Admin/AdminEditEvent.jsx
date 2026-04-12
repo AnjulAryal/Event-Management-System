@@ -21,24 +21,29 @@ const AdminEditEvent = () => {
     });
 
     useEffect(() => {
-        const events = JSON.parse(localStorage.getItem('events')) || [];
-        const eventToEdit = events.find(e => e.id === id);
-        if (eventToEdit) {
-            setFormData({
-                title: eventToEdit.title || '',
-                description: eventToEdit.description || '',
-                date: eventToEdit.date || '',
-                time: eventToEdit.time || '',
-                venue: eventToEdit.venue || '',
-                location: eventToEdit.location || '',
-                organizer: eventToEdit.organizer || '',
-                adminNotes: eventToEdit.adminNotes || '',
-                category: eventToEdit.category || 'technology'
-            });
-        } else {
-            toast.error("Event not found!");
-            navigate('/admin-events');
-        }
+        const fetchEvent = async () => {
+            try {
+                const res = await fetch(`/api/events/${id}`);
+                if (!res.ok) throw new Error('Event not found');
+                const eventToEdit = await res.json();
+                setFormData({
+                    title: eventToEdit.title || '',
+                    description: eventToEdit.description || '',
+                    date: eventToEdit.date || '',
+                    time: eventToEdit.time || '',
+                    venue: eventToEdit.venue || '',
+                    location: eventToEdit.location || '',
+                    organizer: eventToEdit.organizer || '',
+                    adminNotes: eventToEdit.adminNotes || '',
+                    category: eventToEdit.category || 'technology'
+                });
+            } catch (err) {
+                console.error(err);
+                toast.error("Event not found!");
+                navigate('/admin-events');
+            }
+        };
+        fetchEvent();
     }, [id, navigate]);
 
     const handleChange = (e) => {
@@ -51,24 +56,38 @@ const AdminEditEvent = () => {
         navigate('/admin-events');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
-        const events = JSON.parse(localStorage.getItem('events')) || [];
-        const updatedEvents = events.map(e => {
-            if (e.id === id) {
-                return {
-                    ...e,
-                    ...formData,
-                    categoryColor: formData.category === 'technology' ? '#3b99fc' : '#82c653'
-                };
-            }
-            return e;
-        });
+        try {
+            const userString = localStorage.getItem('user');
+            const user = userString ? JSON.parse(userString) : null;
+            
+            const payload = {
+                ...formData,
+                categoryColor: formData.category === 'technology' ? '#3b99fc' : '#82c653'
+            };
 
-        localStorage.setItem('events', JSON.stringify(updatedEvents));
-        toast.success("Event updated successfully!");
-        navigate('/admin-events');
+            const res = await fetch(`/api/events/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'Failed to update event');
+            }
+
+            toast.success("Event updated successfully!");
+            navigate('/admin-events');
+        } catch (error) {
+            console.error("Error updating event:", error);
+            toast.error(error.message || "Failed to update event");
+        }
     };
 
     return (
@@ -150,18 +169,54 @@ const AdminEditEvent = () => {
                             <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-widest mb-4 shrink-0">
                                 EVENT COVER IMAGE
                             </label>
-                            <div className="flex-1 w-full border-2 border-dashed border-slate-200/80 rounded-[24px] flex flex-col items-center justify-center p-6 bg-white hover:bg-[#f8fafc]/50 transition-colors cursor-pointer group">
-                                <div className="w-[52px] h-[52px] rounded-full bg-[#f4f6f8] flex items-center justify-center mb-4 group-hover:bg-[#eaf1ec] transition-colors">
-                                    <CloudUpload className="w-[22px] h-[22px] text-[#5CB85C]" strokeWidth={2.5} />
-                                </div>
-                                <p className="text-[13px] font-bold text-[#1f2937] text-center mb-3">
-                                    Click to upload or<br />drag and drop
-                                </p>
-                                <div className="text-[10px] text-slate-400 text-center leading-[1.6]">
-                                    <p>PNG, JPG or WEBP (Max 5MB)</p>
-                                    <p>Recommended: 1600×900px</p>
-                                </div>
-                            </div>
+                            <label className="flex-1 w-full border-2 border-dashed border-slate-200/80 rounded-[24px] flex flex-col items-center justify-center p-6 bg-white hover:bg-[#f8fafc]/50 transition-colors cursor-pointer group relative overflow-hidden">
+                                <input 
+                                    type="file" 
+                                    className="hidden" 
+                                    accept="image/png, image/jpeg, image/webp"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            if (file.size > 5 * 1024 * 1024) {
+                                                toast.error("Image is too large! Please upload a file smaller than 5MB.");
+                                                e.target.value = null;
+                                                return;
+                                            }
+
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setFormData(prev => ({ ...prev, coverImage: reader.result }));
+                                                toast.success("Image updated and ready for display!");
+                                            };
+                                            reader.onerror = () => {
+                                                toast.error("Failed to read image file.");
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                />
+                                {formData.coverImage ? (
+                                    <>
+                                        <img src={formData.coverImage.startsWith('data:image') || formData.coverImage.startsWith('http') ? formData.coverImage : `http://localhost:5000${formData.coverImage}`} className="w-full h-full object-cover absolute inset-0" alt="Preview" />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 w-full h-full">
+                                            <p className="text-white font-bold text-sm text-center">Click to change<br/>Upload</p>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="w-[52px] h-[52px] rounded-full bg-[#f4f6f8] flex items-center justify-center mb-4 group-hover:bg-[#eaf1ec] transition-colors">
+                                            <CloudUpload className="w-[22px] h-[22px] text-[#5CB85C]" strokeWidth={2.5} />
+                                        </div>
+                                        <p className="text-[13px] font-bold text-[#1f2937] text-center mb-3">
+                                            Click to upload or<br />drag and drop
+                                        </p>
+                                        <div className="text-[10px] text-slate-400 text-center leading-[1.6]">
+                                            <p>PNG, JPG or WEBP (Max 5MB)</p>
+                                            <p>Recommended: 1600×900px</p>
+                                        </div>
+                                    </>
+                                )}
+                            </label>
                         </div>
 
                         {/* Box 5: Category & Actions */}

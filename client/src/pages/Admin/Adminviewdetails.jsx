@@ -1,220 +1,267 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ArrowLeft, Calendar, Clock, MapPin, User, Star, Heart } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { CalendarDays, Clock, MapPin, User, Star, ArrowLeft } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const Adminviewdetails = () => {
+const AdminViewDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [event, setEvent] = useState(null);
+    const [feedbacks, setFeedbacks] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
 
     useEffect(() => {
-        const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
-        const found = storedEvents.find(e => e.id === id);
-        
-        if (found) {
-            setEvent({
-                ...found,
-                description: found.description || "A masterclass in digital orchestration, focusing on the intersection of AI-driven interfaces and editorial design principles. For the visionary creator. A masterclass in digital orchestration, focusing on the intersection of AI-driven interfaces and editorial design principles. For the visionary creator.",
-                time: found.time || "09:00 AM - 05:00 PM EST",
-                venue: found.venue || found.location || "The Glass Pavilion, NYC",
-                organizer: found.organizer || "Orchestra Creative Labs",
-                date: found.date || "October 24, 2024"
-            });
+        const fetchDetails = async () => {
+            try {
+                const eventRes = await fetch(`/api/events/${id}`);
+                let fetchedEvent = null;
+                if (eventRes.ok) {
+                    fetchedEvent = await eventRes.json();
+                    setEvent(fetchedEvent);
+                } else {
+                    toast.error("Failed to load event details");
+                    setLoading(false);
+                    return;
+                }
+
+                const feedbackRes = await fetch('/api/feedback', {
+                    headers: {
+                        Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                    }
+                });
+                
+                if (feedbackRes.ok) {
+                    const allFeedbacks = await feedbackRes.json();
+                    const eventFeedbacks = allFeedbacks.filter(f => f.title === fetchedEvent.title);
+                    setFeedbacks(eventFeedbacks);
+                }
+            } catch (error) {
+                console.error("Error fetching details:", error);
+                toast.error("Error loading data");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) {
+            fetchDetails();
         }
     }, [id]);
 
+    const handleDelete = async () => {
+        if (window.confirm("Are you sure you want to delete this event?")) {
+            try {
+                const res = await fetch(`/api/events/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                    }
+                });
+                if (res.ok) {
+                    toast.success("Event deleted successfully!");
+                    navigate('/admin-events');
+                } else {
+                    toast.error("Failed to delete event");
+                }
+            } catch (error) {
+                toast.error("Failed to delete event");
+            }
+        }
+    };
+
+    if (loading) {
+        return <div className="min-h-screen bg-[#F9FAFB] flex justify-center items-center font-bold text-slate-500">Loading details...</div>;
+    }
+
     if (!event) {
-        return <div className="p-8 text-center text-slate-500">Loading details...</div>;
+        return <div className="min-h-screen bg-[#F9FAFB] flex justify-center items-center font-bold text-slate-500">Event not found</div>;
     }
 
     return (
-        <div className="min-h-screen bg-[#F5F7FA] font-sans pb-12 flex flex-col">
-            {/* Top Navigation Bar / Search Header (shared header style) */}
-            <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-                <div className="relative w-full max-w-lg group">
-                    <span className="absolute inset-y-0 left-4 flex items-center text-slate-400">
-                        <Search className="w-4 h-4" />
-                    </span>
-                    <input
-                        type="text"
-                        placeholder="Search events..."
-                        className="w-full bg-slate-50 border border-slate-200 text-[13px] rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:bg-white transition-all shadow-sm"
-                    />
-                </div>
-            </header>
-
-            <main className="flex-1 w-full max-w-[1400px] mx-auto px-6 py-8">
-                
-                {/* Breadcrumbs & Back */}
-                <div className="flex items-center justify-between mb-6">
-                    <div className="text-[13px] font-bold text-slate-500">
-                        Events <span className="mx-1.5 font-normal text-slate-300">›</span> <span className="text-slate-800">View Details</span>
+        <div className="min-h-screen bg-[#F9FAFB] font-sans text-slate-800 p-6 md:p-10">
+            <div className="max-w-7xl mx-auto">
+                {/* Header Navigation */}
+                <header className="flex justify-between items-center mb-8">
+                    <div className="text-sm font-semibold text-slate-500">
+                        Events {'>'} <span className="text-slate-900 font-bold">View Details</span>
                     </div>
                     <button 
-                        onClick={() => navigate('/admin-events')}
-                        className="flex items-center text-green-600 font-bold text-sm hover:text-green-700 transition-colors"
+                        onClick={() => navigate(-1)} 
+                        className="flex items-center text-[#5CB85C] font-bold hover:text-green-700 transition"
                     >
-                        <ArrowLeft className="w-4 h-4 mr-1.5" /> Back
+                        <ArrowLeft className="w-5 h-5 mr-1" /> Back
                     </button>
-                </div>
+                </header>
 
-                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] xl:grid-cols-[1.5fr_1fr] gap-10">
-                    
+                <div className="flex flex-col lg:flex-row gap-10">
                     {/* Left Column */}
-                    <div className="flex flex-col">
-                        
-                        {/* Event Hero Image */}
-                        <div className="rounded-[24px] overflow-hidden relative shadow-md mb-8 bg-slate-900 aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9]">
-                            {/* Using a placeholder gradient image since we don't have the real asset */}
-                            <div 
-                                className="w-full h-full object-cover"
-                                style={{ background: 'radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%)' }}
-                            >
-                                <div className="absolute inset-0 flex items-center justify-center opacity-30">
-                                    <div className="w-[120%] h-[200px] bg-blue-500 rounded-[100%] blur-[100px] rotate-[-15deg] translate-y-20"></div>
+                    <div className="flex-1 flex flex-col gap-8">
+                        {/* Image Container */}
+                        <div className="relative rounded-[32px] overflow-hidden shadow-md h-[400px]">
+                            {event.coverImage ? (
+                                <img 
+                                    src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000/${event.coverImage.replace(/^\/+/, '')}`}
+                                    alt={event.title}
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-[#1c2331] flex justify-center items-center">
+                                    <span className="text-white/20 text-6xl font-black">{event.title?.substring(0, 2).toUpperCase()}</span>
                                 </div>
-                            </div>
-                            <div className="absolute bottom-5 left-5">
-                                <span className="bg-[#4338ca] text-white text-[10px] font-bold uppercase tracking-wider px-4 py-1.5 rounded-full shadow-lg">
-                                    LIVE IN 3 DAYS
+                            )}
+                            {/* Overlay */}
+                            <div className="absolute inset-0 bg-black/20"></div>
+                            
+                            {/* Dynamic Badge */}
+                            <div className="absolute bottom-6 left-6">
+                                <span className={`text-white text-xs font-bold uppercase py-2 px-4 rounded-full shadow-lg ${
+                                    new Date(event.date) < new Date() ? 'bg-slate-600' : 'bg-[#3b07d8]'
+                                }`}>
+                                    {(() => {
+                                        try {
+                                            const eDate = new Date(event.date);
+                                            const today = new Date();
+                                            eDate.setHours(0,0,0,0);
+                                            today.setHours(0,0,0,0);
+                                            const diff = Math.ceil((eDate - today) / (1000 * 60 * 60 * 24));
+                                            if (isNaN(diff)) return "EVENT";
+                                            if (diff === 0) return "LIVE TODAY";
+                                            if (diff > 0) return `LIVE IN ${diff} DAY${diff > 1 ? 'S' : ''}`;
+                                            return "PAST EVENT";
+                                        } catch {
+                                            return "EVENT";
+                                        }
+                                    })()}
                                 </span>
                             </div>
                         </div>
 
-                        {/* Title & Description Box */}
-                        <div className="bg-white p-6 md:p-8 mb-6 border-[3px] border-[#2582eb]">
-                            <h2 className="text-[28px] md:text-[34px] font-black text-slate-900 mb-8 leading-tight tracking-tight flex flex-row items-baseline gap-3">
-                                <span className="text-[22px] font-bold text-slate-800 tracking-normal">Title:</span>
-                                {event.title}
-                            </h2>
-                            <h3 className="text-[18px] font-bold text-slate-900 mb-3">Description:</h3>
-                            <p className="text-slate-500 leading-[1.8] text-[14px]">
+                        {/* Event Content Card */}
+                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-50">
+                            <h1 className="text-2xl md:text-[32px] font-extrabold text-slate-900 mb-6 flex gap-2 leading-tight">
+                                <span className="font-semibold text-slate-800 tracking-tight">Title:</span> {event.title}
+                            </h1>
+                            
+                            <h3 className="text-[20px] font-bold text-slate-900 mb-4 tracking-tight">Description:</h3>
+                            <p className="text-slate-500 leading-relaxed font-medium">
                                 {event.description}
                             </p>
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col sm:flex-row gap-4 w-full">
+                                <button 
+                                    onClick={() => navigate(`/admin-edit-event/${id}`)}
+                                    className="flex-1 bg-[#8A9BA8] hover:bg-[#788a99] text-slate-900 text-[20px] font-bold py-4 rounded-2xl shadow-sm transition-colors"
+                                >
+                                    Edit
+                                </button>
+                                <button 
+                                    onClick={handleDelete}
+                                    className="flex-1 bg-[#E53E3E] hover:bg-[#c92a2a] text-white text-[20px] font-bold py-4 rounded-2xl shadow-sm transition-colors"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                             <button 
-                                onClick={() => navigate(`/admin-edit-event/${event.id}`)}
-                                className="bg-[#939cae] hover:bg-[#838c9e] active:bg-slate-500 text-slate-900 font-bold py-3 md:py-4 rounded-[12px] text-[20px] border-[5px] border-[#cbd5e1] transition-all flex items-center justify-center outline-none"
+                                onClick={() => navigate(`/admin-event-attendees/${id}`)}
+                                className="w-full bg-[#5CB85C] hover:bg-[#4aa14a] text-white text-[20px] font-bold py-4 rounded-2xl shadow-sm transition-colors mt-2"
                             >
-                                Edit
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    if(window.confirm("Are you sure you want to delete this event?")) {
-                                        const storedEvents = JSON.parse(localStorage.getItem('events')) || [];
-                                        localStorage.setItem('events', JSON.stringify(storedEvents.filter(e => e.id !== event.id)));
-                                        toast.success("Event deleted!");
-                                        navigate('/admin-events');
-                                    }
-                                }}
-                                className="bg-[#e43a3a] hover:bg-red-600 active:bg-red-700 text-white font-bold py-3 md:py-4 rounded-[12px] text-[20px] border-[5px] border-[#fca5a5] transition-all focus:outline-none"
-                            >
-                                Delete
+                                Attendees
                             </button>
                         </div>
-                        <button 
-                            onClick={() => navigate(`/admin-event-attendees/${event.id}`)}
-                            className="mt-4 w-full bg-[#5CB85C] hover:bg-[#4aa14a] active:bg-[#3d8b3d] text-white font-bold py-3 md:py-4 rounded-[12px] text-[20px] border-[5px] border-[#9ce29c] transition-all focus:outline-none"
-                        >
-                            Attendees
-                        </button>
                     </div>
 
                     {/* Right Column */}
-                    <div className="flex flex-col">
-                        
-                        {/* Info List */}
-                        <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] border border-slate-50 mb-10 space-y-7">
-                            {/* Date */}
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#f0fbf0] p-2.5 rounded-[10px] flex items-center justify-center mt-0.5">
-                                    <Calendar className="text-[#5CB85C] w-[18px] h-[18px]"/>
+                    <div className="w-full lg:w-[420px] flex flex-col gap-8">
+                        {/* Details Card */}
+                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-50 flex flex-col gap-8">
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <CalendarDays className="w-6 h-6 text-[#5CB85C]" />
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Date</p>
-                                    <p className="font-bold text-slate-800 text-[15px]">{event.date}</p>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">DATE</p>
+                                    <p className="text-[15px] font-bold text-slate-800">{event.date}</p>
                                 </div>
                             </div>
                             
-                            {/* Time */}
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#f0fbf0] p-2.5 rounded-[10px] flex items-center justify-center mt-0.5">
-                                    <Clock className="text-[#5CB85C] w-[18px] h-[18px]"/>
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <Clock className="w-6 h-6 text-[#5CB85C]" />
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Time</p>
-                                    <p className="font-bold text-slate-800 text-[15px]">{event.time}</p>
-                                </div>
-                            </div>
-
-                            {/* Venue */}
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#f0fbf0] p-2.5 rounded-[10px] flex items-center justify-center mt-0.5">
-                                    <MapPin className="text-[#5CB85C] w-[18px] h-[18px]"/>
-                                </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Venue</p>
-                                    <p className="font-bold text-slate-800 text-[15px] leading-snug">{event.venue}</p>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">TIME</p>
+                                    <p className="text-[15px] font-bold text-slate-800">{event.time}</p>
                                 </div>
                             </div>
 
-                            {/* Organizer */}
-                            <div className="flex items-start gap-4">
-                                <div className="bg-[#f0fbf0] p-2.5 rounded-[10px] flex items-center justify-center mt-0.5">
-                                    <User className="text-[#5CB85C] w-[18px] h-[18px]"/>
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <MapPin className="w-6 h-6 text-[#5CB85C]" />
                                 </div>
-                                <div>
-                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Organizer</p>
-                                    <p className="font-bold text-slate-800 text-[15px]">{event.organizer}</p>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">VENUE</p>
+                                    <p className="text-[15px] font-bold text-slate-800">{event.location}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <User className="w-6 h-6 text-[#5CB85C]" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">ORGANIZER</p>
+                                    <p className="text-[15px] font-bold text-slate-800">{event.organizer || "N/A"}</p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Rating */}
-                        <div className="flex items-center gap-5 mb-8 pl-3">
-                            <span className="text-[#5CB85C] font-bold uppercase tracking-widest text-[12px]">Rating</span>
+                        {/* Rating Card */}
+                        <div className="flex items-center gap-4 px-2">
+                            <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">RATING</h3>
                             <div className="flex gap-1.5">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <Star key={star} className="text-[#facc15] fill-[#facc15] w-5 h-5" />
+                                {[...Array(5)].map((_, i) => (
+                                    <Star key={i} className="w-6 h-6 fill-[#EAB308] text-[#EAB308]" />
                                 ))}
                             </div>
                         </div>
 
-                        {/* Feedbacks */}
-                        <div className="pl-3">
-                            <h4 className="text-[#5CB85C] font-bold uppercase tracking-widest text-[12px] mb-4">Top Liked Feedbacks</h4>
-                            
-                            <div className="space-y-4">
-                                {/* Feedback Card Component */}
-                                {[1, 2, 3].map((item) => (
-                                    <div key={item} className="bg-white rounded-[20px] p-5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] border border-slate-50 flex gap-4 items-center transition-transform hover:-translate-y-1">
-                                        <div className="w-11 h-11 bg-[#e0f5e0] rounded-full flex-shrink-0"></div>
-                                        <div className="flex-1">
-                                            <div className="flex justify-between items-start mb-1.5">
-                                                <h5 className="font-bold text-slate-900 text-[13px]">ghimirearnav738@gmail</h5>
-                                                <div className="flex items-center gap-1.5">
-                                                    <span className="text-slate-500 text-[11px] font-medium">5.6k</span>
-                                                    <Heart className="text-[#ef4444] fill-[#ef4444] w-3.5 h-3.5" />
-                                                </div>
-                                            </div>
-                                            <p className="text-slate-400 text-[11px] font-medium leading-relaxed">
-                                                The Event was so coooool. Enjoyed every second of it
-                                            </p>
+                        {/* Feedbacks Header */}
+                        <div className="px-2">
+                             <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">TOP LIKED FEEDBACKS</h3>
+                        </div>
+
+                        {/* Feedback List */}
+                        <div className="flex flex-col gap-4">
+                            {feedbacks.length > 0 ? feedbacks.map((fb) => (
+                                <div key={fb._id || fb.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-50 flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-green-100 flex-shrink-0 mt-1"></div>
+                                    <div className="flex-1 flex flex-col pt-0.5">
+                                        <div className="flex justify-between items-center mb-1.5">
+                                            <span className="font-bold text-[14px] text-slate-900">{fb.email}</span>
                                         </div>
+                                        <p className="text-slate-400 text-[13px] font-medium leading-relaxed pr-2">
+                                            {fb.feedback}
+                                        </p>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            )) : (
+                                <div className="bg-white rounded-2xl p-8 border border-dashed border-slate-200 text-center text-slate-500 font-medium">
+                                    No feedbacks found for this event.
+                                </div>
+                            )}
                         </div>
 
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     );
 };
 
-export default Adminviewdetails;
+export default AdminViewDetails;

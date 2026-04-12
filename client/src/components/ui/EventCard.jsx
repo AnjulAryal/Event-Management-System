@@ -20,12 +20,20 @@ const EventCard = ({
     <div className={`bg-white rounded-[20px] shadow-sm overflow-hidden border border-slate-50 flex flex-col h-full transform transition-all hover:translate-y-[-4px] hover:shadow-md ${className}`}>
       {/* Card Header (Image/Preview) */}
       <div 
-        className="relative h-44 w-full flex items-center justify-center overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #1a2744 0%, #0f1a35 50%, #1e2d4a 100%)" }}
+        className="relative h-44 w-full flex items-center justify-center overflow-hidden bg-[#1c2331]"
+        style={!event.coverImage ? { background: "linear-gradient(135deg, #1a2744 0%, #0f1a35 50%, #1e2d4a 100%)" } : {}}
       >
-        <span className="text-white/10 text-6xl font-black italic tracking-tighter select-none font-serif">
-          {event.category?.substring(0, 2).toUpperCase() || 'EV'}
-        </span>
+        {event.coverImage ? (
+          <img 
+            src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000/${event.coverImage.replace(/^\/+/, '')}`}
+            alt={event.title}
+            className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+        ) : (
+          <span className="text-white/10 text-6xl font-black italic tracking-tighter select-none font-serif">
+            {event.category?.substring(0, 2).toUpperCase() || 'EV'}
+          </span>
+        )}
         
         {event.category && (
           <div className="absolute top-4 right-4">

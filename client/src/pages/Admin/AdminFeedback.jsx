@@ -1,43 +1,61 @@
-import React, { useState } from 'react';
-import { Search, Filter, Download, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Download, Star } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const AdminFeedback = () => {
     const [searchQuery, setSearchQuery] = useState("");
-    const [userFeedback, setUserFeedback] = useState([
-        {
-            title: "Tech Summit 2024",
-            email: "alex.vance@gmail.com",
-            date: "Oct 24, 2023",
-            feedback: "The keynote speakers were incredible,...",
-        },
-        {
-            title: "Design Week NYC",
-            email: "sarah.j@outlook.com",
-            date: "Oct 22, 2023",
-            feedback: "Loved the networking lounge! Very co...",
-        },
-        {
-            title: "Gourmet Expo",
-            email: "m.rossi@foodie.it",
-            date: "Oct 21, 2023",
-            feedback: "The wine tasting session was...",
-        },
-        {
-            title: "Yoga Flow Intensive",
-            email: "zen@wellness.com",
-            date: "Oct 20, 2023",
-            feedback: "Absolute peace. Exactly what I neede...",
-        },
-        {
-            title: "Startup Launchpad",
-            email: "investor@venture.co",
-            date: "Oct 19, 2023",
-            feedback: "The pitching round was a bit rushed, b...",
-        }
-    ]);
+    const [userFeedback, setUserFeedback] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const handleRemove = (indexToRemove) => {
-        setUserFeedback((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+    useEffect(() => {
+        const fetchFeedback = async () => {
+            try {
+                const user = JSON.parse(localStorage.getItem('user'));
+                const token = user?.token;
+                
+                const res = await fetch('/api/feedback', {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                });
+                
+                if (!res.ok) throw new Error('Failed to fetch feedback');
+                
+                const data = await res.json();
+                setUserFeedback(data);
+            } catch (error) {
+                console.error("Error fetching feedback:", error);
+                toast.error("Failed to load feedback");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFeedback();
+    }, []);
+
+    const handleRemove = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this feedback?")) return;
+        
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
+            
+            const res = await fetch(`/api/feedback/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            
+            if (!res.ok) throw new Error('Failed to delete feedback');
+            
+            setUserFeedback((prev) => prev.filter((item) => item._id !== id));
+            toast.success("Feedback deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting feedback:", error);
+            toast.error("Failed to delete feedback");
+        }
     };
 
     const handleExportCSV = () => {
@@ -72,6 +90,49 @@ const AdminFeedback = () => {
         item.feedback.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    // --- Dynamic Stats Calculations --
+    const totalResponses = userFeedback.length;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    let thisMonthCount = 0;
+    let lastMonthCount = 0;
+    let totalScore = 0;
+
+    userFeedback.forEach(item => {
+        let d = new Date(item.date);
+        if (isNaN(d.getTime())) d = new Date(item.createdAt);
+        
+        if (!isNaN(d.getTime())) {
+            if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                thisMonthCount++;
+            } else if (
+                (currentMonth === 0 && d.getMonth() === 11 && d.getFullYear() === currentYear - 1) ||
+                (d.getMonth() === currentMonth - 1 && d.getFullYear() === currentYear)
+            ) {
+                lastMonthCount++;
+            }
+        }
+
+        const text = (item.feedback || "").toLowerCase();
+        let score = 3; 
+        if (/(excellent|amazing|incredible|love|great|good|awesome|perfect|peace|outstanding)/.test(text)) score += 1.5;
+        if (/(bad|poor|terrible|awful|worse|hate|rushed)/.test(text)) score -= 1.5;
+        if (text.length > 50) score += 0.5; 
+        score = Math.min(Math.max(score, 1), 5); 
+        totalScore += score;
+    });
+
+    const growthPercent = lastMonthCount === 0 
+        ? (thisMonthCount > 0 ? 100 : 0) 
+        : Math.round(((thisMonthCount - lastMonthCount) / lastMonthCount) * 100);
+    const growthSign = growthPercent >= 0 ? "↑" : "↓";
+    const growthColor = growthPercent >= 0 ? "text-[#5cb85c]" : "text-[#ef4444]";
+
+    const avgSatisfaction = totalResponses > 0 ? (totalScore / totalResponses).toFixed(1) : "0.0";
+    const expectedResponses = totalResponses > 0 ? totalResponses + Math.max(10, Math.floor(totalResponses * 0.2)) : 100;
+    const responseRate = totalResponses > 0 ? Math.round((totalResponses / expectedResponses) * 100) : 0;
+
     return (
         <div className="min-h-screen bg-[#f8fafc] font-sans pb-12 flex flex-col">
             {/* Top Search Bar */}
@@ -92,32 +153,22 @@ const AdminFeedback = () => {
             <div className="flex-1 w-full max-w-[1100px] mx-auto p-6 md:p-8 space-y-6">
 
                 {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Card 1 */}
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-50 flex flex-col justify-center">
                         <h3 className="text-[13px] font-bold text-[#5cb85c] mb-2 leading-none cursor-default">Total Responses</h3>
-                        <div className="text-[32px] font-extrabold text-[#1e293b] leading-none mb-2">1,284</div>
-                        <div className="text-[12px] font-bold text-[#5cb85c]">↑ 12% from last month</div>
+                        <div className="text-[32px] font-extrabold text-[#1e293b] leading-none mb-2">{totalResponses}</div>
+                        <div className={`text-[12px] font-bold ${growthColor}`}>{growthSign} {Math.abs(growthPercent)}% from last month</div>
                     </div>
 
                     {/* Card 2 */}
                     <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-50 flex flex-col justify-center">
                         <h3 className="text-[13px] font-bold text-[#5cb85c] mb-2 leading-none cursor-default">Avg. Satisfaction</h3>
-                        <div className="text-[32px] font-extrabold text-[#1e293b] leading-none mb-2">4.8 / 5.0</div>
+                        <div className="text-[32px] font-extrabold text-[#1e293b] leading-none mb-2">{avgSatisfaction} / 5.0</div>
                         <div className="flex items-center gap-[2px]">
                             {[1, 2, 3, 4, 5].map((star) => (
-                                <Star key={star} className="w-3.5 h-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                                <Star key={star} className={`w-3.5 h-3.5 ${star <= Math.round(Number(avgSatisfaction)) ? 'fill-[#fbbf24] text-[#fbbf24]' : 'fill-slate-200 text-slate-200'}`} />
                             ))}
-                        </div>
-                    </div>
-
-                    {/* Card 3 */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-50 flex flex-col justify-center">
-                        <h3 className="text-[13px] font-bold text-[#5cb85c] mb-2 leading-none cursor-default">Response Rate</h3>
-                        <div className="text-[32px] font-extrabold text-[#1e293b] leading-none mb-3">64%</div>
-                        <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden flex">
-                            <div className="h-full bg-[#5cb85c] w-[64%]"></div>
-                            <div className="h-full bg-[#3b82f6] w-[36%]"></div>
                         </div>
                     </div>
                 </div>
@@ -127,9 +178,7 @@ const AdminFeedback = () => {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 border-b border-gray-100 gap-4">
                         <h2 className="text-xl font-bold text-[#1e293b]">Recent Submissions</h2>
                         <div className="flex items-center gap-3">
-                            <button className="flex items-center gap-2 px-4 py-2 border border-slate-200 rounded-lg text-[13px] font-bold text-slate-600 hover:bg-slate-50 transition-colors">
-                                <Filter className="w-3.5 h-3.5" /> Filter
-                            </button>
+
                             <button 
                                 onClick={handleExportCSV}
                                 className="flex items-center gap-2 px-4 py-2 bg-[#5cb85c] text-white rounded-lg text-[13px] font-bold shadow-sm hover:bg-[#4cae4c] active:scale-[0.98] transition-all cursor-pointer"
@@ -170,7 +219,7 @@ const AdminFeedback = () => {
                                         </td>
                                         <td className="px-8 py-5">
                                             <button
-                                                onClick={() => handleRemove(userFeedback.indexOf(item))}
+                                                onClick={() => handleRemove(item._id)}
                                                 className="text-[13px] font-bold text-[#ef4444] hover:text-red-700 transition-colors"
                                             >
                                                 Remove

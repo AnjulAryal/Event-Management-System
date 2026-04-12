@@ -11,34 +11,47 @@ const AdminSpeakers = () => {
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        const storedSpeakers = JSON.parse(localStorage.getItem('speakers'));
-        if (storedSpeakers && storedSpeakers.length > 0) {
-            setSpeakers(storedSpeakers);
-        } else {
-            // Initial dummy speakers
-            const dummySpeakers = [
-                { id: "1", initials: "SC", name: "Sarah Chen", role: "UX Director, Google", category: "UI/UX Design", event: "Design Summit 2024", date: "Dec 01 - 02, 2024" },
-                { id: "2", initials: "MR", name: "Marcus Rodriguez", role: "CTO, TechForward", category: "Technology", event: "Tech World 2024", date: "Nov 15 - 16, 2024" },
-                { id: "3", initials: "AP", name: "Aisha Patel", role: "CEO, DesignCo", category: "Business", event: "Startup Expo 2024", date: "Oct 10 - 11, 2024" },
-                { id: "4", initials: "JL", name: "James Liu", role: "Product Lead, Meta", category: "UI/UX Design", event: "UX Conf 2024", date: "Sep 22 - 23, 2024" },
-                { id: "5", initials: "EW", name: "Emma Wilson", role: "Sustainability Expert", category: "Business", event: "Eco Summit 2024", date: "Aug 05 - 06, 2024" },
-                { id: "6", initials: "DK", name: "David Kim", role: "AI Researcher, OpenAI", category: "Technology", event: "AI Workshop 2024", date: "Jul 18 - 19, 2024" }
-            ];
-            setSpeakers(dummySpeakers);
-            localStorage.setItem('speakers', JSON.stringify(dummySpeakers));
-        }
+        const fetchSpeakers = async () => {
+            try {
+                const res = await fetch('/api/speakers');
+                if (!res.ok) throw new Error('Failed to fetch speakers');
+                const data = await res.json();
+                setSpeakers(data);
+            } catch (error) {
+                console.error("Error fetching speakers:", error);
+                toast.error("Failed to load speakers");
+            }
+        };
+
+        fetchSpeakers();
     }, []);
 
     const handleEdit = (id) => {
         navigate(`/admin-speakers-edit/${id}`);
     };
 
-    const handleDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this speaker?")) {
-            const updated = speakers.filter(s => s.id !== id);
+    const handleDelete = async (id) => {
+        if (!window.confirm("Are you sure you want to delete this speaker?")) return;
+        
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
+
+            const res = await fetch(`/api/speakers/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) throw new Error('Failed to delete speaker');
+
+            const updated = speakers.filter(s => (s._id || s.id) !== id);
             setSpeakers(updated);
-            localStorage.setItem('speakers', JSON.stringify(updated));
             toast.success("Speaker deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting speaker:", error);
+            toast.error("Failed to delete speaker");
         }
     };
 
@@ -94,11 +107,11 @@ const AdminSpeakers = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
                         {filteredSpeakers.map((speaker) => (
                             <SpeakerCard 
-                                key={speaker.id} 
+                                key={speaker._id || speaker.id} 
                                 speaker={speaker} 
                                 isAdmin={true}
-                                onEdit={() => handleEdit(speaker.id)}
-                                onDelete={() => handleDelete(speaker.id)}
+                                onEdit={() => handleEdit(speaker._id || speaker.id)}
+                                onDelete={() => handleDelete(speaker._id || speaker.id)}
                             />
                         ))}
                     </div>

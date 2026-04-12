@@ -28,13 +28,13 @@ import AdminAddEvent from "./pages/admin/AdminAddEvent";
 import AdminEditEvent from "./pages/admin/AdminEditEvent";
 import AdminEventAttendees from "./pages/admin/AdminEventAttendees";
 import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
-import Adminviewdetails from "./pages/admin/Adminviewdetails";
 import Adminaddspeaker from "./pages/admin/adminaddspeaker";
+import AdminViewDetails from "./pages/admin/adminViewdetails";
 
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
-  const authRoutes = ['/login', '/signup', '/reset-password', '/update-password'];
+  const authRoutes = ['/login', '/reset-password', '/update-password'];
   const isAuthPage = authRoutes.includes(location.pathname);
   
   // Get the user from localStorage
@@ -122,7 +122,7 @@ function AppContent({ open, setOpen, isMobile }) {
           } />
           <Route path="/admin-view-details/:id" element={
             <ProtectedRoute allowedRoles={['admin']}>
-              <Adminviewdetails />
+              <AdminViewDetails />
             </ProtectedRoute>
           } />
 

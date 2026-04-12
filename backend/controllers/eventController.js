@@ -6,7 +6,7 @@ const getEvents = async (req, res) => {
 };
 
 const getEventById = async (req, res) => {
-  const event = await Event.findById(req.params.id);
+  const event = await Event.findById(req.params.id).populate('registeredParticipants', 'name email');
   if (event) {
     res.json(event);
   } else {

@@ -7,21 +7,36 @@ const AdminEventAttendees = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [attendees, setAttendees] = useState([]);
 
-    // Mock data generation to perfectly match the design
-    useEffect(() => {
-        // We'll generate a set of attendees matching the image's data
-        const data = Array(4).fill({
-            name: 'ANJUL ARYAL',
-            event: 'HERALD DEVCORPS',
-            emailPrefix: 'ARYALANJUL123',
-            emailSuffix: '@GMAIL.COM'
-        }).map((item, index) => ({ ...item, id: index }));
-        
-        // Add a few variations for functionality testing
-        data.push({ id: 4, name: 'SITA SHARMA', event: 'TECH CONF 2024', emailPrefix: 'SITA123', emailSuffix: '@GMAIL.COM' });
-        data.push({ id: 5, name: 'RAM THAPA', event: 'DESIGN SUMMIT', emailPrefix: 'RAMTHAPA', emailSuffix: '@YAHOO.COM' });
+    const [loading, setLoading] = useState(true);
 
-        setAttendees(data);
+    useEffect(() => {
+        const fetchAttendees = async () => {
+            try {
+                const res = await fetch(`/api/events/${id}`);
+                if (res.ok) {
+                    const eventData = await res.json();
+                    
+                    const participants = eventData.registeredParticipants || [];
+                    const formatted = participants.map((user, idx) => {
+                        const emailParts = user.email ? user.email.split('@') : ['unknown', 'domain.com'];
+                        return {
+                            id: user._id || idx,
+                            name: user.name || 'UNKNOWN',
+                            event: eventData.title || 'UNKNOWN EVENT',
+                            emailPrefix: emailParts[0],
+                            emailSuffix: '@' + (emailParts[1] || 'domain.com')
+                        };
+                    });
+                    setAttendees(formatted);
+                }
+            } catch (error) {
+                console.error("Failed to fetch attendees:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (id) fetchAttendees();
     }, [id]);
 
     const filteredAttendees = attendees.filter(att => 
@@ -35,20 +50,16 @@ const AdminEventAttendees = () => {
             
             {/* Top Bar Navigation Area */}
             <div className="w-full flex justify-end p-6 md:px-12 md:pt-8 bg-transparent">
-                <button className="relative p-2 text-[#5CB85C] hover:bg-green-50 rounded-full transition-colors cursor-pointer">
-                    <Bell className="w-6 h-6 outline-none" strokeWidth={1.5} />
-                    {/* Optional notification badge could go here */}
-                </button>
             </div>
 
             <div className="px-6 md:px-12 pb-12 overflow-y-auto w-full max-w-[1400px] mx-auto">
                 {/* Total Attendees Card */}
                 <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.02)] border border-slate-50 max-w-[320px] mb-12 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <h3 className="text-[#5CB85C] font-semibold text-[13px] mb-2 tracking-wide">Total Attendees</h3>
-                    <div className="text-[2.75rem] leading-none font-extrabold text-slate-900 mb-3">1,284</div>
+                    <div className="text-[2.75rem] leading-none font-extrabold text-slate-900 mb-3">{loading ? '...' : attendees.length.toLocaleString()}</div>
                     <div className="flex items-center text-[#5CB85C] text-xs font-bold tracking-wide">
                         <TrendingUp className="w-3.5 h-3.5 mr-1" strokeWidth={2.5} />
-                        12% from last month
+                        Active tracking
                     </div>
                 </div>
 

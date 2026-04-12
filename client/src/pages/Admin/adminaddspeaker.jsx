@@ -18,28 +18,45 @@ const Adminaddspeaker = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!formData.fullName || !formData.role || !formData.organization) {
             toast.error("Please fill required fields (Name, Role, Organization)");
             return;
         }
 
-        const speakers = JSON.parse(localStorage.getItem('speakers')) || [];
-        const newSpeaker = {
-            id: Date.now().toString(),
-            name: formData.fullName,
-            role: formData.role,
-            company: formData.organization,
-            topic: formData.topic,
-            event: formData.eventName,
-            ...formData,
-            image: null // We're not doing real uploads right now
-        };
-        speakers.push(newSpeaker);
-        localStorage.setItem('speakers', JSON.stringify(speakers));
-        
-        toast.success("Speaker added successfully!");
-        navigate('/admin-speakers');
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
+
+            const newSpeaker = {
+                name: formData.fullName,
+                role: `${formData.role}, ${formData.organization}`,
+                category: formData.topic,
+                event: formData.eventName || 'TBA',
+                date: formData.eventDate || new Date().toISOString().split('T')[0],
+                initials: formData.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+            };
+
+            const res = await fetch('/api/speakers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(newSpeaker)
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Failed to add speaker');
+            }
+
+            toast.success("Speaker added successfully!");
+            navigate('/admin-speakers');
+        } catch (error) {
+            console.error("Error adding speaker:", error);
+            toast.error(error.message || "Failed to add speaker");
+        }
     };
 
     return (

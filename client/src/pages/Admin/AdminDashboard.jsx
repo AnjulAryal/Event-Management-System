@@ -9,47 +9,94 @@ const AdminDashboard = () => {
     const [appliedFilters, setAppliedFilters] = useState({ date: '', category: 'All Categories' });
 
     const [dashboardData, setDashboardData] = useState({
-        totalEvents: 1284,
-        activeAttendees: "18.5k",
-        todayEvents: [
-            {
-                id: 1,
-                time: "10:00 AM",
-                location: "Main Auditorium",
-                title: "DevCorps",
-                category: "Technology",
-                description: "A deep dive into modern DevOps practices, cloud deployment, and scalable system design for developers.",
-                attending: 842,
-                color: "#c63636",
-                date: "2024-10-24"
-            },
-            {
-                id: 2,
-                time: "08:00 PM",
-                location: "Rooftop Terrace",
-                title: "After Hours Networking: Founders & VCs",
-                category: "Business",
-                description: "Casual networking event for series-A startups and private equity investors. Open bar and ho...",
-                attending: 124,
-                color: "#c63636",
-                date: "2024-10-24"
-            }
-        ],
-        upcomingEvents: [
-            { id: 1, month: "OCT", day: "24", title: "Modern Art Gala 2024", location: "Metropolitan Gallery", attending: "2.4k", date: "2024-10-24", category: "Arts" },
-            { id: 2, month: "OCT", day: "28", title: "Sustainability Expo", location: "Green Hall", attending: "1.1k", date: "2024-10-28", category: "Environment" },
-            { id: 3, month: "NOV", day: "02", title: "Product Design Workshop", location: "Remote/Digital", attending: "450", date: "2024-11-02", category: "Design" }
-        ]
+        totalEvents: 0,
+        activeAttendees: "0",
+        todayEvents: [],
+        upcomingEvents: []
     });
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const storedEvents = JSON.parse(localStorage.getItem('events'));
-        if (storedEvents && storedEvents.length > 0) {
-            setDashboardData(prev => ({
-                ...prev,
-                totalEvents: storedEvents.length
-            }));
-        }
+        const fetchDashboardData = async () => {
+            try {
+                const res = await fetch('/api/events');
+                if (!res.ok) throw new Error('Failed to fetch events');
+                const data = await res.json();
+                const events = Array.isArray(data) ? data : (data.events || []);
+
+                let activeAttendees = 0;
+                const todayEvents = [];
+                const upcomingEvents = [];
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                events.forEach(event => {
+                    const attendingCount = event.registeredParticipants ? event.registeredParticipants.length : 0;
+                    activeAttendees += attendingCount;
+
+                    // Parse the event date
+                    let eDate = new Date(event.date);
+                    if (isNaN(eDate.getTime())) {
+                        eDate = new Date(); // fallback
+                    } else {
+                        eDate.setHours(0, 0, 0, 0);
+                    }
+
+                    if (eDate.getTime() === today.getTime()) {
+                        todayEvents.push({
+                            id: event._id || event.id || Math.random(),
+                            time: event.time || "TBD",
+                            location: event.location || "TBD",
+                            title: event.title || "Untitled Event",
+                            category: event.category || "General",
+                            description: event.description && event.description.length > 90 
+                                ? event.description.substring(0, 90) + "..." 
+                                : (event.description || ""),
+                            attending: attendingCount,
+                            color: event.categoryColor || "#5CB85C",
+                            date: event.date,
+                            coverImage: event.coverImage
+                        });
+                    } else if (eDate > today) {
+                        const month = eDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+                        const day = eDate.getDate().toString().padStart(2, '0');
+                        upcomingEvents.push({
+                            id: event._id || event.id || Math.random(),
+                            month: month,
+                            day: day,
+                            title: event.title || "Untitled Event",
+                            location: event.location || "TBD",
+                            attending: attendingCount >= 1000 
+                                ? (attendingCount / 1000).toFixed(1) + "k" 
+                                : attendingCount.toString(),
+                            date: event.date,
+                            category: event.category || "General"
+                        });
+                    }
+                });
+
+                upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                let formattedAttendees = activeAttendees.toString();
+                if (activeAttendees >= 1000) {
+                    formattedAttendees = (activeAttendees / 1000).toFixed(1) + "k";
+                }
+
+                setDashboardData({
+                    totalEvents: events.length,
+                    activeAttendees: formattedAttendees,
+                    todayEvents,
+                    upcomingEvents
+                });
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchDashboardData();
     }, []);
 
     const handleApplyFilters = () => {
@@ -153,7 +200,15 @@ const AdminDashboard = () => {
                         <div className="space-y-4">
                             {filteredTodayEvents.map(event => (
                                 <div key={event.id} className="bg-white p-4 rounded-[16px] shadow-sm flex flex-col sm:flex-row gap-5 border border-slate-50 relative overflow-hidden transition-all hover:shadow-md">
-                                    <div className="w-full sm:w-[140px] h-[140px] rounded-[16px] flex-shrink-0" style={{ backgroundColor: event.color }}></div>
+                                    <div className="w-full sm:w-[140px] h-[140px] rounded-[16px] flex-shrink-0 relative overflow-hidden" style={{ backgroundColor: event.color }}>
+                                        {event.coverImage && (
+                                            <img 
+                                                src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000${event.coverImage}`}
+                                                alt={event.title}
+                                                className="w-full h-full object-cover absolute inset-0"
+                                            />
+                                        )}
+                                    </div>
                                     <div className="flex-1 flex flex-col py-1 justify-center">
                                         <div className="flex items-center gap-4 mb-2">
                                             <span className="text-blue-500 text-sm font-bold">{event.time}</span>

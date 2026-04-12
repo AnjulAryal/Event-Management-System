@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -18,21 +18,28 @@ const AdminSpeakersEdit = () => {
     });
 
     useEffect(() => {
-        const speakers = JSON.parse(localStorage.getItem('speakers')) || [];
-        const speakerToEdit = speakers.find(s => s.id === id);
-        if (speakerToEdit) {
-            setFormData({
-                name: speakerToEdit.name || '',
-                role: speakerToEdit.role || '',
-                category: speakerToEdit.category || '',
-                event: speakerToEdit.event || '',
-                date: speakerToEdit.date || '',
-                initials: speakerToEdit.initials || ''
-            });
-        } else {
-            toast.error("Speaker not found!");
-            navigate('/admin-speakers');
-        }
+        const fetchSpeaker = async () => {
+            try {
+                const res = await fetch(`/api/speakers/${id}`);
+                if (!res.ok) throw new Error('Speaker not found');
+                const speakerToEdit = await res.json();
+                
+                setFormData({
+                    name: speakerToEdit.name || '',
+                    role: speakerToEdit.role || '',
+                    category: speakerToEdit.category || '',
+                    event: speakerToEdit.event || '',
+                    date: speakerToEdit.date || '',
+                    initials: speakerToEdit.initials || ''
+                });
+            } catch (error) {
+                console.error("Error fetching speaker:", error);
+                toast.error("Speaker not found!");
+                navigate('/admin-speakers');
+            }
+        };
+
+        fetchSpeaker();
     }, [id, navigate]);
 
     const handleChange = (e) => {
@@ -51,33 +58,38 @@ const AdminSpeakersEdit = () => {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
-        const speakers = JSON.parse(localStorage.getItem('speakers')) || [];
-        const updatedSpeakers = speakers.map(s => {
-            if (s.id === id) {
-                return {
-                    ...s,
-                    ...formData
-                };
-            }
-            return s;
-        });
+        try {
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
 
-        localStorage.setItem('speakers', JSON.stringify(updatedSpeakers));
-        toast.success("Speaker information updated!");
-        navigate('/admin-speakers');
+            const res = await fetch(`/api/speakers/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Failed to update speaker');
+            }
+
+            toast.success("Speaker information updated!");
+            navigate('/admin-speakers');
+        } catch (error) {
+            console.error("Error updating speaker:", error);
+            toast.error(error.message || "Failed to update speaker");
+        }
     };
 
     return (
         <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans min-h-screen relative">
-            {/* Bell Icon in Top Right */}
-            <div className="absolute top-8 right-8 lg:top-10 lg:right-12">
-                <div className="relative">
-                    <Bell className="w-6 h-6 text-[#5CB85C] cursor-pointer" />
-                </div>
-            </div>
+
 
             <div className="max-w-[700px] mx-auto mt-4">
                 {/* Header */}
