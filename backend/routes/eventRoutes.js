@@ -7,6 +7,7 @@ const {
   updateEvent,
   deleteEvent,
   registerForEvent,
+  cancelRegistration,
   getRecommendedEvents,
 } = require('../controllers/eventController');
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -20,6 +21,9 @@ router.route('/recommendations')
 
 router.route('/:id/register')
   .post(protect, registerForEvent);
+
+router.route('/:id/cancel')
+  .post(protect, cancelRegistration);
 
 router.route('/:id')
   .get(getEventById)

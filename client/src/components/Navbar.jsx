@@ -11,6 +11,7 @@ import {
     X,
     ArrowRight,
 } from "lucide-react";
+import BrandLogo from "./ui/BrandLogo";
 
 /**
  * Sidebar component - Specific for Eventify Admin and User dashboards.
@@ -121,9 +122,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
             >
                 {/* Logo Section */}
                 <div style={{ padding: "32px 24px 20px" }}>
-                    <span style={{ fontSize: "24px", fontWeight: 800, color: "#5CB85C", letterSpacing: "-0.5px" }}>
-                        EVENTIFY
-                    </span>
+                    <BrandLogo size="24px" />
                 </div>
 
                 {/* User Profile Card */}

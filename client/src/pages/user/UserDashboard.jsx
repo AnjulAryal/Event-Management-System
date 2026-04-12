@@ -23,13 +23,24 @@ export default function UserDashboard() {
     const userName = user.name || "User";
     const token = user.token;
 
+    const attachRegistrationState = (event) => ({
+        ...event,
+        id: event._id,
+        isRegistered:
+            !!user?._id &&
+            Array.isArray(event.registeredParticipants) &&
+            event.registeredParticipants.some(
+                (participantId) => String(participantId) === String(user._id)
+            ),
+    });
+
     useEffect(() => {
         const fetchAllData = async () => {
             try {
                 // Fetch all events for popular section
                 const eventsRes = await fetch('/api/events');
                 const eventsData = await eventsRes.json();
-                const mappedEvents = eventsData.map(e => ({ ...e, id: e._id }));
+                const mappedEvents = eventsData.map(attachRegistrationState);
                 setEvents(mappedEvents);
                 setDisplayedEvents(mappedEvents.slice(0, 3));
 
@@ -41,7 +52,7 @@ export default function UserDashboard() {
                         }
                     });
                     const recData = await recRes.json();
-                    setRecommendedEvents(recData.map(e => ({ ...e, id: e._id })));
+                    setRecommendedEvents(recData.map(attachRegistrationState));
                 } else {
                     // Fallback to local slice if not logged in
                     setRecommendedEvents(mappedEvents.slice(3, 6));

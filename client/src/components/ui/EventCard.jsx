@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapPin, CalendarDays } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
 
@@ -11,8 +10,13 @@ const EventCard = ({
   customActions 
 }) => {
   const navigate = useNavigate();
+  const isRegistered = Boolean(event?.isRegistered);
 
   const handleRegister = () => {
+    if (isRegistered) {
+      navigate(`/event-details/${event.id}`);
+      return;
+    }
     navigate(`/complete-registration/${event.id}`);
   };
 
@@ -72,9 +76,13 @@ const EventCard = ({
           <div className="space-y-3 pt-2">
             <button 
               onClick={handleRegister}
-              className="w-full bg-[#5CB85C] hover:bg-[#4AA14A] text-white py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.98]"
+              className={`w-full py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.98] ${
+                isRegistered
+                  ? 'bg-[#5CB85C] text-white'
+                  : 'bg-[#5CB85C] hover:bg-[#4AA14A] text-white'
+              }`}
             >
-              Register Now
+              {isRegistered ? 'Registered' : 'Register Now'}
             </button>
             <button 
               onClick={() => navigate(`/event-details/${event.id}`)}

@@ -2,17 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import GenericCollectionPage from "../../components/user/GenericCollectionPage";
 import EventCard from "../../components/ui/EventCard";
-import Button from "../../components/ui/Button";
-
-const MY_EVENTS = [
-    // ... same as before
-    { id: 1, title: "UI/UX Design Summit", location: "Creative Hub, NYC", date: "Dec 01, 2024", category: "UI/UX DESIGN", categoryColor: "#6c8ebf" },
-    { id: 2, title: "DevCorps 2024", location: "Main Auditorium", date: "Oct 28, 2024", category: "TECHNOLOGY", categoryColor: "#c97b7b" },
-    { id: 3, title: "Modern Art Gala", location: "Metropolitan Gallery", date: "Oct 24, 2024", category: "ART", categoryColor: "#8b8b6e" },
-    { id: 4, title: "Sustainability Expo", location: "Green Hall", date: "Nov 02, 2024", category: "BUSINESS", categoryColor: "#7b9e87" },
-    { id: 5, title: "Startup Launchpad", location: "Innovation Hub", date: "Nov 15, 2024", category: "BUSINESS", categoryColor: "#7b9e87" },
-    { id: 6, title: "Yoga Flow Intensive", location: "Wellness Center", date: "Nov 20, 2024", category: "HEALTH", categoryColor: "#8b8b6e" },
-];
 
 export default function RegisteredEvents() {
     const navigate = useNavigate();
@@ -20,37 +9,45 @@ export default function RegisteredEvents() {
     const [recommendedEvents, setRecommendedEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const userString = localStorage.getItem('user');
+    const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
 
     useEffect(() => {
         const fetchAllData = async () => {
             if (!user) return;
+
             const token = user.token;
+
             try {
-                // Fetch my events
-                const res = await fetch('/api/events');
+                const res = await fetch("/api/events");
                 const data = await res.json();
+
                 const myEvents = data
-                    .filter(e => e.registeredParticipants && e.registeredParticipants.includes(user._id))
-                    .map(e => ({ ...e, id: e._id }));
+                    .filter(
+                        (event) =>
+                            Array.isArray(event.registeredParticipants) &&
+                            event.registeredParticipants.some(
+                                (participantId) => String(participantId) === String(user._id)
+                            )
+                    )
+                    .map((event) => ({ ...event, id: event._id }));
+
                 setEvents(myEvents);
 
-                // Fetch real recommendations from backend
                 const recRes = await fetch(`/api/events/recommendations?userId=${user._id}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                        Authorization: `Bearer ${token}`,
+                    },
                 });
                 const recData = await recRes.json();
-                setRecommendedEvents(recData.map(e => ({ ...e, id: e._id })));
-
+                setRecommendedEvents(recData.map((event) => ({ ...event, id: event._id })));
             } catch (error) {
                 console.error("Error fetching events:", error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchAllData();
     }, [user?._id]);
 
@@ -70,16 +67,16 @@ export default function RegisteredEvents() {
             searchPlaceholder="Search events..."
             rightElement={<ViewAllLink />}
             renderItem={(event) => (
-                <EventCard 
-                    key={event.id} 
-                    event={event} 
+                <EventCard
+                    key={event.id}
+                    event={event}
                     showButtons={true}
                     customActions={
                         <div className="space-y-3">
                             <button className="w-full bg-[#5CB85C] text-white py-3 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-[0.98]">
                                 Registered
                             </button>
-                            <button 
+                            <button
                                 onClick={() => navigate(`/event-details/${event.id}`)}
                                 className="w-full bg-[#F3F6F9] hover:bg-[#E8EDF2] text-[#5E718D] py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
                             >
@@ -87,6 +84,13 @@ export default function RegisteredEvents() {
                             </button>
                         </div>
                     }
+                />
+            )}
+            renderRecommendedItem={(event) => (
+                <EventCard
+                    key={`recommended-${event.id}`}
+                    event={event}
+                    showButtons={true}
                 />
             )}
             emptyState={{

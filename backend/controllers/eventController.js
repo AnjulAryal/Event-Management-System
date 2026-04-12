@@ -63,6 +63,37 @@ const registerForEvent = async (req, res) => {
   }
 };
 
+const cancelRegistration = async (req, res) => {
+  const event = await Event.findById(req.params.id);
+  const { userId } = req.body;
+
+  if (!event) {
+    res.status(404);
+    throw new Error('Event not found');
+  }
+
+  if (!userId) {
+    res.status(400);
+    throw new Error('User ID is required');
+  }
+
+  const isRegistered = event.registeredParticipants.some(
+    (participantId) => participantId.toString() === userId
+  );
+
+  if (!isRegistered) {
+    res.status(400);
+    throw new Error('You are not registered for this event');
+  }
+
+  event.registeredParticipants = event.registeredParticipants.filter(
+    (participantId) => participantId.toString() !== userId
+  );
+
+  await event.save();
+  res.status(200).json({ message: 'Registration cancelled successfully' });
+};
+
 const getRecommendedEvents = async (req, res) => {
   try {
     const { userId } = req.query;
@@ -109,5 +140,6 @@ module.exports = {
   updateEvent,
   deleteEvent,
   registerForEvent,
+  cancelRegistration,
   getRecommendedEvents,
 };
