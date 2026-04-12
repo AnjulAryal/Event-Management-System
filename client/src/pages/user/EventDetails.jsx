@@ -11,10 +11,10 @@ export default function EventDetails() {
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [notes, setNotes] = useState("");
 
-    const [event, setEvent] = useState(null);
-    const [loading, setLoading] = useState(true);
-
     useEffect(() => {
+        const fetchEvent = async () => {
+             // ... fetch event data logic same as CompleteRegistration if needed
+        };
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
         return () => window.removeEventListener("resize", handleResize);
@@ -41,9 +41,36 @@ export default function EventDetails() {
         if (id) fetchEvent();
     }, [id]);
 
-    const handleSendMessage = (e) => {
+    const handleSendMessage = async (e) => {
         e.preventDefault();
-        toast.success("Message sent to organizer!");
+        if (!inquiryMessage.trim()) {
+            toast.error("Please enter a message");
+            return;
+        }
+
+        const loadingToast = toast.loading("Sending inquiry...");
+        try {
+            const res = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: `INQUIRY: Modern Design Orchestration 2024`,
+                    email: inquiryEmail,
+                    date: new Date().toLocaleDateString(),
+                    feedback: inquiryMessage,
+                    rating: 5 // Default high rating for inquiries
+                })
+            });
+
+            if (res.ok) {
+                toast.success("Message sent to organizer!", { id: loadingToast });
+                setInquiryMessage("");
+            } else {
+                throw new Error("Failed to send");
+            }
+        } catch (error) {
+            toast.error("Could not send message", { id: loadingToast });
+        }
     };
 
     if (loading) {
@@ -146,7 +173,7 @@ export default function EventDetails() {
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Email</label>
                                 <input 
                                     type="email" 
-                                    placeholder="your-email@domain.com"
+                                    defaultValue="orchestrator@eventify.com"
                                     className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 shadow-sm focus:ring-2 focus:ring-[#5CB85C]/20 outline-none transition-all"
                                     required
                                 />
@@ -154,12 +181,14 @@ export default function EventDetails() {
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Message</label>
                                 <textarea 
+                                    value={inquiryMessage}
+                                    onChange={(e) => setInquiryMessage(e.target.value)}
                                     placeholder="How can we help you with this event's logistics?"
                                     className="w-full bg-white border-none rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 shadow-sm min-h-[120px] focus:ring-2 focus:ring-[#5CB85C]/20 outline-none transition-all resize-none"
                                     required
                                 />
                             </div>
-                            <Button className="w-full bg-[#e2e8f0] text-slate-600 hover:bg-[#cbd5e1] transition-all py-4 font-black uppercase text-xs tracking-widest h-auto shadow-none">
+                            <Button className="w-full bg-slate-200 text-slate-500 hover:bg-slate-300 transition-all py-4 font-black uppercase text-xs tracking-widest h-auto shadow-none">
                                 Send Message
                             </Button>
                         </form>

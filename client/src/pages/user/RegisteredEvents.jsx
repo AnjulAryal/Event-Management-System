@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import GenericCollectionPage from "../../components/user/GenericCollectionPage";
 import EventCard from "../../components/ui/EventCard";
 import Button from "../../components/ui/Button";
@@ -17,38 +17,47 @@ const MY_EVENTS = [
 export default function RegisteredEvents() {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
+    const [recommendedEvents, setRecommendedEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
 
     useEffect(() => {
-        const fetchMyEvents = async () => {
+        const fetchAllData = async () => {
             if (!user) return;
+            const token = user.token;
             try {
+                // Fetch my events
                 const res = await fetch('/api/events');
                 const data = await res.json();
-                
-                // Filter events where user is in the registeredParticipants list
                 const myEvents = data
                     .filter(e => e.registeredParticipants && e.registeredParticipants.includes(user._id))
                     .map(e => ({ ...e, id: e._id }));
-                
                 setEvents(myEvents);
+
+                // Fetch real recommendations from backend
+                const recRes = await fetch(`/api/events/recommendations?userId=${user._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const recData = await recRes.json();
+                setRecommendedEvents(recData.map(e => ({ ...e, id: e._id })));
+
             } catch (error) {
-                console.error("Error fetching my events:", error);
-                toast.error("Failed to load your events");
+                console.error("Error fetching events:", error);
             } finally {
                 setLoading(false);
             }
         };
-        fetchMyEvents();
+        fetchAllData();
     }, [user?._id]);
 
     const ViewAllLink = () => (
-        <a href="#" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
+        <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
             View all <span className="group-hover:translate-x-1 transition-transform">→</span>
-        </a>
+        </Link>
     );
 
     return (
@@ -56,6 +65,7 @@ export default function RegisteredEvents() {
             title="My Events"
             subtitle={loading ? "Fetching your bookings..." : `You have ${events.length} registered events`}
             items={events}
+            recommendedItems={recommendedEvents}
             categories={["UI/UX DESIGN", "TECHNOLOGY", "ART", "BUSINESS", "HEALTH"]}
             searchPlaceholder="Search events..."
             rightElement={<ViewAllLink />}

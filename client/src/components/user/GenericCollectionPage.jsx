@@ -16,10 +16,11 @@ export default function GenericCollectionPage({
     searchPlaceholder,
     emptyState = { icon: "🔍", title: "No results", description: "Try adjusting your search" },
     filterLogic, // optional custom filter logic
+    recommendedItems = [],
+    renderRecommendedItem,
     showSearch = true,
     showFilters = true
 }) {
-    // ... existing state ...
     const [query, setQuery] = useState("");
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("All Categories");
@@ -91,6 +92,18 @@ export default function GenericCollectionPage({
                 </div>
             ) : (
                 <UserEmptyState {...emptyState} />
+            )}
+
+            {/* Recommended Section */}
+            {!hasActiveFilters && recommendedItems.length > 0 && (
+                <div className="mt-16 space-y-6">
+                    <UserPageHeader title="Recommend for You" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {recommendedItems.map((item, idx) => 
+                            renderRecommendedItem ? renderRecommendedItem(item, idx) : renderItem(item, idx)
+                        )}
+                    </div>
+                </div>
             )}
         </UserPageContainer>
     );

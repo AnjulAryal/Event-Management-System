@@ -5,6 +5,7 @@ import HelpAlert from "./HelpAlert";
 import HelpStepGuide from "./HelpStepGuide";
 import HelpFooter from "./HelpFooter";
 
+
 export default function HelpDetailTemplate({ breadcrumb, title, subtitle, alert, steps }) {
     return (
         <HelpPageLayout>
@@ -13,6 +14,7 @@ export default function HelpDetailTemplate({ breadcrumb, title, subtitle, alert,
             <HelpAlert message={alert} />
             <HelpStepGuide steps={steps} />
             <HelpFooter />
+
         </HelpPageLayout>
     );
 }

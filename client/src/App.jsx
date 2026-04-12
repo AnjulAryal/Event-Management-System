@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import Footer from './components/footer';
+import Footer from './components/Footer';
+
 import Login from './pages/Login';
 import Signup from "./pages/signup";
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ import CompleteRegistration from './pages/user/CompleteRegistration';
 import EventDetails from './pages/user/EventDetails';
 import { Toaster } from 'react-hot-toast';
 import UpdatePassword from './pages/UpdatePassword';
+import AllEvents from './pages/user/AllEvents';
 import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -152,6 +154,11 @@ function AppContent({ open, setOpen, isMobile }) {
               <UserFeedback />
             </ProtectedRoute>
           } />
+          <Route path="/all-events" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <AllEvents />
+            </ProtectedRoute>
+          } />
           <Route path="/help" element={
             <ProtectedRoute allowedRoles={['user']}>
               <HelpSupport />
@@ -191,6 +198,7 @@ function AppContent({ open, setOpen, isMobile }) {
           {/* Catch-all or undefined routes: Redirect to login or home if logged in */}
           <Route path="*" element={<Navigate to={user ? (user.isAdmin ? "/admin-dashboard" : "/dashboard") : "/login"} replace />} />
         </Routes>
+
         {!isAuthPage && <Footer />}
       </main>
     </div>

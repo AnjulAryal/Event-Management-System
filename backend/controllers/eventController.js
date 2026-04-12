@@ -44,10 +44,70 @@ const deleteEvent = async (req, res) => {
   }
 };
 
+const registerForEvent = async (req, res) => {
+  const event = await Event.findById(req.params.id);
+  const { userId } = req.body;
+
+  if (event) {
+    if (event.registeredParticipants.includes(userId)) {
+      res.status(400);
+      throw new Error('Already registered for this event');
+    }
+    
+    event.registeredParticipants.push(userId);
+    await event.save();
+    res.status(200).json({ message: 'Successfully registered' });
+  } else {
+    res.status(404);
+    throw new Error('Event not found');
+  }
+};
+
+const getRecommendedEvents = async (req, res) => {
+  try {
+    const { userId } = req.query;
+    
+    // 1. Find user's interests (categories of events they are registered for)
+    const userEvents = await Event.find({ registeredParticipants: userId });
+    const interests = [...new Set(userEvents.map(e => e.category))];
+
+    // 2. Base query: events user is NOT registered for
+    const baseQuery = { registeredParticipants: { $ne: userId } };
+
+    let recommended = [];
+
+    // 3. If user has interests, find events in those categories
+    if (interests.length > 0) {
+      recommended = await Event.find({
+        ...baseQuery,
+        category: { $in: interests }
+      }).limit(6);
+    }
+
+    // 4. Fill to 6 items with newest/general events if needed
+    if (recommended.length < 6) {
+      const moreEvents = await Event.find({
+        ...baseQuery,
+        _id: { $nin: recommended.map(e => e._id) }
+      })
+      .sort({ createdAt: -1 })
+      .limit(6 - recommended.length);
+      
+      recommended = [...recommended, ...moreEvents];
+    }
+
+    res.json(recommended);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getEvents,
   getEventById,
   createEvent,
   updateEvent,
   deleteEvent,
+  registerForEvent,
+  getRecommendedEvents,
 };

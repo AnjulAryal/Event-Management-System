@@ -48,15 +48,41 @@ export default function UserFeedback() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!validate()) {
             toast.error("Please fix the errors in the form");
             return;
         }
-        toast.success("Feedback sent successfully!");
-        setFormData({ eventTitle: "", email: "", date: "", message: "" });
-        setRating(0);
+        
+        const loadingToast = toast.loading("Sending feedback...");
+        
+        try {
+            const res = await fetch('/api/feedback', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: formData.eventTitle,
+                    email: formData.email,
+                    date: formData.date,
+                    feedback: formData.message,
+                    rating: rating
+                })
+            });
+
+            if (res.ok) {
+                toast.success("Feedback sent successfully!", { id: loadingToast });
+                setFormData({ eventTitle: "", email: "", date: "", message: "" });
+                setRating(0);
+            } else {
+                throw new Error("Failed to send feedback");
+            }
+        } catch (error) {
+            console.error("Feedback error:", error);
+            toast.error("Could not send feedback. Please try again.", { id: loadingToast });
+        }
     };
 
     return (
