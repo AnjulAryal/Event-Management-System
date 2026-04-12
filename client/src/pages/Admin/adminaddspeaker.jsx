@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 
 const Adminaddspeaker = () => {
     const navigate = useNavigate();
+    const [profilePic, setProfilePic] = useState('');
     const [formData, setFormData] = useState({
         fullName: '',
         role: '',
@@ -16,6 +17,21 @@ const Adminaddspeaker = () => {
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("File size must be less than 5MB");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePic(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleSave = async () => {
@@ -34,7 +50,8 @@ const Adminaddspeaker = () => {
                 category: formData.topic,
                 event: formData.eventName || 'TBA',
                 date: formData.eventDate || new Date().toISOString().split('T')[0],
-                initials: formData.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()
+                initials: formData.fullName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+                profilePic: profilePic
             };
 
             const res = await fetch('/api/speakers', {
@@ -200,12 +217,24 @@ const Adminaddspeaker = () => {
 
                     {/* Right Column - Profile Picture */}
                     <div>
-                        <div className="bg-white border-2 border-dashed border-slate-100 rounded-[24px] p-10 flex flex-col items-center justify-center py-20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.01)]">
-                            {/* Profile Placeholder Circle */}
-                            <div className="w-[100px] h-[100px] bg-[#b1b9c2] rounded-full flex items-center justify-center mb-6 overflow-hidden shadow-inner relative">
-                                <div className="absolute bottom-[-15px] w-14 h-16 bg-[#ebedf0] rounded-[50%_50%_0_0/50%_50%_0_0] flex items-center justify-center">
-                                    <div className="w-6 h-8 bg-[#ebedf0] rounded-full absolute -top-8"></div>
-                                </div>
+                        <div className="bg-white border-2 border-dashed border-slate-100 rounded-[24px] p-10 flex flex-col items-center justify-center py-20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.01)] relative">
+                            {/* Hidden File Input */}
+                            <input 
+                                type="file" 
+                                id="speaker-image" 
+                                className="hidden" 
+                                accept="image/*" 
+                                onChange={handleImageUpload} 
+                            />
+                            
+                            <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center mb-6 overflow-hidden shadow-inner relative bg-[#b1b9c2]">
+                                {profilePic ? (
+                                    <img src={profilePic} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="absolute bottom-[-15px] w-14 h-16 bg-[#ebedf0] rounded-[50%_50%_0_0/50%_50%_0_0] flex items-center justify-center">
+                                        <div className="w-6 h-8 bg-[#ebedf0] rounded-full absolute -top-8"></div>
+                                    </div>
+                                )}
                             </div>
                             
                             <h3 className="font-bold text-slate-800 text-[15px] mb-2.5">Profile Picture</h3>
@@ -213,9 +242,12 @@ const Adminaddspeaker = () => {
                                 Drag and drop or click to upload. Max size 5MB.
                             </p>
                             
-                            <button className="px-6 py-2.5 rounded-lg text-[13px] font-bold text-[#5CB85C] bg-white border border-[#b8e8b8] hover:bg-[#f2fbf2] transition-colors">
+                            <label 
+                                htmlFor="speaker-image" 
+                                className="px-6 py-2.5 rounded-lg text-[13px] font-bold text-[#5CB85C] bg-white border border-[#b8e8b8] hover:bg-[#f2fbf2] transition-colors cursor-pointer outline-none inline-block"
+                            >
                                 Choose File
-                            </button>
+                            </label>
                         </div>
                     </div>
 

@@ -8,6 +8,7 @@ import Input from '../../components/ui/Input';
 const AdminSpeakersEdit = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [profilePic, setProfilePic] = useState('');
     const [formData, setFormData] = useState({
         name: '',
         role: '',
@@ -23,6 +24,10 @@ const AdminSpeakersEdit = () => {
                 const res = await fetch(`/api/speakers/${id}`);
                 if (!res.ok) throw new Error('Speaker not found');
                 const speakerToEdit = await res.json();
+                
+                if (speakerToEdit.profilePic) {
+                    setProfilePic(speakerToEdit.profilePic);
+                }
                 
                 setFormData({
                     name: speakerToEdit.name || '',
@@ -41,6 +46,21 @@ const AdminSpeakersEdit = () => {
 
         fetchSpeaker();
     }, [id, navigate]);
+
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+                toast.error("File size must be less than 5MB");
+                return;
+            }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePic(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
 
     const handleChange = (e) => {
         const { id, name, value } = e.target;
@@ -71,7 +91,7 @@ const AdminSpeakersEdit = () => {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, profilePic })
             });
 
             if (!res.ok) {
@@ -105,6 +125,31 @@ const AdminSpeakersEdit = () => {
                 {/* Main Card */}
                 <div className="bg-white rounded-[2rem] p-8 lg:p-12 shadow-xl shadow-slate-200/50">
                     <form onSubmit={handleSubmit} className="space-y-8">
+                        {/* Profile Picture Upload */}
+                        <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-[24px] bg-slate-50 relative">
+                            <input 
+                                type="file" 
+                                id="speaker-edit-image"
+                                className="hidden" 
+                                accept="image/*" 
+                                onChange={handleImageUpload} 
+                            />
+                            
+                            <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center mb-4 overflow-hidden shadow-inner relative bg-[#b1b9c2]">
+                                {profilePic ? (
+                                    <img src={profilePic} alt="Preview" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="font-bold text-white text-3xl">{formData.initials || 'U'}</div>
+                                )}
+                            </div>
+                            
+                            <label 
+                                htmlFor="speaker-edit-image" 
+                                className="px-6 py-2.5 rounded-lg text-[13px] font-bold text-[#5CB85C] bg-white border border-[#b8e8b8] hover:bg-[#f2fbf2] transition-colors cursor-pointer outline-none inline-block shadow-sm"
+                            >
+                                Change Picture
+                            </label>
+                        </div>
                         <Input 
                             id="name"
                             label="Speaker Name"

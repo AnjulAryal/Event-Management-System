@@ -15,8 +15,12 @@ const SpeakerCard = ({
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           {/* Avatar */}
-          <div className="w-16 h-16 rounded-full bg-[#5CB85C] flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-lg shadow-green-100/50 transition-transform group-hover:scale-105">
-            {speaker.initials}
+          <div className="w-16 h-16 rounded-full bg-[#5CB85C] flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-lg shadow-green-100/50 transition-transform group-hover:scale-105 overflow-hidden">
+            {speaker.profilePic ? (
+              <img src={speaker.profilePic} alt={speaker.name} className="w-full h-full object-cover" />
+            ) : (
+              speaker.initials
+            )}
           </div>
           
           {/* Name & Role */}
