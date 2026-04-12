@@ -11,6 +11,17 @@ export default function RegisteredEvents() {
 
     const userString = localStorage.getItem("user");
     const user = userString ? JSON.parse(userString) : null;
+    const currentUserId = user?._id ? String(user._id) : "";
+
+    const isParticipantMatch = (participant) => {
+        if (!participant || !currentUserId) return false;
+        if (typeof participant === "string") return participant === currentUserId;
+        if (typeof participant === "object") {
+            if (participant._id) return String(participant._id) === currentUserId;
+            if (participant.id) return String(participant.id) === currentUserId;
+        }
+        return String(participant) === currentUserId;
+    };
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -26,9 +37,7 @@ export default function RegisteredEvents() {
                     .filter(
                         (event) =>
                             Array.isArray(event.registeredParticipants) &&
-                            event.registeredParticipants.some(
-                                (participantId) => String(participantId) === String(user._id)
-                            )
+                            event.registeredParticipants.some(isParticipantMatch)
                     )
                     .map((event) => ({ ...event, id: event._id }));
 

@@ -22,16 +22,25 @@ export default function UserDashboard() {
     const user = userString ? JSON.parse(userString) : { name: "Guest" };
     const userName = user.name || "User";
     const token = user.token;
+    const currentUserId = user?._id ? String(user._id) : "";
+
+    const isParticipantMatch = (participant) => {
+        if (!participant || !currentUserId) return false;
+        if (typeof participant === "string") return participant === currentUserId;
+        if (typeof participant === "object") {
+            if (participant._id) return String(participant._id) === currentUserId;
+            if (participant.id) return String(participant.id) === currentUserId;
+        }
+        return String(participant) === currentUserId;
+    };
 
     const attachRegistrationState = (event) => ({
         ...event,
         id: event._id,
         isRegistered:
-            !!user?._id &&
+            !!currentUserId &&
             Array.isArray(event.registeredParticipants) &&
-            event.registeredParticipants.some(
-                (participantId) => String(participantId) === String(user._id)
-            ),
+            event.registeredParticipants.some(isParticipantMatch),
     });
 
     useEffect(() => {
