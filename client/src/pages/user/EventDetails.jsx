@@ -192,13 +192,10 @@ export default function EventDetails() {
 
                 <div className="w-full lg:w-[360px] lg:sticky lg:top-8">
                     <div className="bg-white rounded-[32px] px-7 py-8 md:px-8 md:py-9 shadow-[0_18px_50px_rgba(15,23,42,0.08)] border border-white/80 space-y-8">
-                        <div className="space-y-3">
+                        <div>
                             <h1 className="text-[2rem] leading-[1.05] font-extrabold text-slate-900 tracking-[-0.04em]">
                                 {eventTitle}
                             </h1>
-                            <p className="max-w-[28ch] text-[13px] leading-6 text-slate-500 font-medium">
-                                {eventDescription}
-                            </p>
                         </div>
 
                         <div className="space-y-4">
