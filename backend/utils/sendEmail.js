@@ -2,7 +2,9 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   const transporter = nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'Gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Use SSL
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
@@ -10,7 +12,7 @@ const sendEmail = async (options) => {
   });
 
   const mailOptions = {
-    from: `Eventify <${process.env.EMAIL_USER}>`,
+    from: `"Eventify" <${process.env.EMAIL_USER}>`,
     to: options.email,
     subject: options.subject,
     text: options.message,

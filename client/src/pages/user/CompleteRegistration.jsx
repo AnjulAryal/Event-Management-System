@@ -12,6 +12,13 @@ export default function CompleteRegistration() {
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+    const userString = localStorage.getItem('user');
+    const user = userString ? JSON.parse(userString) : null;
+
+    const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
+    const [email, setEmail] = useState("");
+
     useEffect(() => {
         const fetchEvent = async () => {
             try {
@@ -35,8 +42,6 @@ export default function CompleteRegistration() {
     const handleRegister = async (e) => {
         e.preventDefault();
         
-        const userString = localStorage.getItem('user');
-        const user = userString ? JSON.parse(userString) : null;
         const token = user?.token;
 
         if (!user || !token) {
@@ -53,7 +58,10 @@ export default function CompleteRegistration() {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ userId: user._id })
+                body: JSON.stringify({ 
+                    userId: user._id,
+                    registrationDetails: { name, phone, email }
+                })
             });
 
             const data = await res.json();
@@ -144,13 +152,27 @@ export default function CompleteRegistration() {
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Name</label>
                                 <div className="relative group">
-                                    <input type="text" placeholder="John Doe" className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" required />
+                                    <input 
+                                        type="text" 
+                                        placeholder="John Doe" 
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" 
+                                        required 
+                                    />
                                 </div>
                             </div>
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone No.</label>
                                 <div className="relative group">
-                                    <input type="text" placeholder="+977-XXXXXXXXXX" className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" required />
+                                    <input 
+                                        type="text" 
+                                        placeholder="+977-XXXXXXXXXX" 
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" 
+                                        required 
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -159,7 +181,14 @@ export default function CompleteRegistration() {
                         <div className="space-y-3">
                             <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Address</label>
                             <div className="relative group">
-                                <input type="email" placeholder="john@example.com" className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" required />
+                                <input 
+                                    type="email" 
+                                    placeholder="john@example.com" 
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    className="w-full bg-[#f8fafc] border-2 border-transparent rounded-2xl px-6 py-4 text-sm font-bold text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" 
+                                    required 
+                                />
                             </div>
                         </div>
 
