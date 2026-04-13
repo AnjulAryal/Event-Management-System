@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, ChevronDown, Calendar, User } from 'lucide-react';
+import { Search, ChevronDown, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
@@ -192,7 +192,6 @@ const Adminaddspeaker = () => {
                                             className="w-full bg-[#f4f6f8] text-slate-800 text-[14px] rounded-2xl p-4 outline-none focus:bg-slate-100 transition-colors pr-12 appearance-none placeholder-[#9ca3af]"
                                             style={{ color: formData.eventDate ? 'inherit' : '#9ca3af' }}
                                         />
-                                        <Calendar className="w-5 h-5 text-slate-700 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                                     </div>
                                 </div>
                             </div>

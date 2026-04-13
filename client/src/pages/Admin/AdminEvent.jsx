@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, CalendarDays, ChevronDown, Plus } from 'lucide-react';
+import { Search, MapPin, ChevronDown, Plus, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
@@ -114,7 +114,7 @@ const AdminEvent = () => {
                 {/* Filters Row */}
                 <div className="flex flex-wrap sm:flex-nowrap gap-4 items-center mb-10 w-full">
                     <div className="flex items-center gap-2 border border-slate-200 bg-white rounded-lg px-3 py-2 min-w-[180px] shadow-sm flex-1 sm:flex-none">
-                        <CalendarDays className="w-4 h-4 text-[#e03131]" />
+                        
                         <input 
                             type="date"
                             value={dateFilter}

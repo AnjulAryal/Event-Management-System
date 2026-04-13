@@ -23,8 +23,20 @@ const updateSupportRequest = async (req, res) => {
   }
 };
 
+const deleteSupportRequest = async (req, res) => {
+  const support = await Support.findById(req.params.id);
+  if (support) {
+    await Support.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Support request removed' });
+  } else {
+    res.status(404);
+    throw new Error('Support request not found');
+  }
+};
+
 module.exports = {
   submitSupportRequest,
   getAllSupportRequests,
   updateSupportRequest,
+  deleteSupportRequest,
 };

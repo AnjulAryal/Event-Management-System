@@ -38,6 +38,7 @@ function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
   const authRoutes = ['/login', '/reset-password', '/update-password'];
   const isAuthPage = authRoutes.includes(location.pathname);
+  const isAdminRoute = location.pathname.startsWith('/admin');
   
   // Get the user from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
@@ -57,14 +58,15 @@ function AppContent({ open, setOpen, isMobile }) {
 
       {/* Main Content */}
       <main
-        className={`flex-grow ${(!isAuthPage && user) ? 'pt-16 md:pt-0' : ''}`}
+        className={`flex flex-col flex-grow ${(!isAuthPage && user) ? 'pt-16 md:pt-0' : ''}`}
         style={{
           marginLeft: !isMobile && open && !isAuthPage && user ? `${SIDEBAR_W}px` : "0px",
           transition: "margin-left 0.3s cubic-bezier(.4,0,.2,1)",
           minHeight: "100vh",
         }}
       >
-        <Routes>
+        <div className="flex-grow flex flex-col w-full">
+          <Routes>
           {/* Public Auth Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -197,7 +199,8 @@ function AppContent({ open, setOpen, isMobile }) {
 
           {/* Catch-all or undefined routes: Redirect to login or home if logged in */}
           <Route path="*" element={<Navigate to={user ? (user.isAdmin ? "/admin-dashboard" : "/dashboard") : "/login"} replace />} />
-        </Routes>
+          </Routes>
+        </div>
 
         {!isAuthPage && <Footer />}
       </main>

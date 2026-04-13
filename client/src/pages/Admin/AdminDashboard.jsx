@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CalendarDays, MapPin, ChevronDown } from 'lucide-react';
+import { MapPin, ChevronDown } from 'lucide-react';
 import StatCard from '../../components/ui/StatCard';
 import Badge from '../../components/ui/Badge';
 
@@ -118,7 +118,8 @@ const AdminDashboard = () => {
     const filteredUpcomingEvents = getFilteredEvents(dashboardData.upcomingEvents);
 
     return (
-        <div className="p-8 max-w-7xl mx-auto text-slate-800 animate-in fade-in duration-700 font-sans">
+        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
+            <main className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-700">
 
             {/* Header Section */}
             <div className="flex flex-col mb-8">
@@ -138,7 +139,7 @@ const AdminDashboard = () => {
                     {/* Filters Row */}
                     <div className="flex flex-wrap sm:flex-nowrap gap-4 w-full">
                         <div className="flex items-center gap-3 border border-slate-100 bg-white rounded-lg px-4 py-2 min-w-[200px] shadow-sm flex-1">
-                            <CalendarDays className="w-5 h-5 text-red-400 shrink-0" />
+
                             <input 
                                 type="date"
                                 value={dateFilter}
@@ -277,6 +278,7 @@ const AdminDashboard = () => {
                 </div>
 
             </div>
+            </main>
         </div>
     );
 };

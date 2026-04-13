@@ -1,16 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { User, Mail, ArrowRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 export default function AdminHelpSupport() {
     const [supportRequests, setSupportRequests] = useState([]);
     const [loading, setLoading] = useState(true);
-
-    const [formData, setFormData] = useState({
-        name: "",
-        email: "",
-        message: ""
-    });
 
     useEffect(() => {
         const fetchSupportRequests = async () => {
@@ -28,6 +21,7 @@ export default function AdminHelpSupport() {
                 setSupportRequests(data);
             } catch (error) {
                 console.error("Error fetching support requests:", error);
+                toast.error("Failed to load requests");
             } finally {
                 setLoading(false);
             }
@@ -36,45 +30,36 @@ export default function AdminHelpSupport() {
         fetchSupportRequests();
     }, []);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+    const handleReply = (email) => {
+        window.location.href = `mailto:${email}`;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-            toast.error("Please fill all fields");
-            return;
-        }
-
-        const subject = encodeURIComponent(`Support Request from ${formData.name}`);
-        const body = encodeURIComponent(`Name: ${formData.name}\nEmail: ${formData.email}\n\nMessage:\n${formData.message}`);
-        window.location.href = `mailto:support@eventify.com?subject=${subject}&body=${body}`;
-
+    const handleRemove = async (id) => {
+        if (!window.confirm("Are you sure you want to remove this support ticket?")) return;
 
         try {
-            const res = await fetch('/api/support', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+            const user = JSON.parse(localStorage.getItem('user'));
+            const token = user?.token;
+
+            const res = await fetch(`/api/support/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
             });
 
-            if (!res.ok) throw new Error('Failed to send message');
+            if (!res.ok) throw new Error('Failed to delete request');
             
-            const newRequest = await res.json();
-            setSupportRequests(prev => [newRequest, ...prev]);
-
-            toast.success("Message sent successfully!");
-            setFormData({ name: "", email: "", message: "" });
+            setSupportRequests(prev => prev.filter(req => req._id !== id));
+            toast.success("Ticket removed successfully");
         } catch (error) {
-            console.error("Error sending message:", error);
-            toast.error("Failed to send message. Please try again.");
+            console.error("Error deleting support request:", error);
+            toast.error("Failed to remove ticket");
         }
     };
 
     return (
-        <div className="flex-1 w-full min-h-screen bg-[#f3f4f6] p-6 sm:p-8 md:p-12 lg:p-16 font-sans">
+        <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] p-6 sm:p-8 md:p-12 lg:p-16 font-sans">
             <div className="max-w-[1100px] mx-auto animate-in fade-in duration-500">
                 <div className="mb-8 md:mb-10">
                     <h1 className="text-[28px] md:text-3xl lg:text-[32px] font-bold text-[#1e293b] mb-2 tracking-tight">Help & Support</h1>
@@ -82,104 +67,48 @@ export default function AdminHelpSupport() {
                 </div>
 
                 {/* Cards Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mb-8">
-                    {loading ? (
-                        <div className="col-span-full py-8 text-center text-[#64748b] animate-pulse font-medium">Loading support requests...</div>
-                    ) : supportRequests.length > 0 ? (
-                        supportRequests.map((card, idx) => (
-                            <div key={card._id || idx} className="bg-white rounded-[20px] p-6 sm:p-8 flex gap-4 sm:gap-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-[2px] transition-all duration-300">
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#e6f4ea] flex-shrink-0 flex items-center justify-center">
-                                    <User size={20} className="text-[#5cb85c]" />
+                {loading ? (
+                    <div className="py-8 text-center text-[#64748b] animate-pulse font-medium">Loading support requests...</div>
+                ) : supportRequests.length > 0 ? (
+                    <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+                        {supportRequests.map((card, idx) => (
+                            <div key={card._id || idx} className="bg-white rounded-[16px] p-5 sm:p-6 md:p-7 flex flex-col sm:flex-row gap-5 shadow-[0_2px_8px_-4px_rgba(0,0,0,0.05)] border border-slate-100 transition-all duration-300">
+                                
+                                {/* Left icon */}
+                                <div className="w-[52px] h-[52px] rounded-full bg-[#dcfce7] flex-shrink-0 mx-auto sm:mx-0 flex items-center justify-center">
+                                    {/* Light green blank circle matching image */}
                                 </div>
-                                <div className="flex-1">
-                                    <h3 className="text-[#1e293b] text-[15px] font-bold mb-1">{card.name}</h3>
-                                    <a href={`mailto:${card.email}`} className="text-[#5cb85c] text-[13px] font-semibold mb-2 hover:underline inline-block">{card.email}</a>
-                                    <p className="text-[#64748b] text-[13px] md:text-[14px] leading-relaxed">{card.message}</p>
-                                    {card.status && (
-                                        <div className="mt-3 inline-block px-2.5 py-1 bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-wider rounded-md">
-                                            {card.status}
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-12 text-center text-[#64748b] bg-white rounded-[20px] border border-dashed border-gray-200">
-                            No support requests found.
-                        </div>
-                    )}
-                </div>
-
-                {/* Form Section */}
-                <div className="bg-white rounded-[20px] p-6 sm:p-8 shadow-sm border border-gray-100">
-                    <h2 className="text-[20px] lg:text-[22px] font-bold text-[#1e293b] mb-1">Still need help? Contact Us</h2>
-                    <p className="text-[#64748b] text-[14px] mb-8 font-medium">Our support team usually responds within 24 hours.</p>
-
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label className="block text-[11px] font-bold text-[#64748b] uppercase tracking-wider mb-2">
-                                    Name
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <User size={16} className="text-[#94a3b8]" />
+                                
+                                {/* Right content */}
+                                <div className="flex-1 flex flex-col">
+                                    <h3 className="text-[#1e293b] text-[16px] font-bold mb-2.5 text-center sm:text-left break-all tracking-tight">{card.email}</h3>
+                                    <p className="text-[#8898aa] text-[13px] leading-relaxed mb-6 text-center sm:text-left font-medium">{card.message}</p>
+                                    
+                                    {/* Action Buttons align to right */}
+                                    <div className="mt-auto flex gap-3.5 justify-center sm:justify-end">
+                                        <button 
+                                            onClick={() => handleReply(card.email)}
+                                            className="bg-[#5cb85c] hover:bg-[#4cae4c] active:scale-95 text-white text-[13px] font-bold py-1.5 px-6 md:px-8 rounded-full transition-all shadow-sm"
+                                        >
+                                            Reply
+                                        </button>
+                                        <button 
+                                            onClick={() => handleRemove(card._id)}
+                                            className="bg-[#5cb85c] hover:bg-[#4cae4c] active:scale-95 text-white text-[13px] font-bold py-1.5 px-6 md:px-8 rounded-full transition-all shadow-sm"
+                                        >
+                                            Remove
+                                        </button>
                                     </div>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="Your name"
-                                        className="w-full pl-11 pr-4 py-3.5 bg-[#f8fafc] border border-transparent focus:border-[#5cb85c]/30 focus:bg-white rounded-xl text-sm text-[#1e293b] placeholder-[#94a3b8] focus:outline-none focus:ring-4 focus:ring-[#5cb85c]/10 transition-all font-medium"
-                                    />
                                 </div>
+                                
                             </div>
-
-                            <div>
-                                <label className="block text-[11px] font-bold text-[#64748b] uppercase tracking-wider mb-2">
-                                    Email
-                                </label>
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                        <Mail size={16} className="text-[#94a3b8]" />
-                                    </div>
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleChange}
-                                        placeholder="your@email.com"
-                                        className="w-full pl-11 pr-4 py-3.5 bg-[#f8fafc] border border-transparent focus:border-[#5cb85c]/30 focus:bg-white rounded-xl text-sm text-[#1e293b] placeholder-[#94a3b8] focus:outline-none focus:ring-4 focus:ring-[#5cb85c]/10 transition-all font-medium"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-[11px] font-bold text-[#64748b] uppercase tracking-wider mb-2">
-                                Message
-                            </label>
-                            <textarea
-                                name="message"
-                                value={formData.message}
-                                onChange={handleChange}
-                                placeholder="How can we help you?"
-                                rows={5}
-                                className="w-full px-4 py-3.5 bg-[#f8fafc] border border-transparent focus:border-[#5cb85c]/30 focus:bg-white rounded-xl text-sm text-[#1e293b] placeholder-[#94a3b8] focus:outline-none focus:ring-4 focus:ring-[#5cb85c]/10 transition-all resize-none font-medium"
-                            />
-                        </div>
-
-                        <div className="pt-2">
-                            <button
-                                type="submit"
-                                className="inline-flex items-center justify-center px-6 py-3.5 bg-[#5cb85c] hover:bg-[#4cae4c] text-white font-bold text-[14px] rounded-xl transition-all shadow-sm hover:shadow-md active:scale-[0.98] w-fit"
-                            >
-                                Send Message <ArrowRight className="w-4 h-4 ml-2" />
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="py-16 text-center text-[#64748b] bg-white rounded-[20px] border border-dashed border-slate-200">
+                        No support requests found.
+                    </div>
+                )}
             </div>
         </div>
     );

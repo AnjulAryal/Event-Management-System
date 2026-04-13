@@ -49,7 +49,24 @@ const registerUser = asyncHandler(async (req, res) => {
   } else {
     // Regular users can be registered by non-admins or admins?
     // Based on user feedback (Conversation fd74241e), only admin can register users.
-    if (!req.user || !req.user.isAdmin) {
+    
+    let isAuthorized = false;
+    if (req.user && req.user.isAdmin) {
+      isAuthorized = true;
+    } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
+        const currentUser = await User.findById(decoded.id).select('-password');
+        if (currentUser && currentUser.isAdmin) {
+          isAuthorized = true;
+        }
+      } catch (error) {
+        console.error('Token verification error in registerUser:', error);
+      }
+    }
+
+    if (!isAuthorized) {
       res.status(401);
       throw new Error('Not authorized to register users. Only admin can register users.');
     }

@@ -4,6 +4,7 @@ const {
   submitSupportRequest,
   getAllSupportRequests,
   updateSupportRequest,
+  deleteSupportRequest,
 } = require('../controllers/supportController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -12,6 +13,7 @@ router.route('/')
   .post(submitSupportRequest);
 
 router.route('/:id')
-  .put(protect, admin, updateSupportRequest);
+  .put(protect, admin, updateSupportRequest)
+  .delete(protect, admin, deleteSupportRequest);
 
 module.exports = router;
