@@ -20,6 +20,7 @@ import BrandLogo from "./ui/BrandLogo";
 const Sidebar = ({ open, setOpen, isMobile }) => {
     const location = useLocation();
     const [hovered, setHovered] = useState(null);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
 
     // Get actual user data from localStorage with defensive defaults
     const storedUser = JSON.parse(localStorage.getItem('user')) || {};
@@ -117,7 +118,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                     zIndex: 200,
                     transform: open ? "translateX(0)" : `translateX(-${SIDEBAR_W}px)`,
                     transition: "transform 0.3s cubic-bezier(.4,0,.2,1)",
-                    overflow: "hidden",
+                    overflow: "visible",
                 }}
             >
                 {/* Logo Section */}
@@ -126,7 +127,10 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                 </div>
 
                 {/* User Profile Card */}
-                <div style={{ padding: "10px 24px 30px", display: "flex", alignItems: "center", gap: "12px" }}>
+                <div 
+                    onClick={() => setShowProfileMenu(!showProfileMenu)}
+                    style={{ position: "relative", padding: "10px 24px 30px", display: "flex", alignItems: "center", gap: "12px", cursor: "pointer" }}
+                >
                     <div style={{
                         width: "55px",
                         height: "55px",
@@ -137,9 +141,14 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                         justifyContent: "center",
                         color: "#fff",
                         fontWeight: 700,
-                        fontSize: "16px"
+                        fontSize: "16px",
+                        overflow: "hidden"
                     }}>
-                        {initials}
+                        {storedUser.profilePicture ? (
+                            <img src={storedUser.profilePicture} alt="Profile" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                        ) : (
+                            initials
+                        )}
                     </div>
                     <div>
                         <div style={{ fontSize: "16px", fontWeight: 700, color: "#1a1a2e" }}>
@@ -149,6 +158,39 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                             {userRole}
                         </div>
                     </div>
+
+                    {/* Popover Menu */}
+                    {showProfileMenu && (
+                        <div style={{
+                            position: "absolute",
+                            left: "135px",
+                            top: "0px",
+                            zIndex: 1000,
+                            display: "flex",
+                            alignItems: "flex-start",
+                            filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
+                        }}>
+                            {/* Black Curved Arrow */}
+                            <svg width="22" height="32" viewBox="0 0 22 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginTop: "21px", marginRight: "-1px", zIndex: 2 }}>
+                                <path d="M22 0C10 0 0 10 0 16C0 22 10 32 22 32Z" fill="black"/>
+                            </svg>
+                            <div style={{
+                                width: "180px",
+                                background: "#F5EDE9",
+                                border: "1px solid black",
+                                borderRadius: "10px",
+                                overflow: "hidden",
+                                display: "flex",
+                                flexDirection: "column"
+                            }}>
+                                <Link to={userRole === 'admin' ? "/admin-profile" : "/dashboard"} style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                    <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>Profile</div>
+                                </Link>
+                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Manage User</div>
+                                <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Payment History</div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Nav items */}

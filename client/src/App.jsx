@@ -32,7 +32,7 @@ import AdminEventAttendees from "./pages/admin/AdminEventAttendees";
 import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
 import Adminaddspeaker from "./pages/admin/adminaddspeaker";
 import AdminViewDetails from "./pages/admin/adminViewdetails";
-
+import AdminProfile from "./pages/admin/AdminProfile";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
@@ -127,6 +127,11 @@ function AppContent({ open, setOpen, isMobile }) {
           <Route path="/admin-view-details/:id" element={
             <ProtectedRoute allowedRoles={['admin']}>
               <AdminViewDetails />
+            </ProtectedRoute>
+          } />
+          <Route path="/admin-profile" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminProfile />
             </ProtectedRoute>
           } />
 
