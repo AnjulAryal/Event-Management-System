@@ -9,7 +9,9 @@ const {
   registerForEvent,
   cancelRegistration,
   getRecommendedEvents,
+  getEventsBySpeaker,
 } = require('../controllers/eventController');
+
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
@@ -24,6 +26,9 @@ router.route('/:id/register')
 
 router.route('/:id/cancel')
   .post(protect, cancelRegistration);
+
+router.route('/by-speaker/:speakerId')
+  .get(getEventsBySpeaker);
 
 router.route('/:id')
   .get(getEventById)

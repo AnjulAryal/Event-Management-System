@@ -1,4 +1,4 @@
-import HelpDetailTemplate from "../../components/help/HelpDetailTemplate";
+import HelpDetailTemplate from "../../../components/help/HelpDetailTemplate";
 
 const STEPS = [
     {

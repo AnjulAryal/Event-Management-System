@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { CloudUpload, MapPin, ArrowRight, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CloudUpload, MapPin, ArrowRight, X, Users } from 'lucide-react';
+
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -17,8 +18,33 @@ const AdminAddEvent = () => {
         organizer: '',
         adminNotes: '',
         category: 'technology',
-        coverImage: ''
+        coverImage: '',
+        speakers: []
     });
+    const [allSpeakers, setAllSpeakers] = useState([]);
+
+    useEffect(() => {
+        const fetchSpeakers = async () => {
+            try {
+                const res = await fetch('/api/speakers');
+                const data = await res.json();
+                setAllSpeakers(data);
+            } catch (error) {
+                console.error("Error fetching speakers:", error);
+            }
+        };
+        fetchSpeakers();
+    }, []);
+
+    const handleSpeakerToggle = (speakerId) => {
+        setFormData(prev => {
+            const speakers = prev.speakers.includes(speakerId)
+                ? prev.speakers.filter(id => id !== speakerId)
+                : [...prev.speakers, speakerId];
+            return { ...prev, speakers };
+        });
+    };
+
 
     const handleChange = (e) => {
         const { id, name, value } = e.target;
@@ -210,7 +236,31 @@ const AdminAddEvent = () => {
                                 </select>
                             </div>
 
+                            <div className="flex flex-col gap-3">
+                                <label className="text-[10px] font-extrabold text-[#5CB85C] uppercase tracking-widest ml-1">
+                                    Speakers
+                                </label>
+                                <div className="max-h-48 overflow-y-auto space-y-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    {allSpeakers.length > 0 ? allSpeakers.map(speaker => (
+                                        <label key={speaker._id} className="flex items-center gap-3 cursor-pointer group">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={formData.speakers.includes(speaker._id)}
+                                                onChange={() => handleSpeakerToggle(speaker._id)}
+                                                className="w-4 h-4 rounded text-[#5CB85C] focus:ring-[#5CB85C] border-slate-300"
+                                            />
+                                            <span className="text-sm font-bold text-slate-700 group-hover:text-[#5CB85C] transition-colors">
+                                                {speaker.name}
+                                            </span>
+                                        </label>
+                                    )) : (
+                                        <p className="text-xs text-slate-400 font-bold text-center py-2">No speakers found</p>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="flex flex-col gap-4 pt-4">
+
                                 <Button 
                                     type="submit" 
                                     className="py-4 text-base" 

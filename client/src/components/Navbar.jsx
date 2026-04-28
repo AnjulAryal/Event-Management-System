@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
     LayoutDashboard,
@@ -22,8 +22,36 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
     const [hovered, setHovered] = useState(null);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-    // Get actual user data from localStorage with defensive defaults
-    const storedUser = JSON.parse(localStorage.getItem('user')) || {};
+    // Get actual user data from localStorage with reactive state
+    const [storedUser, setStoredUser] = useState(() => JSON.parse(localStorage.getItem('user')) || {});
+
+    // Listen for profile updates from UserProfile page
+    useEffect(() => {
+        const handleUserUpdated = () => {
+            setStoredUser(JSON.parse(localStorage.getItem('user')) || {});
+        };
+        window.addEventListener('userUpdated', handleUserUpdated);
+        return () => window.removeEventListener('userUpdated', handleUserUpdated);
+    }, []);
+
+    // Fetch fresh profile from backend on mount to get latest profilePicture
+    useEffect(() => {
+        const currentUser = JSON.parse(localStorage.getItem('user'));
+        if (!currentUser?.token) return;
+        fetch('/api/users/profile', {
+            headers: { 'Authorization': `Bearer ${currentUser.token}` }
+        })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+            if (data) {
+                const updated = { ...currentUser, profilePicture: data.profilePicture, name: data.name, phone: data.phone };
+                localStorage.setItem('user', JSON.stringify(updated));
+                setStoredUser(updated);
+            }
+        })
+        .catch(() => {}); // silently fail
+    }, []);
+
     const userName = storedUser.name || "Guest User";
     const userRole = storedUser.isAdmin ? "admin" : "user";
 
@@ -183,11 +211,12 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                 display: "flex",
                                 flexDirection: "column"
                             }}>
-                                <Link to={userRole === 'admin' ? "/admin-profile" : "/dashboard"} style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                <Link to={userRole === 'admin' ? "/admin-profile" : "/profile"} style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
                                     <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>Profile</div>
                                 </Link>
-                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Manage User</div>
-                                <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Payment History</div>
+                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Invite a Friend</div>
+                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Payment History</div>
+                                <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Attended Events</div>
                             </div>
                         </div>
                     )}

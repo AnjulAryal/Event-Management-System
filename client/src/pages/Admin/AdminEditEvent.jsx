@@ -17,8 +17,33 @@ const AdminEditEvent = () => {
         location: '',
         organizer: '',
         adminNotes: '',
-        category: 'technology'
+        category: 'technology',
+        speakers: []
     });
+    const [allSpeakers, setAllSpeakers] = useState([]);
+
+    useEffect(() => {
+        const fetchSpeakers = async () => {
+            try {
+                const res = await fetch('/api/speakers');
+                const data = await res.json();
+                setAllSpeakers(data);
+            } catch (error) {
+                console.error("Error fetching speakers:", error);
+            }
+        };
+        fetchSpeakers();
+    }, []);
+
+    const handleSpeakerToggle = (speakerId) => {
+        setFormData(prev => {
+            const speakers = prev.speakers.includes(speakerId)
+                ? prev.speakers.filter(id => id !== speakerId)
+                : [...prev.speakers, speakerId];
+            return { ...prev, speakers };
+        });
+    };
+
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -35,8 +60,11 @@ const AdminEditEvent = () => {
                     location: eventToEdit.location || '',
                     organizer: eventToEdit.organizer || '',
                     adminNotes: eventToEdit.adminNotes || '',
-                    category: eventToEdit.category || 'technology'
+                    category: eventToEdit.category || 'technology',
+                    speakers: eventToEdit.speakers || [],
+                    coverImage: eventToEdit.coverImage || ''
                 });
+
             } catch (err) {
                 console.error(err);
                 toast.error("Event not found!");
@@ -243,7 +271,31 @@ const AdminEditEvent = () => {
                                 </div>
                             </div>
 
+                            <div className="mb-6">
+                                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-widest mb-3">
+                                    SPEAKERS
+                                </label>
+                                <div className="max-h-48 overflow-y-auto space-y-2 p-4 bg-[#f4f6f8] rounded-xl border border-slate-100">
+                                    {allSpeakers.length > 0 ? allSpeakers.map(speaker => (
+                                        <label key={speaker._id} className="flex items-center gap-3 cursor-pointer group">
+                                            <input 
+                                                type="checkbox" 
+                                                checked={formData.speakers.includes(speaker._id)}
+                                                onChange={() => handleSpeakerToggle(speaker._id)}
+                                                className="w-4 h-4 rounded text-[#5CB85C] focus:ring-[#5CB85C] border-slate-300"
+                                            />
+                                            <span className="text-sm font-bold text-slate-700 group-hover:text-[#5CB85C] transition-colors">
+                                                {speaker.name}
+                                            </span>
+                                        </label>
+                                    )) : (
+                                        <p className="text-xs text-slate-400 font-bold text-center py-2">No speakers found</p>
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="space-y-3">
+
                                 <Button 
                                     type="submit" 
                                     className="w-full py-4" 

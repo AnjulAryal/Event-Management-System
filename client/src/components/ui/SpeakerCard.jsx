@@ -1,17 +1,18 @@
 import React from 'react';
-import { MapPin, Calendar, ChevronRight, Edit2, Trash2 } from 'lucide-react';
+import { MapPin, Calendar, Edit2, Trash2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
-import Button from './Button';
 
 const SpeakerCard = ({ 
   speaker, 
   isAdmin = false, 
   onEdit, 
-  onDelete, 
-  onViewProfile 
+  onDelete,
 }) => {
+  const navigate = useNavigate();
+
   return (
-    <div className="bg-white rounded-[22px] p-6 shadow-sm border border-slate-50 flex flex-col gap-6 transition-all hover:shadow-md hover:translate-y-[-4px] group">
+    <div className="bg-white rounded-[22px] p-6 shadow-sm border border-slate-50 flex flex-col gap-4 transition-all hover:shadow-md hover:translate-y-[-4px] group">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           {/* Avatar */}
@@ -67,7 +68,15 @@ const SpeakerCard = ({
         </div>
       </div>
 
-      {/* Action Button */}
+      {/* View Profile Button */}
+      {!isAdmin && (
+        <button
+          onClick={() => navigate(`/speakers/${speaker._id || speaker.id}`)}
+          className="w-full mt-1 py-2.5 rounded-xl border border-[#5CB85C]/30 text-[#5CB85C] text-sm font-bold bg-[#5CB85C]/5 hover:bg-[#5CB85C] hover:text-white transition-all duration-200 flex items-center justify-center gap-1 group/btn"
+        >
+          View Profile <span className="group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
+        </button>
+      )}
     </div>
   );
 };
