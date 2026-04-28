@@ -21,6 +21,14 @@ const userSchema = mongoose.Schema(
       required: true,
       default: false,
     },
+    phone: {
+      type: String,
+      default: '',
+    },
+    profilePicture: {
+      type: String,
+      default: '',
+    },
     registeredEvents: [
       {
         type: mongoose.Schema.Types.ObjectId,

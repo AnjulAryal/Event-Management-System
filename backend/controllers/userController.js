@@ -105,6 +105,8 @@ const getUserProfile = asyncHandler(async (req, res) => {
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
+      phone: user.phone,
+      profilePicture: user.profilePicture,
     });
   } else {
     res.status(404);
@@ -213,10 +215,49 @@ const resetPassword = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Password updated successfully' });
 });
 
+// @desc    Update user profile
+// @route   PUT /api/users/profile
+// @access  Private
+const updateUserProfile = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    // We only want to allow password updates if a new password is provided
+    if (req.body.password) {
+      user.password = req.body.password;
+    }
+    
+    // Allow updating phone and profilePicture
+    if (req.body.phone !== undefined) {
+      user.phone = req.body.phone;
+    }
+    if (req.body.profilePicture !== undefined) {
+      user.profilePicture = req.body.profilePicture;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      isAdmin: updatedUser.isAdmin,
+      phone: updatedUser.phone,
+      profilePicture: updatedUser.profilePicture,
+      token: generateToken(updatedUser._id),
+    });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
 module.exports = { 
   authUser, 
   registerUser, 
   getUserProfile, 
+  updateUserProfile,
   forgotPassword, 
   verifyResetCode, 
   resetPassword 
