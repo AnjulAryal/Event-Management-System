@@ -5,12 +5,16 @@ const {
   getAllSupportRequests,
   updateSupportRequest,
   deleteSupportRequest,
+  replySupportRequest,
 } = require('../controllers/supportController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.route('/')
   .get(protect, admin, getAllSupportRequests)
   .post(submitSupportRequest);
+
+router.route('/:id/reply')
+  .post(protect, admin, replySupportRequest);
 
 router.route('/:id')
   .put(protect, admin, updateSupportRequest)

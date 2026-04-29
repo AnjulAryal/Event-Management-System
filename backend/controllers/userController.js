@@ -255,11 +255,49 @@ const updateUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get all users (admin only)
+// @route   GET /api/users
+// @access  Private/Admin
+const getAllUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({ isAdmin: false }).select('-password -resetPasswordCode -resetPasswordExpires');
+  res.json(users);
+});
+
+// @desc    Toggle suspend/unsuspend a user
+// @route   PUT /api/users/:id/suspend
+// @access  Private/Admin
+const suspendUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  user.isSuspended = !user.isSuspended;
+  await user.save();
+  res.json({ message: user.isSuspended ? 'User suspended' : 'User unsuspended', isSuspended: user.isSuspended });
+});
+
+// @desc    Delete a user
+// @route   DELETE /api/users/:id
+// @access  Private/Admin
+const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+  await User.findByIdAndDelete(req.params.id);
+  res.json({ message: 'User removed' });
+});
+
 module.exports = { 
   authUser, 
   registerUser, 
+  getAllUsers,
   getUserProfile, 
   updateUserProfile,
+  suspendUser,
+  deleteUser,
   forgotPassword, 
   verifyResetCode, 
   resetPassword 

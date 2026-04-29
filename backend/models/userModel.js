@@ -41,6 +41,10 @@ const userSchema = mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
     },
+    isSuspended: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
