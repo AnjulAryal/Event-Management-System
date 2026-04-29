@@ -83,17 +83,15 @@ export default function HelpSupport() {
 
         const loadingToast = toast.loading("Sending message...");
         try {
-            const res = await fetch('/api/feedback', {
+            const res = await fetch('/api/support', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    title: `SUPPORT: ${formData.name}`,
+                    name: formData.name,
                     email: formData.email,
-                    date: new Date().toLocaleDateString(),
-                    feedback: formData.message,
-                    rating: 5 // Default high priority for support
+                    message: formData.message,
                 })
             });
 

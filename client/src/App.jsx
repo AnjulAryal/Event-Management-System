@@ -37,6 +37,8 @@ import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
 import Adminaddspeaker from "./pages/admin/adminaddspeaker";
 import AdminViewDetails from "./pages/admin/adminViewdetails";
 import AdminProfile from "./pages/admin/AdminProfile";
+import AdminManageUsers from "./pages/admin/AdminManageUsers";
+import AdminSpeakerProfile from "./pages/admin/AdminSpeakerProfile";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
@@ -136,6 +138,16 @@ function AppContent({ open, setOpen, isMobile }) {
             <Route path="/admin-profile" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <AdminProfile />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin-users" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminManageUsers />
+              </ProtectedRoute>
+            } />
+            <Route path="/admin-speaker-profile/:id" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <AdminSpeakerProfile />
               </ProtectedRoute>
             } />
 

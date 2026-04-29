@@ -189,15 +189,17 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
 
                     {/* Popover Menu */}
                     {showProfileMenu && (
-                        <div style={{
-                            position: "absolute",
-                            left: "135px",
-                            top: "0px",
-                            zIndex: 1000,
-                            display: "flex",
-                            alignItems: "flex-start",
-                            filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
-                        }}>
+                        <div
+                            onClick={e => e.stopPropagation()}
+                            style={{
+                                position: "absolute",
+                                left: "135px",
+                                top: "0px",
+                                zIndex: 1000,
+                                display: "flex",
+                                alignItems: "flex-start",
+                                filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
+                            }}>
                             {/* Black Curved Arrow */}
                             <svg width="22" height="32" viewBox="0 0 22 32" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ marginTop: "21px", marginRight: "-1px", zIndex: 2 }}>
                                 <path d="M22 0C10 0 0 10 0 16C0 22 10 32 22 32Z" fill="black"/>
@@ -211,12 +213,56 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                 display: "flex",
                                 flexDirection: "column"
                             }}>
-                                <Link to={userRole === 'admin' ? "/admin-profile" : "/profile"} style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
-                                    <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>Profile</div>
-                                </Link>
-                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Invite a Friend</div>
-                                <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Payment History</div>
-                                <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }} onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"} onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>Attended Events</div>
+                                {userRole === 'admin' ? (
+                                    // ── Admin popup items ──────────────────────
+                                    <>
+                                        <Link to="/admin-profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>
+                                                Profile
+                                            </div>
+                                        </Link>
+                                        <Link to="/admin-users" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                                Manage User
+                                            </div>
+                                        </Link>
+                                        <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
+                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                            Payment History
+                                        </div>
+                                    </>
+                                ) : (
+                                    // ── User popup items ───────────────────────
+                                    <>
+                                        <Link to="/profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"}
+                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>
+                                                Profile
+                                            </div>
+                                        </Link>
+                                        <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
+                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                            Invite a Friend
+                                        </div>
+                                        <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
+                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                            Payment History
+                                        </div>
+                                        <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
+                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
+                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                            Attended Events
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                     )}

@@ -69,14 +69,16 @@ const SpeakerCard = ({
       </div>
 
       {/* View Profile Button */}
-      {!isAdmin && (
-        <button
-          onClick={() => navigate(`/speakers/${speaker._id || speaker.id}`)}
-          className="w-full mt-1 py-2.5 rounded-xl border border-[#5CB85C]/30 text-[#5CB85C] text-sm font-bold bg-[#5CB85C]/5 hover:bg-[#5CB85C] hover:text-white transition-all duration-200 flex items-center justify-center gap-1 group/btn"
-        >
-          View Profile <span className="group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
-        </button>
-      )}
+      <button
+        onClick={() =>
+          isAdmin
+            ? navigate(`/admin-speaker-profile/${speaker._id || speaker.id}`)
+            : navigate(`/speakers/${speaker._id || speaker.id}`)
+        }
+        className="w-full mt-1 py-2.5 rounded-xl border border-[#5CB85C]/30 text-[#5CB85C] text-sm font-bold bg-[#5CB85C]/5 hover:bg-[#5CB85C] hover:text-white transition-all duration-200 flex items-center justify-center gap-1 group/btn"
+      >
+        View Profile <span className="group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
+      </button>
     </div>
   );
 };
