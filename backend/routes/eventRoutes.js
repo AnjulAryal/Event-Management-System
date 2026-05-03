@@ -10,6 +10,8 @@ const {
   cancelRegistration,
   getRecommendedEvents,
   getEventsBySpeaker,
+  initiatePayment,
+  verifyPaymentAndRegister,
 } = require('../controllers/eventController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -23,6 +25,12 @@ router.route('/recommendations')
 
 router.route('/:id/register')
   .post(protect, registerForEvent);
+
+router.route('/:id/initiate-payment')
+  .post(protect, initiatePayment);
+
+router.route('/verify-payment')
+  .post(protect, verifyPaymentAndRegister);
 
 router.route('/:id/cancel')
   .post(protect, cancelRegistration);

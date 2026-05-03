@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CloudUpload, MapPin, ArrowRight, X, Users } from 'lucide-react';
+import { CloudUpload, MapPin, ArrowRight, X, Users, Ticket } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
@@ -19,7 +19,9 @@ const AdminAddEvent = () => {
         adminNotes: '',
         category: 'technology',
         coverImage: '',
-        speakers: []
+        speakers: [],
+        isFree: true,
+        ticketPrice: 0
     });
     const [allSpeakers, setAllSpeakers] = useState([]);
 
@@ -153,6 +155,47 @@ const AdminAddEvent = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Input id="organizer" label="Organizer" placeholder="Department of Innovation" value={formData.organizer} onChange={handleChange} />
                                 <Input id="adminNotes" label="Admin Notes (Private)" placeholder="Internal billing reference..." value={formData.adminNotes} onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        {/* Box 3.5: Ticketing & Pricing */}
+                        <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-sm border border-slate-100">
+                            <div className="flex items-center mb-8">
+                                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center mr-3">
+                                    <Ticket className="w-5 h-5 text-purple-500" />
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-widest">
+                                    Ticketing & Pricing
+                                </h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-3">
+                                    <label className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest ml-1">Event Type</label>
+                                    <div className="flex gap-4">
+                                        <label className={`flex-1 flex items-center justify-center py-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isFree ? 'border-[#5CB85C] bg-green-50 text-[#5CB85C]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}>
+                                            <input type="radio" name="isFree" checked={formData.isFree === true} onChange={() => setFormData(prev => ({...prev, isFree: true, ticketPrice: 0}))} className="hidden" />
+                                            <span className="text-sm font-bold">Free</span>
+                                        </label>
+                                        <label className={`flex-1 flex items-center justify-center py-3 rounded-xl border-2 cursor-pointer transition-all ${!formData.isFree ? 'border-[#5CB85C] bg-green-50 text-[#5CB85C]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}>
+                                            <input type="radio" name="isFree" checked={formData.isFree === false} onChange={() => setFormData(prev => ({...prev, isFree: false}))} className="hidden" />
+                                            <span className="text-sm font-bold">Paid</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                {!formData.isFree && (
+                                    <Input 
+                                        id="ticketPrice" 
+                                        label="Ticket Price (Rs.)" 
+                                        type="number" 
+                                        min="0"
+                                        placeholder="e.g. 1500" 
+                                        required 
+                                        value={formData.ticketPrice} 
+                                        onChange={handleChange} 
+                                    />
+                                )}
                             </div>
                         </div>
 

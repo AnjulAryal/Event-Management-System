@@ -16,6 +16,7 @@ import FindTickets from './pages/user/help/FindTickets';
 import RegisterEvent from './pages/user/help/RegisterEvent';
 import ContactOrganizer from './pages/user/help/ContactOrganizer';
 import CompleteRegistration from './pages/user/CompleteRegistration';
+import PaymentSuccess from './pages/user/PaymentSuccess';
 import EventDetails from './pages/user/EventDetails';
 import { Toaster } from 'react-hot-toast';
 import UpdatePassword from './pages/UpdatePassword';
@@ -222,6 +223,11 @@ function AppContent({ open, setOpen, isMobile }) {
             <Route path="/complete-registration/:id" element={
               <ProtectedRoute allowedRoles={['user']}>
                 <CompleteRegistration />
+              </ProtectedRoute>
+            } />
+            <Route path="/payment-success" element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <PaymentSuccess />
               </ProtectedRoute>
             } />
             <Route path="/event-details/:id" element={
