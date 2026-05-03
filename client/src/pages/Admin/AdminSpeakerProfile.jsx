@@ -198,7 +198,7 @@ export default function AdminSpeakerProfile() {
                         src={
                           ev.coverImage.startsWith('data:') || ev.coverImage.startsWith('http')
                             ? ev.coverImage
-                            : `http://localhost:5001/${ev.coverImage.replace(/^\/+/, '')}`
+                            : `http://localhost:5000/${ev.coverImage.replace(/^\/+/, '')}`
                         }
                         alt={ev.title}
                         className="w-full h-full object-cover opacity-70"
