@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { getErrorMessage, parseJsonSafe } from '../utils/safeJson';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -51,10 +52,14 @@ const Login = () => {
                 body: JSON.stringify({ email, password }),
             });
 
-            const data = await response.json();
+            const data = await parseJsonSafe(response);
 
             if (!response.ok) {
-                throw new Error(data.message || 'Login failed');
+                throw new Error(getErrorMessage(response, data, 'Login failed'));
+            }
+
+            if (!data) {
+                throw new Error('Login failed: empty server response');
             }
 
             // Save in localStorage for ProtectedRoute to access
