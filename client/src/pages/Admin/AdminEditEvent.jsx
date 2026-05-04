@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CloudUpload, MapPin, ChevronDown, ArrowRight, X } from 'lucide-react';
+import { CloudUpload, MapPin, ChevronDown, ArrowRight, X, Ticket } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
@@ -18,7 +18,9 @@ const AdminEditEvent = () => {
         organizer: '',
         adminNotes: '',
         category: 'technology',
-        speakers: []
+        speakers: [],
+        isFree: true,
+        ticketPrice: 0
     });
     const [allSpeakers, setAllSpeakers] = useState([]);
 
@@ -62,7 +64,9 @@ const AdminEditEvent = () => {
                     adminNotes: eventToEdit.adminNotes || '',
                     category: eventToEdit.category || 'technology',
                     speakers: eventToEdit.speakers || [],
-                    coverImage: eventToEdit.coverImage || ''
+                    coverImage: eventToEdit.coverImage || '',
+                    isFree: eventToEdit.isFree !== undefined ? eventToEdit.isFree : true,
+                    ticketPrice: eventToEdit.ticketPrice || 0
                 });
 
             } catch (err) {
@@ -184,6 +188,47 @@ const AdminEditEvent = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <Input id="organizer" label="Organizer" placeholder="Department of Innovation" value={formData.organizer} onChange={handleChange} />
                                 <Input id="adminNotes" label="Admin Notes (Private)" placeholder="Internal billing reference..." value={formData.adminNotes} onChange={handleChange} />
+                            </div>
+                        </div>
+
+                        {/* Box 3.5: Ticketing & Pricing */}
+                        <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-sm border border-slate-100">
+                            <div className="flex items-center mb-6">
+                                <div className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center mr-3">
+                                    <Ticket className="w-4 h-4 text-purple-500" />
+                                </div>
+                                <h3 className="text-[11px] font-bold text-[#111827] uppercase tracking-widest">
+                                    TICKETING & PRICING
+                                </h3>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div className="space-y-3">
+                                    <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-widest mb-3">Event Type</label>
+                                    <div className="flex gap-4">
+                                        <label className={`flex-1 flex items-center justify-center py-3 rounded-xl border-2 cursor-pointer transition-all ${formData.isFree ? 'border-[#5CB85C] bg-green-50 text-[#5CB85C]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}>
+                                            <input type="radio" name="isFree" checked={formData.isFree === true} onChange={() => setFormData(prev => ({...prev, isFree: true, ticketPrice: 0}))} className="hidden" />
+                                            <span className="text-sm font-bold">Free</span>
+                                        </label>
+                                        <label className={`flex-1 flex items-center justify-center py-3 rounded-xl border-2 cursor-pointer transition-all ${!formData.isFree ? 'border-[#5CB85C] bg-green-50 text-[#5CB85C]' : 'border-slate-100 text-slate-500 hover:border-slate-200'}`}>
+                                            <input type="radio" name="isFree" checked={formData.isFree === false} onChange={() => setFormData(prev => ({...prev, isFree: false}))} className="hidden" />
+                                            <span className="text-sm font-bold">Paid</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                {!formData.isFree && (
+                                    <Input 
+                                        id="ticketPrice" 
+                                        label="Ticket Price (Rs.)" 
+                                        type="number" 
+                                        min="0"
+                                        placeholder="e.g. 1500" 
+                                        required 
+                                        value={formData.ticketPrice} 
+                                        onChange={handleChange} 
+                                    />
+                                )}
                             </div>
                         </div>
 

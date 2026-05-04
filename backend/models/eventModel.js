@@ -13,6 +13,8 @@ const eventSchema = mongoose.Schema(
     category: { type: String, default: 'technology' },
     categoryColor: { type: String, default: '#3b99fc' },
     coverImage: { type: String },
+    isFree: { type: Boolean, default: true },
+    ticketPrice: { type: Number, default: 0 },
     registeredParticipants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     speakers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Speaker' }]
   },

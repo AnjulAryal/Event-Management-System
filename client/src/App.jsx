@@ -4,6 +4,7 @@ import Footer from './components/Footer';
 
 import Login from './pages/Login';
 import Signup from "./pages/signup";
+import PublicDashboard from './pages/PublicDashboard';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import ResetPassword from './pages/ResetPassword';
 import UserDashboard from './pages/user/UserDashboard';
@@ -16,6 +17,7 @@ import FindTickets from './pages/user/help/FindTickets';
 import RegisterEvent from './pages/user/help/RegisterEvent';
 import ContactOrganizer from './pages/user/help/ContactOrganizer';
 import CompleteRegistration from './pages/user/CompleteRegistration';
+import PaymentSuccess from './pages/user/PaymentSuccess';
 import EventDetails from './pages/user/EventDetails';
 import { Toaster } from 'react-hot-toast';
 import UpdatePassword from './pages/UpdatePassword';
@@ -42,7 +44,7 @@ import AdminSpeakerProfile from "./pages/admin/AdminSpeakerProfile";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
-  const authRoutes = ['/login', '/reset-password', '/update-password'];
+  const authRoutes = ['/login', '/signup', '/reset-password', '/update-password', '/'];
   const isAuthPage = authRoutes.includes(location.pathname);
   const isAdminRoute = location.pathname.startsWith('/admin');
 
@@ -74,6 +76,7 @@ function AppContent({ open, setOpen, isMobile }) {
         <div className="flex-grow flex flex-col w-full">
           <Routes>
             {/* Public Auth Routes */}
+            <Route path="/" element={user ? <Navigate to={user.isAdmin ? "/admin-dashboard" : "/dashboard"} replace /> : <PublicDashboard />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -152,11 +155,6 @@ function AppContent({ open, setOpen, isMobile }) {
             } />
 
             {/* User Protected Routes */}
-            <Route path="/" element={
-              <ProtectedRoute allowedRoles={['user']}>
-                <RegisteredEvents />
-              </ProtectedRoute>
-            } />
             <Route path="/dashboard" element={
               <ProtectedRoute allowedRoles={['user']}>
                 <UserDashboard />
@@ -222,6 +220,11 @@ function AppContent({ open, setOpen, isMobile }) {
             <Route path="/complete-registration/:id" element={
               <ProtectedRoute allowedRoles={['user']}>
                 <CompleteRegistration />
+              </ProtectedRoute>
+            } />
+            <Route path="/payment-success" element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <PaymentSuccess />
               </ProtectedRoute>
             } />
             <Route path="/event-details/:id" element={

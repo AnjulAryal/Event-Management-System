@@ -1,18 +1,19 @@
 const Support = require('../models/supportModel');
 const sendEmail = require('../utils/sendEmail');
+const asyncHandler = require('../middleware/asyncHandler');
 
-const submitSupportRequest = async (req, res) => {
+const submitSupportRequest = asyncHandler(async (req, res) => {
   const support = new Support(req.body);
   const createdSupport = await support.save();
   res.status(201).json(createdSupport);
-};
+});
 
-const getAllSupportRequests = async (req, res) => {
+const getAllSupportRequests = asyncHandler(async (req, res) => {
   const supports = await Support.find({});
   res.json(supports);
-};
+});
 
-const updateSupportRequest = async (req, res) => {
+const updateSupportRequest = asyncHandler(async (req, res) => {
   const support = await Support.findById(req.params.id);
   if (support) {
     support.status = req.body.status || support.status;
@@ -22,9 +23,9 @@ const updateSupportRequest = async (req, res) => {
     res.status(404);
     throw new Error('Support request not found');
   }
-};
+});
 
-const deleteSupportRequest = async (req, res) => {
+const deleteSupportRequest = asyncHandler(async (req, res) => {
   const support = await Support.findById(req.params.id);
   if (support) {
     await Support.findByIdAndDelete(req.params.id);
@@ -33,9 +34,9 @@ const deleteSupportRequest = async (req, res) => {
     res.status(404);
     throw new Error('Support request not found');
   }
-};
+});
 
-const replySupportRequest = async (req, res) => {
+const replySupportRequest = asyncHandler(async (req, res) => {
   const { replyMessage } = req.body;
 
   if (!replyMessage || !replyMessage.trim()) {
@@ -93,7 +94,7 @@ const replySupportRequest = async (req, res) => {
     console.error('Email send error:', err);
     res.status(500).json({ message: 'Failed to send reply email', error: err.message });
   }
-};
+});
 
 module.exports = {
   submitSupportRequest,
