@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
 import StatCard from '../../components/ui/StatCard';
 import Badge from '../../components/ui/Badge';
+import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
 
 const AdminDashboard = () => {
     const [dateFilter, setDateFilter] = useState('');
@@ -20,8 +21,8 @@ const AdminDashboard = () => {
         const fetchDashboardData = async () => {
             try {
                 const res = await fetch('/api/events');
-                if (!res.ok) throw new Error('Failed to fetch events');
-                const data = await res.json();
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to fetch events'));
                 const events = Array.isArray(data) ? data : (data.events || []);
 
                 let activeAttendees = 0;
