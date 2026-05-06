@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import SpeakerCard from '../../components/ui/SpeakerCard';
+import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
 
 const AdminSpeakers = () => {
     const navigate = useNavigate();
@@ -14,8 +15,9 @@ const AdminSpeakers = () => {
         const fetchSpeakers = async () => {
             try {
                 const res = await fetch('/api/speakers');
-                if (!res.ok) throw new Error('Failed to fetch speakers');
-                const data = await res.json();
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to fetch speakers'));
+                if (!Array.isArray(data)) throw new Error('Failed to fetch speakers: invalid response');
                 setSpeakers(data);
             } catch (error) {
                 console.error("Error fetching speakers:", error);
@@ -43,8 +45,8 @@ const AdminSpeakers = () => {
                     Authorization: `Bearer ${token}`
                 }
             });
-
-            if (!res.ok) throw new Error('Failed to delete speaker');
+            const data = await parseJsonSafe(res);
+            if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to delete speaker'));
 
             const updated = speakers.filter(s => (s._id || s.id) !== id);
             setSpeakers(updated);

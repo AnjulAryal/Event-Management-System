@@ -2,10 +2,14 @@ const express = require('express');
 const router = express.Router();
 const {
   getAllFeedback,
+  getFeedbackAnalysis,
   submitFeedback,
   removeFeedback,
 } = require('../controllers/feedbackController');
 const { protect, admin } = require('../middleware/authMiddleware');
+
+router.route('/analysis')
+  .get(protect, admin, getFeedbackAnalysis);
 
 router.route('/')
   .get(protect, admin, getAllFeedback)

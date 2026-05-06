@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { toast } from "react-hot-toast";
 import GenericCollectionPage from "../../components/user/GenericCollectionPage";
 import SpeakerCard from "../../components/ui/SpeakerCard";
+import { getErrorMessage, parseJsonSafe } from "../../utils/safeJson";
 
 export default function Speakers() {
     const [speakers, setSpeakers] = useState([]);
@@ -10,7 +12,9 @@ export default function Speakers() {
         const fetchSpeakers = async () => {
             try {
                 const res = await fetch('/api/speakers');
-                const data = await res.json();
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(getErrorMessage(res, data, "Failed to fetch speakers"));
+                if (!Array.isArray(data)) throw new Error("Failed to fetch speakers: invalid response");
                 const mappedData = data.map(s => ({ ...s, id: s._id }));
                 setSpeakers(mappedData);
             } catch (error) {

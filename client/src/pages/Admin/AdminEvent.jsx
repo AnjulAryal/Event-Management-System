@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, MapPin, ChevronDown, Plus, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
+import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
 
 const AdminEvent = () => {
     const navigate = useNavigate();
@@ -21,8 +22,9 @@ const AdminEvent = () => {
         const fetchEvents = async () => {
             try {
                 const res = await fetch('/api/events');
-                if (!res.ok) throw new Error('Failed to fetch events');
-                const data = await res.json();
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to fetch events'));
+                if (!Array.isArray(data)) throw new Error('Failed to fetch events: invalid response');
                 const mappedData = data.map(e => ({ ...e, id: e._id || e.id }));
                 setEvents(mappedData);
             } catch (error) {
@@ -44,8 +46,8 @@ const AdminEvent = () => {
                         Authorization: user && user.token ? `Bearer ${user.token}` : ''
                     }
                 });
-                
-                if (!res.ok) throw new Error('Failed to delete event');
+                const data = await parseJsonSafe(res);
+                if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to delete event'));
                 
                 const updatedEvents = events.filter(e => e.id !== id);
                 setEvents(updatedEvents);
