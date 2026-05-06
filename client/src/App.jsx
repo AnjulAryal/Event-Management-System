@@ -44,12 +44,13 @@ import AdminSpeakerProfile from "./pages/admin/AdminSpeakerProfile";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
-  const authRoutes = ['/login', '/signup', '/reset-password', '/update-password', '/'];
-  const isAuthPage = authRoutes.includes(location.pathname);
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Get the user from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
+
+  const authRoutes = ['/login', '/reset-password', '/update-password', '/'];
+  const isAuthPage = authRoutes.includes(location.pathname) || (location.pathname === '/signup' && !user);
 
   const SIDEBAR_W = 240;
 
