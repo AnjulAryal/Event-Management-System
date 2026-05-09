@@ -151,21 +151,27 @@ export default function AdminManageUsers() {
               return (
                 <div
                   key={user._id}
-                  className="grid items-center bg-white border-t border-[#e2e8f0]"
+                  className="grid items-center border-t border-[#e2e8f0] transition-colors"
                   style={{
                     gridTemplateColumns: '1.6fr 2.2fr 1.6fr',
                     padding: '10px 20px',
+                    backgroundColor: user.isSuspended ? '#fff5f5' : '#ffffff',
                   }}
                 >
                   {/* Name */}
                   <span
-                    className={`text-[13px] ${
+                    className={`text-[13px] font-medium ${
                       user.isSuspended
-                        ? 'text-[#94a3b8] line-through'
+                        ? 'text-[#e05252] line-through'
                         : 'text-[#374151]'
                     }`}
                   >
                     {user.name}
+                    {user.isSuspended && (
+                      <span className="ml-2 text-[10px] font-bold bg-[#e05252] text-white px-1.5 py-0.5 rounded no-underline" style={{ textDecoration: 'none' }}>
+                        SUSPENDED
+                      </span>
+                    )}
                   </span>
 
                   {/* Email */}
@@ -179,11 +185,11 @@ export default function AdminManageUsers() {
                     <button
                       onClick={() => handleSuspend(user)}
                       disabled={isBusy}
-                      title={user.isSuspended ? 'Unsuspend' : 'Suspend'}
+                      title={user.isSuspended ? 'Unsuspend this user' : 'Suspend this user'}
                       className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-[12px] font-semibold transition-all disabled:opacity-50 active:scale-95 ${
                         user.isSuspended
-                          ? 'bg-[#6ea8d8] text-white hover:bg-[#5a96c9]'
-                          : 'bg-[#6ea8d8] text-white hover:bg-[#5a96c9]'
+                          ? 'bg-[#22c55e] text-white hover:bg-[#16a34a]'
+                          : 'bg-[#f59e0b] text-white hover:bg-[#d97706]'
                       }`}
                     >
                       {actionLoading[user._id] === 'suspend' ? (
