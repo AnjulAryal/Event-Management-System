@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import AdminNotifications from './components/AdminNotifications';
 
 import Login from './pages/Login';
 import Signup from "./pages/signup";
@@ -44,7 +45,6 @@ import AdminSpeakerProfile from "./pages/admin/AdminSpeakerProfile";
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
-  const isAdminRoute = location.pathname.startsWith('/admin');
 
   // Get the user from localStorage
   const user = JSON.parse(localStorage.getItem('user'));
@@ -64,10 +64,11 @@ function AppContent({ open, setOpen, isMobile }) {
         2. A user is logged in
       */}
       {!isAuthPage && user && <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />}
+      {!isAuthPage && user?.isAdmin && <AdminNotifications />}
 
       {/* Main Content */}
       <main
-        className={`flex flex-col flex-grow ${(!isAuthPage && user) ? 'pt-16 md:pt-0' : ''}`}
+        className={`relative flex flex-col flex-grow ${(!isAuthPage && user) ? 'pt-16 md:pt-0' : ''}`}
         style={{
           marginLeft: !isMobile && open && !isAuthPage && user ? `${SIDEBAR_W}px` : "0px",
           transition: "margin-left 0.3s cubic-bezier(.4,0,.2,1)",

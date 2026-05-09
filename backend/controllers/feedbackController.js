@@ -1,6 +1,7 @@
 const Feedback = require('../models/feedbackModel');
 const sendEmail = require('../utils/sendEmail');
 const { buildEventAnalyses, generateGeminiSummaries, isEventFeedback } = require('../utils/feedbackAnalysis');
+const { createAdminNotification } = require('../utils/notificationService');
 
 const ANALYSIS_VERSION = 'feedback-analysis-v2';
 const AI_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -105,6 +106,16 @@ const submitFeedback = async (req, res) => {
   } catch (error) {
     console.error('Email could not be sent', error);
   }
+
+  await createAdminNotification({
+    type: 'feedback_submitted',
+    title: 'New feedback submitted',
+    message: `${createdFeedback.email} submitted feedback for ${createdFeedback.title}.`,
+    userName: createdFeedback.email,
+    userEmail: createdFeedback.email,
+    eventTitle: createdFeedback.title,
+    feedback: createdFeedback._id,
+  });
 
   res.status(201).json(createdFeedback);
 };

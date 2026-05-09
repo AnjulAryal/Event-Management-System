@@ -16,6 +16,7 @@ const eventRoutes = require('./routes/eventRoutes');
 const speakerRoutes = require('./routes/speakerRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const supportRoutes = require('./routes/supportRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 const { notFound, errorHandler } = require('./middleware/errorMiddleware');
 
 // Body parser
@@ -36,6 +37,7 @@ app.use('/api/events', eventRoutes);
 app.use('/api/speakers', speakerRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Middleware
 app.use(notFound);

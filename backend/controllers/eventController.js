@@ -2,6 +2,7 @@ const Event = require('../models/eventModel');
 const User = require('../models/userModel');
 const PendingRegistration = require('../models/pendingRegistrationModel');
 const sendEmail = require('../utils/sendEmail');
+const { createAdminNotification } = require('../utils/notificationService');
 const crypto = require('crypto');
 
 const getEvents = async (req, res) => {
@@ -159,6 +160,16 @@ const registerForEvent = async (req, res) => {
     console.error('Email send failed:', error.message);
   }
 
+  await createAdminNotification({
+    type: 'event_registered',
+    title: 'New event registration',
+    message: `${recipientName} registered for ${event.title}.`,
+    userName: recipientName,
+    userEmail: recipientEmail,
+    eventTitle: event.title,
+    event: event._id,
+  });
+
   res.status(200).json({ message: 'Successfully registered' });
 };
 
@@ -292,6 +303,27 @@ const verifyPaymentAndRegister = async (req, res) => {
     console.error('Email send failed:', error.message);
   }
 
+  await createAdminNotification({
+    type: 'payment_completed',
+    title: 'Payment completed',
+    message: `${recipientName} paid Rs. ${pending.amount} for ${event.title}.`,
+    userName: recipientName,
+    userEmail: recipientEmail,
+    eventTitle: event.title,
+    event: event._id,
+    amount: pending.amount,
+  });
+
+  await createAdminNotification({
+    type: 'event_registered',
+    title: 'New paid event registration',
+    message: `${recipientName} registered for ${event.title} after payment.`,
+    userName: recipientName,
+    userEmail: recipientEmail,
+    eventTitle: event.title,
+    event: event._id,
+  });
+
   res.status(200).json({ message: 'Payment verified and registered successfully' });
 };
 
@@ -309,6 +341,8 @@ const cancelRegistration = async (req, res) => {
     throw new Error('User ID is required');
   }
 
+  const user = await User.findById(userId);
+
   const isRegistered = event.registeredParticipants.some(
     (participantId) => participantId.toString() === userId
   );
@@ -323,6 +357,17 @@ const cancelRegistration = async (req, res) => {
   );
 
   await event.save();
+
+  await createAdminNotification({
+    type: 'event_cancelled',
+    title: 'Event registration cancelled',
+    message: `${user?.name || 'A user'} cancelled registration for ${event.title}.`,
+    userName: user?.name || 'Unknown user',
+    userEmail: user?.email || '',
+    eventTitle: event.title,
+    event: event._id,
+  });
+
   res.status(200).json({ message: 'Registration cancelled successfully' });
 };
 
