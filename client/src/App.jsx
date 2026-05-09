@@ -28,6 +28,7 @@ import UserProfile from './pages/user/UserProfile';
 import SpeakerDetail from './pages/user/SpeakerDetail';
 import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
 import PaymentHistory from './pages/user/PaymentHistory';
+import AttendedEvents from './pages/user/AttendedEvents';
 
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from "./pages/admin/AdminDashboard";
@@ -167,6 +168,11 @@ function AppContent({ open, setOpen, isMobile }) {
             <Route path="/user-events" element={
               <ProtectedRoute allowedRoles={['user']}>
                 <RegisteredEvents />
+              </ProtectedRoute>
+            } />
+            <Route path="/attended-events" element={
+              <ProtectedRoute allowedRoles={['user']}>
+                <AttendedEvents />
               </ProtectedRoute>
             } />
             <Route path="/speakers" element={
