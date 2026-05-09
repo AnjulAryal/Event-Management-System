@@ -17,65 +17,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
-const demoFeedback = [
-    {
-        _id: 'demo-1',
-        title: 'Tech Frontiers 2024',
-        email: 'ayushabc@gmail.com',
-        date: 'Oct 24, 2024',
-        rating: 2,
-        feedback: 'The session on sustainable materials was eye-opening, but the queue for the afternoon workshop was poorly managed. We waited for 45 minutes in the heat.',
-    },
-    {
-        _id: 'demo-2',
-        title: 'Tech Frontiers 2024',
-        email: 'ayushab@gmail.com',
-        date: 'Oct 24, 2024',
-        rating: 5,
-        feedback: 'Absolutely fantastic organization. The AI-driven networking app actually paired me with the exact people I needed to meet for my project. Brilliant.',
-    },
-    {
-        _id: 'demo-3',
-        title: 'Tech Frontiers 2024',
-        email: 'ayshabo@gmail.com',
-        date: 'Oct 24, 2024',
-        rating: 4,
-        feedback: 'The speakers were very high quality, but the venue wifi was inconsistent in Hall B. Hard to take notes and follow live demos.',
-    },
-    {
-        _id: 'demo-4',
-        title: 'Green Design Summit',
-        email: 'mira@example.com',
-        date: 'Nov 12, 2024',
-        rating: 4,
-        feedback: 'Great workshops and thoughtful speakers. Registration was clear, but the food counter needed more staff during lunch.',
-    },
-    {
-        _id: 'demo-5',
-        title: 'Green Design Summit',
-        email: 'samir@example.com',
-        date: 'Nov 12, 2024',
-        rating: 3,
-        feedback: 'The sustainability panel was useful. The venue layout was confusing and the afternoon session started late.',
-    },
-    {
-        _id: 'demo-6',
-        title: 'Global Logistics Expo',
-        email: 'rina@example.com',
-        date: 'Jan 18, 2025',
-        rating: 4,
-        feedback: 'Strong speaker lineup and smooth check-in. The event app reminders were helpful, although parking signs could be better.',
-    },
-    {
-        _id: 'demo-7',
-        title: 'Leadership in Disruption',
-        email: 'nabin@example.com',
-        date: 'Dec 05, 2024',
-        rating: 5,
-        feedback: 'Excellent keynote and very practical breakout sessions. Networking opportunities were well received by attendees.',
-    },
-];
-
 const sentimentConfig = {
     positive: {
         label: 'Positive',
@@ -116,27 +57,41 @@ const positiveTerms = [
     'strong',
     'useful',
     'well received',
+    'organized',
+    'enjoyed',
+    'informative',
+    'valuable',
 ];
 
 const negativeTerms = [
     'bad',
     'confusing',
+    'disorganized',
     'heat',
     'inconsistent',
     'late',
+    'mess',
     'poorly',
+    'problem',
     'queue',
     'slow',
+    'terrible',
+    'unorganized',
     'waited',
     'wifi',
+    'worst',
 ];
 
 const themeDefinitions = [
-    { label: 'Workshop Quality', keywords: ['workshop', 'session', 'breakout', 'demo'], sentiment: 'positive' },
-    { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel'], sentiment: 'positive' },
-    { label: 'Registration Flow', keywords: ['registration', 'check-in', 'queue'], sentiment: 'neutral' },
-    { label: 'On-site Wi-Fi', keywords: ['wifi', 'network', 'app'], sentiment: 'negative' },
-    { label: 'Venue Management', keywords: ['venue', 'hall', 'parking', 'layout'], sentiment: 'negative' },
+    { label: 'Content Quality', keywords: ['workshop', 'session', 'breakout', 'demo', 'content', 'topic', 'material', 'presentation'] },
+    { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel', 'host', 'presenter', 'facilitator'] },
+    { label: 'Registration Flow', keywords: ['registration', 'check-in', 'check in', 'queue', 'ticket', 'entry', 'booking'] },
+    { label: 'Event Management', keywords: ['event management', 'management', 'organization', 'organised', 'organized', 'unorganized', 'disorganized', 'logistical', 'planning', 'coordination'] },
+    { label: 'Venue & Logistics', keywords: ['venue', 'hall', 'parking', 'layout', 'space', 'location', 'room', 'seating'] },
+    { label: 'Connectivity & Tech', keywords: ['wifi', 'wi-fi', 'network', 'app', 'audio', 'sound', 'mic', 'projector', 'screen'] },
+    { label: 'Schedule & Timing', keywords: ['late', 'delay', 'schedule', 'time', 'timing', 'started', 'ended', 'waited'] },
+    { label: 'Food & Hospitality', keywords: ['food', 'lunch', 'snack', 'meal', 'refreshment', 'staff', 'hospitality'] },
+    { label: 'Networking Experience', keywords: ['networking', 'connections', 'people', 'meet', 'community'] },
 ];
 
 const eventIcons = [TrendingUp, Leaf, MessageCircle, Trophy];
@@ -164,6 +119,16 @@ const formatPercent = (count, total) => {
     return Math.round((count / total) * 100);
 };
 
+const getDominantSentiment = (items) => {
+    const counts = {
+        positive: items.filter((item) => item.sentiment === 'positive').length,
+        neutral: items.filter((item) => item.sentiment === 'neutral').length,
+        negative: items.filter((item) => item.sentiment === 'negative').length,
+    };
+
+    return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'neutral';
+};
+
 const getInitials = (email = '') => {
     const local = email.split('@')[0] || 'guest';
     return local
@@ -177,57 +142,57 @@ const getInitials = (email = '') => {
 };
 
 const analyzeThemes = (items) => {
-    const total = Math.max(items.length, 1);
+    if (!items.length) return [];
 
     return themeDefinitions
         .map((theme) => {
-            const matches = items.filter((item) => {
+            const matchedItems = items.filter((item) => {
                 const text = `${item.feedback || ''} ${item.title || ''}`.toLowerCase();
                 return theme.keywords.some((keyword) => text.includes(keyword));
-            }).length;
+            });
 
             return {
-                ...theme,
-                percent: Math.min(95, Math.max(matches ? Math.round((matches / total) * 88) : 0, matches ? 38 : 0)),
+                label: theme.label,
+                keywords: theme.keywords,
+                sentiment: getDominantSentiment(matchedItems),
+                count: matchedItems.length,
+                percent: formatPercent(matchedItems.length, items.length),
             };
         })
-        .filter((theme) => theme.percent > 0)
-        .sort((a, b) => b.percent - a.percent)
+        .filter((theme) => theme.count > 0)
+        .sort((a, b) => b.count - a.count || b.percent - a.percent)
         .slice(0, 3);
 };
 
-const getFallbackThemeRows = () => [
-    { label: 'Workshop Quality', percent: 88, sentiment: 'positive' },
-    { label: 'Registration Flow', percent: 62, sentiment: 'neutral' },
-    { label: 'On-site Wi-Fi', percent: 45, sentiment: 'negative' },
-];
-
 const createSummary = (eventName, items, themes) => {
+    if (!items.length) {
+        return { right: [], wrong: [], future: [] };
+    }
+
     const positive = items.filter((item) => item.sentiment === 'positive');
     const negative = items.filter((item) => item.sentiment === 'negative');
     const neutral = items.filter((item) => item.sentiment === 'neutral');
 
-    const topPositiveTheme = themes.find((theme) => theme.sentiment === 'positive')?.label || 'speaker and session quality';
-    const topConcernTheme = themes.find((theme) => theme.sentiment === 'negative')?.label || 'onsite operations';
-    const topNeutralTheme = themes.find((theme) => theme.sentiment === 'neutral')?.label || 'registration flow';
+    const compactText = (text, maxLength = 115) => {
+        const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+        if (normalized.length <= maxLength) return normalized;
+        return `${normalized.slice(0, maxLength - 3).trim()}...`;
+    };
+
+    const uniqueLines = (lines) => [...new Set(lines.filter(Boolean))].slice(0, 3);
+    const issueThemes = themes.filter((theme) => ['negative', 'neutral'].includes(theme.sentiment));
 
     return {
-        right: [
-            `${topPositiveTheme} was consistently praised across attendee responses.`,
-            positive.length ? `${positive.length} review${positive.length === 1 ? '' : 's'} mention strong value from the event experience.` : 'Positive notes highlight useful sessions and practical takeaways.',
-            'Networking opportunities were well received by attendees.',
-        ],
-        wrong: [
-            `${topConcernTheme} created friction for several attendees.`,
-            negative.length ? `${negative.length} negative review${negative.length === 1 ? '' : 's'} need operational follow-up.` : 'A few comments point to small onsite coordination issues.',
-            `${topNeutralTheme} should be watched because it appears in mixed feedback.`,
-        ],
-        future: [
-            `Improve crowd-flow management for ${eventName}.`,
-            'Upgrade venue Wi-Fi infrastructure before the next event.',
-            'Simplify the registration and booking process for users.',
-        ],
-        meta: neutral.length ? 'Balanced sentiment with a few execution risks.' : 'Generated from available review patterns.',
+        right: uniqueLines(positive.map((review) => `Positive attendee note: "${compactText(review.feedback)}"`)),
+        wrong: uniqueLines([
+            ...negative.map((review) => `Issue reported: "${compactText(review.feedback)}"`),
+            ...(!negative.length ? neutral.map((review) => `Mixed attendee note: "${compactText(review.feedback)}"`) : []),
+        ]),
+        future: uniqueLines([
+            ...issueThemes.map((theme) => `Review ${theme.label.toLowerCase()} for ${eventName}; ${theme.count} review${theme.count === 1 ? ' mentions' : 's mention'} this area.`),
+            ...negative.map((review) => `Follow up on this reported issue: "${compactText(review.feedback, 90)}"`),
+            ...(!issueThemes.length && neutral.length ? neutral.map((review) => `Clarify this mixed feedback before the next event: "${compactText(review.feedback, 90)}"`) : []),
+        ]),
     };
 };
 
@@ -319,9 +284,9 @@ const AdminFeedback = () => {
             } catch (error) {
                 console.error('Error fetching feedback:', error);
                 setBackendEvents([]);
-                setFeedback(demoFeedback);
-                setUsingDemoData(true);
-                toast.error('Showing sample feedback analytics');
+                setFeedback([]);
+                setUsingDemoData(false);
+                toast.error('Failed to load feedback analytics');
             } finally {
                 setLoading(false);
             }
@@ -414,9 +379,14 @@ const AdminFeedback = () => {
     const currentEvent = selectedEventSummary || visibleEvents[0] || eventSummaries[0];
     const currentReviews = currentEvent?.items || [];
     const filteredReviews = currentReviews.filter((item) => activeFilter === 'all' || item.sentiment === activeFilter);
-    const themeRows = currentEvent?.themes?.length ? currentEvent.themes : analyzeThemes(currentReviews);
-    const displayThemes = themeRows.length ? themeRows : getFallbackThemeRows();
-    const aiSummary = currentEvent ? (currentEvent.summary || createSummary(currentEvent.title, currentReviews, displayThemes)) : null;
+    const detectedThemes = analyzeThemes(currentReviews);
+    const sentimentThemeFallback = currentEvent ? [
+        { label: 'Positive', percent: currentEvent.percentages.positive, sentiment: 'positive' },
+        { label: 'Neutral', percent: currentEvent.percentages.neutral, sentiment: 'neutral' },
+        { label: 'Negative', percent: currentEvent.percentages.negative, sentiment: 'negative' },
+    ] : [];
+    const displayThemes = detectedThemes.length > 0 ? detectedThemes : sentimentThemeFallback;
+    const aiSummary = currentEvent ? (currentEvent.summary || createSummary(currentEvent.title, currentReviews, displayThemes)) : { right: [], wrong: [], future: [] };
 
     const openEvent = (event) => {
         setSelectedEvent(event);
@@ -518,7 +488,9 @@ const AdminFeedback = () => {
 
                         {visibleEvents.length === 0 && (
                             <div className="rounded-lg border border-dashed border-slate-200 bg-white py-16 text-center">
-                                <p className="text-sm font-semibold text-slate-500">No feedback analytics match your search.</p>
+                                <p className="text-sm font-semibold text-slate-500">
+                                    {eventSummaries.length === 0 ? 'No user feedback has been submitted yet.' : 'No feedback analytics match your search.'}
+                                </p>
                             </div>
                         )}
                     </>
@@ -605,25 +577,31 @@ const AdminFeedback = () => {
                                     <h2 className="text-base font-extrabold text-slate-900">Top Feedback Themes</h2>
                                     <Wifi size={17} className="text-[#5CB85C]" />
                                 </div>
-                                <div className="space-y-4">
-                                    {displayThemes.map((theme) => {
-                                        const config = sentimentConfig[theme.sentiment];
+                                {currentReviews.length > 0 ? (
+                                    <div className="space-y-4">
+                                        {displayThemes.map((theme) => {
+                                            const config = sentimentConfig[theme.sentiment];
 
-                                        return (
-                                            <div key={theme.label}>
-                                                <div className="mb-1 flex justify-between gap-3 text-xs font-bold">
-                                                    <span className="text-slate-700">{theme.label}</span>
-                                                    <span style={{ color: config.color }}>
-                                                        {theme.percent}% {config.label}
-                                                    </span>
+                                            return (
+                                                <div key={theme.label}>
+                                                    <div className="mb-1 flex justify-between gap-3 text-xs font-bold">
+                                                        <span className="text-slate-700">{theme.label}</span>
+                                                        <span style={{ color: config.color }}>
+                                                            {theme.percent}% {config.label}
+                                                        </span>
+                                                    </div>
+                                                    <div className="h-2 rounded-full bg-slate-100">
+                                                        <div className="h-full rounded-full" style={{ width: `${theme.percent}%`, backgroundColor: config.color }} />
+                                                    </div>
                                                 </div>
-                                                <div className="h-2 rounded-full bg-slate-100">
-                                                    <div className="h-full rounded-full" style={{ width: `${theme.percent}%`, backgroundColor: config.color }} />
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                ) : (
+                                    <p className="text-sm font-medium leading-6 text-slate-400">
+                                        No recurring themes detected from this event's feedback yet.
+                                    </p>
+                                )}
                             </section>
 
                             <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -656,13 +634,17 @@ const SummaryColumn = ({ color, title, items }) => (
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: color }} />
             <h3 className="text-sm font-extrabold text-slate-900">{title}</h3>
         </div>
-        <ul className="space-y-3">
-            {items.map((item) => (
-                <li key={item} className="text-xs font-medium leading-5 text-slate-500">
-                    {item}
-                </li>
-            ))}
-        </ul>
+        {items.length > 0 ? (
+            <ul className="space-y-3">
+                {items.map((item) => (
+                    <li key={item} className="text-xs font-medium leading-5 text-slate-500">
+                        {item}
+                    </li>
+                ))}
+            </ul>
+        ) : (
+            <p className="text-xs font-medium leading-5 text-slate-400">No matching feedback yet.</p>
+        )}
     </div>
 );
 

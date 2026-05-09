@@ -2,6 +2,7 @@ const Feedback = require('../models/feedbackModel');
 const sendEmail = require('../utils/sendEmail');
 const { buildEventAnalyses, generateGeminiSummaries, isEventFeedback } = require('../utils/feedbackAnalysis');
 
+const ANALYSIS_VERSION = 'feedback-analysis-v2';
 const AI_CACHE_TTL_MS = 10 * 60 * 1000;
 let feedbackAnalysisCache = null;
 
@@ -11,7 +12,7 @@ const getFeedbackSignature = (feedbacks) => {
     return Math.max(max, Number.isNaN(updated) ? 0 : updated);
   }, 0);
 
-  return `${feedbacks.length}:${latest}:${process.env.GEMINI_MODEL || 'gemini-2.5-flash'}`;
+  return `${ANALYSIS_VERSION}:${feedbacks.length}:${latest}:${process.env.GEMINI_MODEL || 'gemini-2.5-flash'}`;
 };
 
 const getAllFeedback = async (req, res) => {

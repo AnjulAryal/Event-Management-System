@@ -63,7 +63,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
     // Define navigation sets based on role
     const userNavItems = [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-        { id: "events", label: "Events", icon: Calendar, path: "/" },
+        { id: "events", label: "Events", icon: Calendar, path: "/all-events" },
         { id: "speakers", label: "Speakers", icon: Mic2, path: "/speakers" },
         { id: "feedback", label: "Feedback", icon: MessageSquare, path: "/feedback" },
         { id: "help", label: "Help/Support", icon: HelpCircle, path: "/help" },

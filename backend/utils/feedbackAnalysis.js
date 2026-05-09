@@ -11,27 +11,41 @@ const positiveTerms = [
   'strong',
   'useful',
   'well received',
+  'organized',
+  'enjoyed',
+  'informative',
+  'valuable',
 ];
 
 const negativeTerms = [
   'bad',
   'confusing',
+  'disorganized',
   'heat',
   'inconsistent',
   'late',
+  'mess',
   'poorly',
+  'problem',
   'queue',
   'slow',
+  'terrible',
+  'unorganized',
   'waited',
   'wifi',
+  'worst',
 ];
 
 const themeDefinitions = [
-  { label: 'Workshop Quality', keywords: ['workshop', 'session', 'breakout', 'demo'], sentiment: 'positive' },
-  { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel'], sentiment: 'positive' },
-  { label: 'Registration Flow', keywords: ['registration', 'check-in', 'queue'], sentiment: 'neutral' },
-  { label: 'On-site Wi-Fi', keywords: ['wifi', 'network', 'app'], sentiment: 'negative' },
-  { label: 'Venue Management', keywords: ['venue', 'hall', 'parking', 'layout'], sentiment: 'negative' },
+  { label: 'Content Quality', keywords: ['workshop', 'session', 'breakout', 'demo', 'content', 'topic', 'material', 'presentation'] },
+  { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel', 'host', 'presenter', 'facilitator'] },
+  { label: 'Registration Flow', keywords: ['registration', 'check-in', 'check in', 'queue', 'ticket', 'entry', 'booking'] },
+  { label: 'Event Management', keywords: ['event management', 'management', 'organization', 'organised', 'organized', 'unorganized', 'disorganized', 'logistical', 'planning', 'coordination'] },
+  { label: 'Venue & Logistics', keywords: ['venue', 'hall', 'parking', 'layout', 'space', 'location', 'room', 'seating'] },
+  { label: 'Connectivity & Tech', keywords: ['wifi', 'wi-fi', 'network', 'app', 'audio', 'sound', 'mic', 'projector', 'screen'] },
+  { label: 'Schedule & Timing', keywords: ['late', 'delay', 'schedule', 'time', 'timing', 'started', 'ended', 'waited'] },
+  { label: 'Food & Hospitality', keywords: ['food', 'lunch', 'snack', 'meal', 'refreshment', 'staff', 'hospitality'] },
+  { label: 'Networking Experience', keywords: ['networking', 'connections', 'people', 'meet', 'community'] },
 ];
 
 const getSentiment = (feedback) => {
@@ -64,55 +78,75 @@ const formatPercent = (count, total) => {
   return Math.round((count / total) * 100);
 };
 
+const getDominantSentiment = (items) => {
+  const counts = {
+    positive: items.filter((item) => item.sentiment === 'positive').length,
+    neutral: items.filter((item) => item.sentiment === 'neutral').length,
+    negative: items.filter((item) => item.sentiment === 'negative').length,
+  };
+
+  return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'neutral';
+};
+
 const analyzeThemes = (items) => {
-  const total = Math.max(items.length, 1);
+  if (!items.length) return [];
 
   return themeDefinitions
     .map((theme) => {
-      const matches = items.filter((item) => {
+      const matchedItems = items.filter((item) => {
         const text = `${item.feedback || ''} ${item.title || ''}`.toLowerCase();
         return theme.keywords.some((keyword) => text.includes(keyword));
-      }).length;
+      });
 
       return {
-        ...theme,
-        percent: Math.min(95, Math.max(matches ? Math.round((matches / total) * 88) : 0, matches ? 38 : 0)),
+        label: theme.label,
+        keywords: theme.keywords,
+        sentiment: getDominantSentiment(matchedItems),
+        count: matchedItems.length,
+        percent: formatPercent(matchedItems.length, items.length),
       };
     })
-    .filter((theme) => theme.percent > 0)
-    .sort((a, b) => b.percent - a.percent)
+    .filter((theme) => theme.count > 0)
+    .sort((a, b) => b.count - a.count || b.percent - a.percent)
     .slice(0, 3);
 };
 
+const compactText = (text, maxLength = 115) => {
+  const normalized = String(text || '').replace(/\s+/g, ' ').trim();
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 3).trim()}...`;
+};
+
+const reviewLine = (prefix, review) => `${prefix}: "${compactText(review.feedback)}"`;
+
+const uniqueLines = (lines) => [...new Set(lines.filter(Boolean))].slice(0, 3);
+
 const createFallbackSummary = (eventName, items, themes) => {
+  if (!items.length) {
+    return { right: [], wrong: [], future: [] };
+  }
+
   const positive = items.filter((item) => item.sentiment === 'positive');
+  const neutral = items.filter((item) => item.sentiment === 'neutral');
   const negative = items.filter((item) => item.sentiment === 'negative');
+  const issueThemes = themes.filter((theme) => ['negative', 'neutral'].includes(theme.sentiment));
 
-  const topPositiveTheme = themes.find((theme) => theme.sentiment === 'positive')?.label || 'speaker and session quality';
-  const topConcernTheme = themes.find((theme) => theme.sentiment === 'negative')?.label || 'onsite operations';
-  const topNeutralTheme = themes.find((theme) => theme.sentiment === 'neutral')?.label || 'registration flow';
+  const right = uniqueLines([
+    ...positive.map((review) => reviewLine('Positive attendee note', review)),
+  ]);
 
-  return {
-    right: [
-      `${topPositiveTheme} was consistently praised across attendee responses.`,
-      positive.length
-        ? `${positive.length} review${positive.length === 1 ? '' : 's'} mention strong value from the event experience.`
-        : 'Positive notes highlight useful sessions and practical takeaways.',
-      'Networking opportunities were well received by attendees.',
-    ],
-    wrong: [
-      `${topConcernTheme} created friction for several attendees.`,
-      negative.length
-        ? `${negative.length} negative review${negative.length === 1 ? '' : 's'} need operational follow-up.`
-        : 'A few comments point to small onsite coordination issues.',
-      `${topNeutralTheme} should be watched because it appears in mixed feedback.`,
-    ],
-    future: [
-      `Improve crowd-flow management for ${eventName}.`,
-      'Upgrade venue Wi-Fi infrastructure before the next event.',
-      'Simplify the registration and booking process for users.',
-    ],
-  };
+  const wrong = uniqueLines([
+    ...negative.map((review) => reviewLine('Issue reported', review)),
+    ...(!negative.length ? neutral.map((review) => reviewLine('Mixed attendee note', review)) : []),
+  ]);
+
+  const future = uniqueLines([
+    ...issueThemes.map((theme) => `Review ${theme.label.toLowerCase()} for ${eventName}; ${theme.count} review${theme.count === 1 ? ' mentions' : 's mention'} this area.`),
+    ...negative.map((review) => `Follow up on this reported issue: "${compactText(review.feedback, 90)}"`),
+    ...(!issueThemes.length && neutral.length ? neutral.map((review) => `Clarify this mixed feedback before the next event: "${compactText(review.feedback, 90)}"`) : []),
+  ]);
+
+  return { right, wrong, future };
 };
 
 const buildEventAnalyses = (feedbacks) => {
@@ -165,7 +199,15 @@ const buildAiPrompt = (events) => `
 You are helping an event admin understand attendee feedback.
 Return only valid JSON. Do not include markdown.
 
-For each event below, improve the summary while keeping the same schema:
+For each event below, write a grounded summary using only the provided reviews.
+Rules:
+- Do not invent issues, praise, themes, or recommendations.
+- If there is no evidence for a section, return an empty array for that section.
+- Use specific wording from the feedback data where possible.
+- Keep each bullet concise and event-specific.
+- Never reuse the same generic summary across different events.
+
+Keep this exact schema:
 {
   "events": [
     {
@@ -185,6 +227,7 @@ ${JSON.stringify(
     title: event.title,
     sentiment: event.percentages,
     themes: event.themes,
+    totalReviews: event.total,
     reviews: event.reviews.slice(0, 8).map((review) => ({
       rating: review.rating,
       sentiment: review.sentiment,
@@ -211,6 +254,15 @@ const parseJsonResponse = (text) => {
   return JSON.parse(cleaned);
 };
 
+const sanitizeSummaryList = (value, fallback = []) => {
+  if (!Array.isArray(value)) return fallback;
+
+  return value
+    .map((item) => String(item || '').replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .slice(0, 3);
+};
+
 const applyAiSummaries = (events, aiData) => {
   if (!Array.isArray(aiData?.events)) return events;
 
@@ -221,9 +273,9 @@ const applyAiSummaries = (events, aiData) => {
     return {
       ...event,
       summary: {
-        right: Array.isArray(aiEvent.summary.right) ? aiEvent.summary.right.slice(0, 3) : event.summary.right,
-        wrong: Array.isArray(aiEvent.summary.wrong) ? aiEvent.summary.wrong.slice(0, 3) : event.summary.wrong,
-        future: Array.isArray(aiEvent.summary.future) ? aiEvent.summary.future.slice(0, 3) : event.summary.future,
+        right: sanitizeSummaryList(aiEvent.summary.right, event.summary.right),
+        wrong: sanitizeSummaryList(aiEvent.summary.wrong, event.summary.wrong),
+        future: sanitizeSummaryList(aiEvent.summary.future, event.summary.future),
       },
     };
   });
