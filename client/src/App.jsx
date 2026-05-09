@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AdminNotifications from './components/AdminNotifications';
+import UserNotifications from './components/UserNotifications';
 
 import Login from './pages/Login';
 import Signup from "./pages/signup";
@@ -65,6 +66,7 @@ function AppContent({ open, setOpen, isMobile }) {
       */}
       {!isAuthPage && user && <Navbar open={open} setOpen={setOpen} isMobile={isMobile} />}
       {!isAuthPage && user?.isAdmin && <AdminNotifications />}
+      {!isAuthPage && user && !user?.isAdmin && <UserNotifications />}
 
       {/* Main Content */}
       <main

@@ -6,7 +6,11 @@ const feedbackSchema = mongoose.Schema(
     email: { type: String, required: true }, // alex.vance@gmail.com
     date: { type: String, required: true }, // Oct 24, 2023
     feedback: { type: String, required: true }, // Feedback text
-    rating: { type: Number, required: true }
+    rating: { type: Number, required: true },
+    adminReply: {
+      message: { type: String, default: '' },
+      repliedAt: { type: Date },
+    },
   },
   { timestamps: true }
 );

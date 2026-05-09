@@ -1,6 +1,8 @@
 const Support = require('../models/supportModel');
+const User = require('../models/userModel');
 const sendEmail = require('../utils/sendEmail');
 const asyncHandler = require('../middleware/asyncHandler');
+const { createUserNotification } = require('../utils/notificationService');
 
 const submitSupportRequest = asyncHandler(async (req, res) => {
   const support = new Support(req.body);
@@ -88,6 +90,20 @@ const replySupportRequest = asyncHandler(async (req, res) => {
     // Mark ticket as resolved
     support.status = 'resolved';
     await support.save();
+
+    const user = await User.findOne({ email: support.email, isAdmin: false }).select('_id');
+    if (user) {
+      const compactReplyKey = replyMessage.trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+      await createUserNotification({
+        type: 'support_reply',
+        recipientUser: user._id,
+        title: 'Support team replied',
+        message: 'Admin has replied to your support request.',
+        userEmail: support.email,
+        support: support._id,
+        dedupeKey: `support-reply:${support._id}:${compactReplyKey}`,
+      });
+    }
 
     res.json({ message: 'Reply sent successfully', support });
   } catch (err) {

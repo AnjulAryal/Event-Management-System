@@ -1,7 +1,8 @@
 const Feedback = require('../models/feedbackModel');
+const User = require('../models/userModel');
 const sendEmail = require('../utils/sendEmail');
 const { buildEventAnalyses, generateGeminiSummaries, isEventFeedback } = require('../utils/feedbackAnalysis');
-const { createAdminNotification } = require('../utils/notificationService');
+const { createAdminNotification, createUserNotification } = require('../utils/notificationService');
 
 const ANALYSIS_VERSION = 'feedback-analysis-v2';
 const AI_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -131,9 +132,70 @@ const removeFeedback = async (req, res) => {
   }
 };
 
+const replyToFeedback = async (req, res) => {
+  const { replyMessage } = req.body;
+
+  if (!replyMessage || !replyMessage.trim()) {
+    res.status(400);
+    throw new Error('Reply message is required');
+  }
+
+  const feedback = await Feedback.findById(req.params.id);
+  if (!feedback) {
+    res.status(404);
+    throw new Error('Feedback not found');
+  }
+
+  await sendEmail({
+    email: feedback.email,
+    subject: `Response to your feedback - ${feedback.title}`,
+    html: `
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+        <div style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); padding: 36px 40px 28px;">
+          <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;">Eventify Feedback</h1>
+          <p style="margin: 6px 0 0; color: rgba(255,255,255,0.85); font-size: 14px;">Admin has replied to your feedback</p>
+        </div>
+        <div style="padding: 36px 40px;">
+          <p style="margin: 0 0 8px; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase;">Your feedback</p>
+          <div style="background: #f8fafc; border-left: 3px solid #22c55e; border-radius: 0 8px 8px 0; padding: 16px 20px; margin-bottom: 28px;">
+            <p style="margin: 0; color: #475569; font-size: 15px; line-height: 1.6;">"${feedback.feedback}"</p>
+          </div>
+          <p style="margin: 0 0 8px; color: #64748b; font-size: 13px; font-weight: 600; text-transform: uppercase;">Admin response</p>
+          <div style="background: #f0fdf4; border-radius: 10px; padding: 20px 24px;">
+            <p style="margin: 0; color: #1e293b; font-size: 15px; line-height: 1.7;">${replyMessage.replace(/\n/g, '<br/>')}</p>
+          </div>
+        </div>
+      </div>
+    `,
+  });
+
+  feedback.adminReply = {
+    message: replyMessage.trim(),
+    repliedAt: new Date(),
+  };
+  await feedback.save();
+
+  const user = await User.findOne({ email: feedback.email, isAdmin: false }).select('_id');
+  if (user) {
+    const compactReplyKey = replyMessage.trim().toLowerCase().replace(/\s+/g, ' ').slice(0, 80);
+    await createUserNotification({
+      type: 'feedback_reply',
+      recipientUser: user._id,
+      title: 'Feedback response received',
+      message: `Admin replied to your feedback on ${feedback.title}.`,
+      eventTitle: feedback.title,
+      feedback: feedback._id,
+      dedupeKey: `feedback-reply:${feedback._id}:${compactReplyKey}`,
+    });
+  }
+
+  res.json({ message: 'Feedback reply sent successfully', feedback });
+};
+
 module.exports = {
   getAllFeedback,
   getFeedbackAnalysis,
   submitFeedback,
   removeFeedback,
+  replyToFeedback,
 };

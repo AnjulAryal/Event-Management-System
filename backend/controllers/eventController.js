@@ -2,7 +2,7 @@ const Event = require('../models/eventModel');
 const User = require('../models/userModel');
 const PendingRegistration = require('../models/pendingRegistrationModel');
 const sendEmail = require('../utils/sendEmail');
-const { createAdminNotification } = require('../utils/notificationService');
+const { createAdminNotification, createBulkUserNotifications } = require('../utils/notificationService');
 const crypto = require('crypto');
 
 const getEvents = async (req, res) => {
@@ -23,6 +23,18 @@ const getEventById = async (req, res) => {
 const createEvent = async (req, res) => {
   const event = new Event(req.body);
   const createdEvent = await event.save();
+
+  const users = await User.find({ isAdmin: false }).select('_id').lean();
+  await createBulkUserNotifications(users.map((user) => user._id), (userId) => ({
+    type: 'new_event',
+    recipientUser: userId,
+    title: 'New event added',
+    message: `A new event "${createdEvent.title}" has been added.`,
+    eventTitle: createdEvent.title,
+    event: createdEvent._id,
+    dedupeKey: `new-event:${createdEvent._id}`,
+  }));
+
   res.status(201).json(createdEvent);
 };
 
