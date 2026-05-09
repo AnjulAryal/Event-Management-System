@@ -38,11 +38,7 @@ const PublicDashboard = () => {
       title: "Notifications",
       description: "Automated email sequences and SMS alerts to keep your participants informed about schedule changes."
     },
-    {
-      icon: <Video className="w-5 h-5 text-[#5CB85C]" />,
-      title: "Online & Hybrid Events",
-      description: "Seamless integration with major streaming platforms for global reach and interactive digital spaces."
-    },
+
     {
       icon: <Search className="w-5 h-5 text-[#5CB85C]" />,
       title: "Searchable Directory",
@@ -139,7 +135,10 @@ const PublicDashboard = () => {
           >
             Browse Events
           </button>
-          <button className="border border-gray-600 hover:border-gray-400 text-white px-8 py-3 rounded-md font-medium transition-colors cursor-pointer">
+          <button 
+            onClick={() => scrollToSection('about')}
+            className="border border-gray-600 hover:border-gray-400 text-white px-8 py-3 rounded-md font-medium transition-colors cursor-pointer"
+          >
             Learn More
           </button>
         </div>

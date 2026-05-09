@@ -217,50 +217,88 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                     // ── Admin popup items ──────────────────────
                                     <>
                                         <Link to="/admin-profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
-                                            <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"}
-                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                borderBottom: "1px solid black", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/admin-profile' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/admin-profile') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/admin-profile') e.currentTarget.style.backgroundColor = "transparent"; }}>
                                                 Profile
                                             </div>
                                         </Link>
                                         <Link to="/admin-users" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
-                                            <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
-                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/admin-users' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/admin-users') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/admin-users') e.currentTarget.style.backgroundColor = "transparent"; }}>
                                                 Manage User
                                             </div>
                                         </Link>
-                                        <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
-                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
-                                            Payment History
-                                        </div>
+
                                     </>
                                 ) : (
                                     // ── User popup items ───────────────────────
                                     <>
                                         <Link to="/profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
-                                            <div style={{ padding: "14px 10px", background: "#8A99A8", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                                onMouseEnter={e => e.currentTarget.style.backgroundColor = "#7A8998"}
-                                                onMouseLeave={e => e.currentTarget.style.backgroundColor = "#8A99A8"}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                borderBottom: "1px solid black", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/profile' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/profile') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/profile') e.currentTarget.style.backgroundColor = "transparent"; }}>
                                                 Profile
                                             </div>
                                         </Link>
-                                        <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
-                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
-                                            Invite a Friend
-                                        </div>
-                                        <div style={{ padding: "14px 10px", borderBottom: "1px solid black", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
-                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
-                                            Payment History
-                                        </div>
-                                        <div style={{ padding: "14px 10px", textAlign: "center", fontSize: "15px", fontWeight: "400", color: "black", transition: "background 0.2s" }}
-                                            onMouseEnter={e => e.currentTarget.style.backgroundColor = "#e8dcd5"}
-                                            onMouseLeave={e => e.currentTarget.style.backgroundColor = "transparent"}>
-                                            Attended Events
-                                        </div>
+                                        <Link to="/payment-history" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                borderBottom: "1px solid black", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/payment-history' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/payment-history') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/payment-history') e.currentTarget.style.backgroundColor = "transparent"; }}>
+                                                Payment History
+                                            </div>
+                                        </Link>
+                                        <Link to="/user-events" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/user-events' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/user-events') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/user-events') e.currentTarget.style.backgroundColor = "transparent"; }}>
+                                                Attended Events
+                                            </div>
+                                        </Link>
                                     </>
                                 )}
                             </div>
