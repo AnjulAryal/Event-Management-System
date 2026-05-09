@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import StatCard from '../../components/ui/StatCard';
 import Badge from '../../components/ui/Badge';
 import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
 
 const AdminDashboard = () => {
+    const navigate = useNavigate();
     const [dateFilter, setDateFilter] = useState('');
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
     const [appliedFilters, setAppliedFilters] = useState({ date: '', category: 'All Categories' });
@@ -256,7 +258,11 @@ const AdminDashboard = () => {
 
                         <div className="space-y-3">
                             {filteredUpcomingEvents.map(event => (
-                                <div key={event.id} className="bg-white p-3.5 rounded-[16px] shadow-sm flex items-center space-x-4 border border-slate-50 transition-all hover:bg-slate-50/50">
+                                <div
+                                    key={event.id}
+                                    onClick={() => navigate(`/admin-view-details/${event.id}`)}
+                                    className="bg-white p-3.5 rounded-[16px] shadow-sm flex items-center space-x-4 border border-slate-50 transition-all hover:bg-slate-50/50 cursor-pointer hover:shadow-md"
+                                >
                                     <div className="bg-slate-50 border border-slate-100 p-2 rounded-xl flex flex-col items-center justify-center min-w-[56px] min-h-[56px]">
                                         <span className="text-[#5CB85C] text-[10px] font-bold uppercase tracking-wider mb-0">{event.month}</span>
                                         <span className="text-[18px] font-extrabold text-slate-900 leading-none mt-1">{event.day}</span>
