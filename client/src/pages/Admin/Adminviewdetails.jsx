@@ -80,6 +80,12 @@ const AdminViewDetails = () => {
         return <div className="min-h-screen bg-[#F9FAFB] flex justify-center items-center font-bold text-slate-500">Event not found</div>;
     }
 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const eDate = new Date(event.date);
+    eDate.setHours(0, 0, 0, 0);
+    const isPastEvent = eDate < today;
+
     return (
         <div className="min-h-screen bg-[#F9FAFB] font-sans text-slate-800 p-6 md:p-10">
             <div className="max-w-7xl mx-auto">
@@ -118,14 +124,10 @@ const AdminViewDetails = () => {
                             {/* Dynamic Badge */}
                             <div className="absolute bottom-6 left-6">
                                 <span className={`text-white text-xs font-bold uppercase py-2 px-4 rounded-full shadow-lg ${
-                                    new Date(event.date) < new Date() ? 'bg-slate-600' : 'bg-[#3b07d8]'
+                                    isPastEvent ? 'bg-slate-600' : 'bg-[#3b07d8]'
                                 }`}>
                                     {(() => {
                                         try {
-                                            const eDate = new Date(event.date);
-                                            const today = new Date();
-                                            eDate.setHours(0,0,0,0);
-                                            today.setHours(0,0,0,0);
                                             const diff = Math.ceil((eDate - today) / (1000 * 60 * 60 * 24));
                                             if (isNaN(diff)) return "EVENT";
                                             if (diff === 0) return "LIVE TODAY";
@@ -137,6 +139,16 @@ const AdminViewDetails = () => {
                                     })()}
                                 </span>
                             </div>
+
+                            {/* Event Closed Banner for past events */}
+                            {isPastEvent && (
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <div className="bg-black/60 backdrop-blur-[2px] rounded-2xl px-8 py-4 flex flex-col items-center gap-1 shadow-lg">
+                                        <span className="text-white text-[22px] font-black uppercase tracking-widest">Event Closed</span>
+                                        <span className="text-slate-300 text-[11px] font-semibold uppercase tracking-wider">This event has concluded</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Event Content Card */}
