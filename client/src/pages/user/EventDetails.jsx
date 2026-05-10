@@ -125,6 +125,14 @@ export default function EventDetails() {
         Array.isArray(event.registeredParticipants) &&
         event.registeredParticipants.some(isParticipantMatch)
     );
+    const parsedEventDate = event?.date ? new Date(event.date) : null;
+    const isAttendedEvent = Boolean(
+        isRegistered &&
+        parsedEventDate &&
+        !Number.isNaN(parsedEventDate.getTime()) &&
+        new Date(parsedEventDate.getFullYear(), parsedEventDate.getMonth(), parsedEventDate.getDate()) <
+            new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+    );
 
     const eventTitle = event.title || "Untitled Event";
     const eventDescription = event.description || "No description available for this event.";
@@ -153,7 +161,7 @@ export default function EventDetails() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         <div className="absolute bottom-8 left-8">
                             <div className="bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-lg">
-                                {isRegistered ? "Registered Event" : "Event Details"}
+                                {isAttendedEvent ? "Attended Event" : isRegistered ? "Registered Event" : "Event Details"}
                             </div>
                         </div>
                     </div>
@@ -213,7 +221,16 @@ export default function EventDetails() {
                         </div>
 
                         <div className="space-y-3 pt-1 text-center">
-                            {isRegistered ? (
+                            {isAttendedEvent ? (
+                                <>
+                                    <div className="w-full bg-[#7A96C6] text-white py-4 rounded-[18px] text-base font-black border border-[#6E88B6] shadow-[0_10px_24px_rgba(122,150,198,0.28)]">
+                                        Attended Event
+                                    </div>
+                                    <p className="text-[10px] leading-4 text-slate-400 font-medium px-5 max-w-[260px] mx-auto">
+                                        This event has ended and is now listed under your attended events.
+                                    </p>
+                                </>
+                            ) : isRegistered ? (
                                 <>
                                     <Button
                                         onClick={handleCancelRegistration}

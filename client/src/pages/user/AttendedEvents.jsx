@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserPageHeader from "../../components/user/UserPageHeader";
 import UserSearch from "../../components/user/UserSearch";
@@ -26,10 +26,9 @@ const getDateKey = (dateObj) => (
 
 const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
 
-export default function RegisteredEvents() {
+export default function AttendedEvents() {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
-    const [recommendedEvents, setRecommendedEvents] = useState([]);
     const [query, setQuery] = useState("");
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("All Categories");
@@ -52,46 +51,38 @@ export default function RegisteredEvents() {
         return String(participant) === currentUserId;
     }, [currentUserId]);
 
-    const isAttendedEvent = (event) => {
+    const isAttendedEvent = useCallback((event) => {
         const parsed = parseEventDate(event?.date);
         if (!parsed) return false;
         return toLocalMidnight(parsed) < toLocalMidnight(new Date());
-    };
+    }, []);
 
     useEffect(() => {
-        const fetchAllData = async () => {
+        const fetchAttended = async () => {
             if (!user) return;
 
             try {
                 const res = await fetch("/api/events");
                 const data = await res.json();
-
-                const myEvents = data
+                const attended = data
                     .filter(
                         (event) =>
                             Array.isArray(event.registeredParticipants) &&
-                            event.registeredParticipants.some(isParticipantMatch)
+                            event.registeredParticipants.some(isParticipantMatch) &&
+                            isAttendedEvent(event)
                     )
                     .map((event) => ({ ...event, id: event._id, isRegistered: true }));
 
-                setEvents(myEvents);
-
-                const recRes = await fetch(`/api/events/recommendations?userId=${user._id}`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
-                const recData = await recRes.json();
-                setRecommendedEvents((recData || []).map((event) => ({ ...event, id: event._id })));
+                setEvents(attended);
             } catch (error) {
-                console.error("Error fetching events:", error);
+                console.error("Error fetching attended events:", error);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchAllData();
-    }, [user, isParticipantMatch]);
+        fetchAttended();
+    }, [user, isParticipantMatch, isAttendedEvent]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -128,24 +119,13 @@ export default function RegisteredEvents() {
     }, [query, category, date]);
 
     const filteredEvents = useMemo(() => events.filter(matchesFilters), [events, matchesFilters]);
-    const upcomingEvents = useMemo(() => filteredEvents.filter((event) => !isAttendedEvent(event)), [filteredEvents]);
     const hasActiveFilters = query.trim() !== "" || date !== "" || category !== "All Categories";
 
-    const baseUpcomingCount = useMemo(() => events.filter((event) => !isAttendedEvent(event)).length, [events]);
-
-    const renderActions = (event, attended = false) => (
+    const renderActions = (event) => (
         <div className="space-y-3">
-            {attended ? (
-                <div className="w-full py-3 rounded-xl text-sm font-bold text-center bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]">
-                    Attended Event
-                </div>
-            ) : (
-                <button
-                    className="w-full py-3 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-[0.98] bg-[#5CB85C] text-white"
-                >
-                    Registered
-                </button>
-            )}
+            <div className="w-full py-3 rounded-xl text-sm font-bold text-center bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]">
+                Attended Event
+            </div>
             <button
                 onClick={() => navigate(`/event-details/${event.id}`)}
                 className="w-full bg-[#F3F6F9] hover:bg-[#E8EDF2] text-[#5E718D] py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
@@ -155,24 +135,12 @@ export default function RegisteredEvents() {
         </div>
     );
 
-    const ViewAllLink = () => (
-        <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
-            Explore more <span className="group-hover:translate-x-1 transition-transform">{'->'}</span>
-        </Link>
-    );
-
     return (
         <UserPageContainer isMobile={isMobile}>
             <UserSearch
                 value={query}
                 onChange={setQuery}
-                placeholder="Search your registered and attended events..."
-            />
-
-            <UserPageHeader
-                title="My Events"
-                subtitle={loading ? "Fetching your bookings..." : `${baseUpcomingCount} upcoming registered events`}
-                rightElement={<ViewAllLink />}
+                placeholder="Search attended events..."
             />
 
             <UserFilterBar
@@ -190,51 +158,33 @@ export default function RegisteredEvents() {
                 hasActiveFilters={hasActiveFilters}
             />
 
-            <div className="space-y-12">
-                <section className="space-y-5">
-                    <UserPageHeader
-                        title="Upcoming Events"
-                        subtitle={loading ? "Checking your registrations..." : `${upcomingEvents.length} upcoming event${upcomingEvents.length === 1 ? "" : "s"}`}
+            <section className="space-y-5">
+                <UserPageHeader
+                    title="Attended Events"
+                    subtitle={loading ? "Loading your past events..." : `${filteredEvents.length} attended event${filteredEvents.length === 1 ? "" : "s"}`}
+                />
+
+                {loading ? (
+                    <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading attended events...</div>
+                ) : filteredEvents.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredEvents.map((event) => (
+                            <EventCard
+                                key={`attended-${event.id}`}
+                                event={event}
+                                showButtons={true}
+                                customActions={renderActions(event)}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <UserEmptyState
+                        icon={hasActiveFilters ? "🔎" : "🎉"}
+                        title={hasActiveFilters ? "No matching attended events" : "No attended events yet"}
+                        description={hasActiveFilters ? "Try adjusting your search or filters." : "Past registered events will appear here automatically."}
                     />
-
-                    {loading ? (
-                        <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading upcoming events...</div>
-                    ) : upcomingEvents.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {upcomingEvents.map((event) => (
-                                <EventCard
-                                    key={event.id}
-                                    event={event}
-                                    showButtons={true}
-                                    customActions={renderActions(event, false)}
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <UserEmptyState
-                            icon={hasActiveFilters ? "🔎" : "📅"}
-                            title={hasActiveFilters ? "No matching upcoming events" : "No upcoming events"}
-                            description={hasActiveFilters ? "Try adjusting your search or filters." : "Your future registrations will show up here."}
-                        />
-                    )}
-                </section>
-
-                {!hasActiveFilters && !loading && recommendedEvents.length > 0 && (
-                    <section className="space-y-6 pt-10 border-t border-slate-50">
-                        <UserPageHeader title="Recommend for You" />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {recommendedEvents.map((event) => (
-                                <EventCard
-                                    key={`recommended-${event.id}`}
-                                    event={event}
-                                    showButtons={true}
-                                />
-                            ))}
-                        </div>
-                    </section>
                 )}
-
-            </div>
+            </section>
         </UserPageContainer>
     );
 }

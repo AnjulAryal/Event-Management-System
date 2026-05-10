@@ -63,7 +63,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
     // Define navigation sets based on role
     const userNavItems = [
         { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, path: "/dashboard" },
-        { id: "events", label: "Events", icon: Calendar, path: "/all-events" },
+        { id: "events", label: "Events", icon: Calendar, path: "/user-events" },
         { id: "speakers", label: "Speakers", icon: Mic2, path: "/speakers" },
         { id: "feedback", label: "Feedback", icon: MessageSquare, path: "/feedback" },
         { id: "help", label: "Help/Support", icon: HelpCircle, path: "/help" },
@@ -284,18 +284,18 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                                 Payment History
                                             </div>
                                         </Link>
-                                        <Link to="/user-events" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                        <Link to="/attended-events" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
                                             <div style={{ 
                                                 padding: "14px 10px", 
                                                 textAlign: "center", 
                                                 fontSize: "15px", 
                                                 fontWeight: "400", 
                                                 color: "black", 
-                                                background: location.pathname === '/user-events' ? "#5CB85C" : "transparent",
+                                                background: location.pathname === '/attended-events' ? "#5CB85C" : "transparent",
                                                 transition: "background 0.2s" 
                                             }}
-                                                onMouseEnter={e => { if (location.pathname !== '/user-events') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
-                                                onMouseLeave={e => { if (location.pathname !== '/user-events') e.currentTarget.style.backgroundColor = "transparent"; }}>
+                                                onMouseEnter={e => { if (location.pathname !== '/attended-events') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/attended-events') e.currentTarget.style.backgroundColor = "transparent"; }}>
                                                 Attended Events
                                             </div>
                                         </Link>
@@ -308,7 +308,9 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
 
                 {/* Nav items */}
                 <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: "4px", padding: "0 12px" }}>
-                    {activeNavItems.map(({ id, label, icon: Icon, path }) => {
+                    {activeNavItems.map((item) => {
+                        const { id, label, path } = item;
+                        const NavIcon = item.icon;
                         const isActive = location.pathname === path;
                         const isHovered = hovered === id;
 
@@ -350,7 +352,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                     />
                                 )}
 
-                                <Icon size={18} style={{ color: isActive ? "#5CB85C" : (isHovered ? "#5CB85C" : "#9ca3af") }} />
+                                <NavIcon size={18} style={{ color: isActive ? "#5CB85C" : (isHovered ? "#5CB85C" : "#9ca3af") }} />
                                 <span>{label}</span>
                             </Link>
                         );
