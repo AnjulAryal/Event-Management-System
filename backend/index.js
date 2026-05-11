@@ -14,6 +14,7 @@ const app = express();
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const speakerRoutes = require('./routes/speakerRoutes');
+const speakerTopicRoutes = require('./routes/speakerTopicRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const supportRoutes = require('./routes/supportRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
@@ -35,6 +36,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/speakers', speakerRoutes);
+app.use('/api/speaker-topics', speakerTopicRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/notifications', notificationRoutes);
