@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { CloudUpload, MapPin, ArrowRight, X, Users, Ticket } from 'lucide-react';
+import { CloudUpload, MapPin, ArrowRight, X, Ticket } from 'lucide-react';
 
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import EventSpeakerPicker from '../../components/admin/EventSpeakerPicker';
 
 const AdminAddEvent = () => {
     const navigate = useNavigate();
@@ -16,7 +17,6 @@ const AdminAddEvent = () => {
         venue: '',
         location: '',
         organizer: '',
-        adminNotes: '',
         category: 'technology',
         coverImage: '',
         speakers: [],
@@ -38,15 +38,21 @@ const AdminAddEvent = () => {
         fetchSpeakers();
     }, []);
 
-    const handleSpeakerToggle = (speakerId) => {
+    const handleAddSpeaker = (speakerId) => {
+        if (!speakerId) return;
+
         setFormData(prev => {
-            const speakers = prev.speakers.includes(speakerId)
-                ? prev.speakers.filter(id => id !== speakerId)
-                : [...prev.speakers, speakerId];
-            return { ...prev, speakers };
+            if (prev.speakers.includes(speakerId)) return prev;
+            return { ...prev, speakers: [...prev.speakers, speakerId] };
         });
     };
 
+    const handleRemoveSpeaker = (speakerId) => {
+        setFormData(prev => ({
+            ...prev,
+            speakers: prev.speakers.filter(id => id !== speakerId)
+        }));
+    };
 
     const handleChange = (e) => {
         const { id, name, value } = e.target;
@@ -154,7 +160,12 @@ const AdminAddEvent = () => {
                         <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-sm border border-slate-100">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <Input id="organizer" label="Organizer" placeholder="Department of Innovation" value={formData.organizer} onChange={handleChange} />
-                                <Input id="adminNotes" label="Admin Notes (Private)" placeholder="Internal billing reference..." value={formData.adminNotes} onChange={handleChange} />
+                                <EventSpeakerPicker
+                                    speakers={allSpeakers}
+                                    selectedSpeakerIds={formData.speakers}
+                                    onAddSpeaker={handleAddSpeaker}
+                                    onRemoveSpeaker={handleRemoveSpeaker}
+                                />
                             </div>
                         </div>
 
@@ -277,29 +288,6 @@ const AdminAddEvent = () => {
                                     <option value="arts">Arts & Culture</option>
                                     <option value="health">Health & Wellness</option>
                                 </select>
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                <label className="text-[10px] font-extrabold text-[#5CB85C] uppercase tracking-widest ml-1">
-                                    Speakers
-                                </label>
-                                <div className="max-h-48 overflow-y-auto space-y-2 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                                    {allSpeakers.length > 0 ? allSpeakers.map(speaker => (
-                                        <label key={speaker._id} className="flex items-center gap-3 cursor-pointer group">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={formData.speakers.includes(speaker._id)}
-                                                onChange={() => handleSpeakerToggle(speaker._id)}
-                                                className="w-4 h-4 rounded text-[#5CB85C] focus:ring-[#5CB85C] border-slate-300"
-                                            />
-                                            <span className="text-sm font-bold text-slate-700 group-hover:text-[#5CB85C] transition-colors">
-                                                {speaker.name}
-                                            </span>
-                                        </label>
-                                    )) : (
-                                        <p className="text-xs text-slate-400 font-bold text-center py-2">No speakers found</p>
-                                    )}
-                                </div>
                             </div>
 
                             <div className="flex flex-col gap-4 pt-4">

@@ -4,6 +4,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import EventSpeakerPicker from '../../components/admin/EventSpeakerPicker';
+
+const getSpeakerId = (speaker) => String(speaker?._id || speaker?.id || speaker || '');
 
 const AdminEditEvent = () => {
     const { id } = useParams();
@@ -16,7 +19,6 @@ const AdminEditEvent = () => {
         venue: '',
         location: '',
         organizer: '',
-        adminNotes: '',
         category: 'technology',
         speakers: [],
         isFree: true,
@@ -37,15 +39,21 @@ const AdminEditEvent = () => {
         fetchSpeakers();
     }, []);
 
-    const handleSpeakerToggle = (speakerId) => {
+    const handleAddSpeaker = (speakerId) => {
+        if (!speakerId) return;
+
         setFormData(prev => {
-            const speakers = prev.speakers.includes(speakerId)
-                ? prev.speakers.filter(id => id !== speakerId)
-                : [...prev.speakers, speakerId];
-            return { ...prev, speakers };
+            if (prev.speakers.includes(speakerId)) return prev;
+            return { ...prev, speakers: [...prev.speakers, speakerId] };
         });
     };
 
+    const handleRemoveSpeaker = (speakerId) => {
+        setFormData(prev => ({
+            ...prev,
+            speakers: prev.speakers.filter(id => id !== speakerId)
+        }));
+    };
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -61,9 +69,8 @@ const AdminEditEvent = () => {
                     venue: eventToEdit.venue || '',
                     location: eventToEdit.location || '',
                     organizer: eventToEdit.organizer || '',
-                    adminNotes: eventToEdit.adminNotes || '',
                     category: eventToEdit.category || 'technology',
-                    speakers: eventToEdit.speakers || [],
+                    speakers: Array.isArray(eventToEdit.speakers) ? eventToEdit.speakers.map(getSpeakerId) : [],
                     coverImage: eventToEdit.coverImage || '',
                     isFree: eventToEdit.isFree !== undefined ? eventToEdit.isFree : true,
                     ticketPrice: eventToEdit.ticketPrice || 0
@@ -187,7 +194,12 @@ const AdminEditEvent = () => {
                         <div className="bg-white rounded-[24px] p-6 lg:p-8 shadow-sm border border-slate-100">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <Input id="organizer" label="Organizer" placeholder="Department of Innovation" value={formData.organizer} onChange={handleChange} />
-                                <Input id="adminNotes" label="Admin Notes (Private)" placeholder="Internal billing reference..." value={formData.adminNotes} onChange={handleChange} />
+                                <EventSpeakerPicker
+                                    speakers={allSpeakers}
+                                    selectedSpeakerIds={formData.speakers}
+                                    onAddSpeaker={handleAddSpeaker}
+                                    onRemoveSpeaker={handleRemoveSpeaker}
+                                />
                             </div>
                         </div>
 
@@ -313,29 +325,6 @@ const AdminEditEvent = () => {
                                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <ChevronDown className="w-4 h-4 text-slate-500" />
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="mb-6">
-                                <label className="block text-[11px] font-bold text-slate-600 uppercase tracking-widest mb-3">
-                                    SPEAKERS
-                                </label>
-                                <div className="max-h-48 overflow-y-auto space-y-2 p-4 bg-[#f4f6f8] rounded-xl border border-slate-100">
-                                    {allSpeakers.length > 0 ? allSpeakers.map(speaker => (
-                                        <label key={speaker._id} className="flex items-center gap-3 cursor-pointer group">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={formData.speakers.includes(speaker._id)}
-                                                onChange={() => handleSpeakerToggle(speaker._id)}
-                                                className="w-4 h-4 rounded text-[#5CB85C] focus:ring-[#5CB85C] border-slate-300"
-                                            />
-                                            <span className="text-sm font-bold text-slate-700 group-hover:text-[#5CB85C] transition-colors">
-                                                {speaker.name}
-                                            </span>
-                                        </label>
-                                    )) : (
-                                        <p className="text-xs text-slate-400 font-bold text-center py-2">No speakers found</p>
-                                    )}
                                 </div>
                             </div>
 
