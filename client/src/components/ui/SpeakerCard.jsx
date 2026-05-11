@@ -3,19 +3,19 @@ import { MapPin, Calendar, Edit2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
 
-const SpeakerCard = ({ 
-  speaker, 
-  isAdmin = false, 
-  onEdit, 
+const SpeakerCard = ({
+  speaker,
+  isAdmin = false,
+  onEdit,
   onDelete,
 }) => {
   const navigate = useNavigate();
+  const nextEvent = speaker.nextEvent;
 
   return (
     <div className="bg-white rounded-[22px] p-6 shadow-sm border border-slate-50 flex flex-col gap-4 transition-all hover:shadow-md hover:translate-y-[-4px] group">
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
-          {/* Avatar */}
           <div className="w-16 h-16 rounded-full bg-[#5CB85C] flex items-center justify-center text-white font-bold text-xl flex-shrink-0 shadow-lg shadow-green-100/50 transition-transform group-hover:scale-105 overflow-hidden">
             {speaker.profilePic ? (
               <img src={speaker.profilePic} alt={speaker.name} className="w-full h-full object-cover" />
@@ -23,8 +23,7 @@ const SpeakerCard = ({
               speaker.initials
             )}
           </div>
-          
-          {/* Name & Role */}
+
           <div className="flex flex-col gap-1 pt-1">
             <h3 className="text-lg font-bold text-slate-900 leading-tight group-hover:text-[#5CB85C] transition-colors">{speaker.name}</h3>
             <p className="text-[13px] text-slate-400 font-medium">{speaker.role}</p>
@@ -38,13 +37,13 @@ const SpeakerCard = ({
 
         {isAdmin && (
           <div className="flex gap-2">
-            <button 
+            <button
               onClick={() => onEdit?.(speaker)}
               className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg transition-all"
             >
               <Edit2 size={18} />
             </button>
-            <button 
+            <button
               onClick={() => onDelete?.(speaker)}
               className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
             >
@@ -54,21 +53,23 @@ const SpeakerCard = ({
         )}
       </div>
 
-      {/* Details */}
       <div className="flex flex-col gap-2.5 pt-4 border-t border-slate-50 mt-auto">
         <div className="flex items-center gap-2 text-slate-500">
           <MapPin size={14} className="text-red-500" />
           <span className="text-[12px] font-medium leading-none truncate">
-            Speaking at <span className="text-slate-700 font-semibold">{speaker.event || 'Main Event 2024'}</span>
+            {nextEvent ? (
+              <>Speaking at <span className="text-slate-700 font-semibold">{nextEvent.title}</span></>
+            ) : (
+              <span className="text-slate-400 font-semibold">No upcoming event</span>
+            )}
           </span>
         </div>
         <div className="flex items-center gap-2 text-slate-400">
           <Calendar size={14} className="text-blue-500" />
-          <span className="text-[12px] font-medium leading-none">{speaker.date || 'Dec 01 — 02, 2024'}</span>
+          <span className="text-[12px] font-medium leading-none">{nextEvent?.date || 'TBA'}</span>
         </div>
       </div>
 
-      {/* View Profile Button */}
       <button
         onClick={() =>
           isAdmin
@@ -77,7 +78,7 @@ const SpeakerCard = ({
         }
         className="w-full mt-1 py-2.5 rounded-xl border border-[#5CB85C]/30 text-[#5CB85C] text-sm font-bold bg-[#5CB85C]/5 hover:bg-[#5CB85C] hover:text-white transition-all duration-200 flex items-center justify-center gap-1 group/btn"
       >
-        View Profile <span className="group-hover/btn:translate-x-1 transition-transform duration-200">→</span>
+        View Profile <span className="group-hover/btn:translate-x-1 transition-transform duration-200">-&gt;</span>
       </button>
     </div>
   );

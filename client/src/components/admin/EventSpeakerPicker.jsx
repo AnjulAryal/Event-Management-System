@@ -27,7 +27,7 @@ const EventSpeakerPicker = ({
             <select
                 value=""
                 onChange={(event) => onAddSpeaker(event.target.value)}
-                className="w-full bg-[#f4f6f8] text-slate-700 text-sm py-4 px-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-green-500 transition-all appearance-none font-bold cursor-pointer border border-slate-100"
+                className="w-full bg-[#f4f6f8] text-slate-500 text-sm py-4 px-4 rounded-xl focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-green-500 transition-all appearance-none font-medium cursor-pointer border border-slate-100"
             >
                 <option value="" disabled>
                     {availableSpeakers.length ? 'Choose a speaker' : 'All speakers selected'}

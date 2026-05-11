@@ -10,6 +10,7 @@ import {
   Search,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { getEventsForSpeaker, parseEventDate } from '../../utils/speakerEvents';
 
 export default function AdminSpeakerProfile() {
   const { id } = useParams();
@@ -47,16 +48,16 @@ export default function AdminSpeakerProfile() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
 
-  const speakerEvents = events.filter((e) => {
-    const name = speaker?.name?.toLowerCase() || '';
-    return (
-      e.speaker?.toLowerCase().includes(name) ||
-      (speaker?.event && e.title?.toLowerCase().includes(speaker.event.toLowerCase()))
-    );
-  });
+  const speakerEvents = speaker ? getEventsForSpeaker(events, speaker._id || speaker.id) : [];
 
-  const upcomingEvents = speakerEvents.filter((e) => new Date(e.date) >= now);
-  const pastEvents = speakerEvents.filter((e) => new Date(e.date) < now);
+  const upcomingEvents = speakerEvents.filter((e) => {
+    const parsedDate = parseEventDate(e.date);
+    return parsedDate ? parsedDate >= now : true;
+  });
+  const pastEvents = speakerEvents.filter((e) => {
+    const parsedDate = parseEventDate(e.date);
+    return parsedDate ? parsedDate < now : false;
+  });
 
   const fmtDate = (iso) => {
     try {
@@ -169,7 +170,7 @@ export default function AdminSpeakerProfile() {
             </div>
             <div>
               <p className="text-[26px] font-extrabold text-slate-900 leading-none">
-                {speakerEvents.length || 1}
+                {speakerEvents.length}
               </p>
               <p className="text-[12px] text-slate-400 font-medium mt-0.5">Events Hosted</p>
             </div>
@@ -237,21 +238,8 @@ export default function AdminSpeakerProfile() {
               ))}
             </div>
           ) : (
-            /* Fallback: show speaker's own event field */
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-100">
-                <div className="h-[130px] bg-[#1c2331] flex items-center justify-center">
-                  <span className="text-white/20 text-5xl font-black">
-                    {speaker.event?.substring(0, 2).toUpperCase() || 'EV'}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <p className="text-[14px] font-bold text-slate-900 mb-1">{speaker.event}</p>
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-                    <Calendar size={11} /> <span>{speaker.date}</span>
-                  </div>
-                </div>
-              </div>
+            <div className="bg-white rounded-2xl p-8 text-center border-2 border-dashed border-slate-100">
+              <p className="text-slate-400 font-bold">No upcoming events scheduled</p>
             </div>
           )}
         </div>
@@ -285,22 +273,8 @@ export default function AdminSpeakerProfile() {
               ))}
             </div>
           ) : (
-            /* Fallback */
-            <div className="flex flex-col gap-3">
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-[#1c2331] flex items-center justify-center flex-shrink-0">
-                  <span className="text-white/60 text-sm font-bold">
-                    {speaker.event?.substring(0, 2).toUpperCase() || 'EV'}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <p className="text-[13px] font-bold text-slate-900">{speaker.event}</p>
-                </div>
-                <div className="text-right mr-2">
-                  <p className="text-[12px] font-semibold text-slate-700">{speaker.date}</p>
-                </div>
-                <ChevronRight size={16} className="text-slate-300 flex-shrink-0" />
-              </div>
+            <div className="bg-white rounded-2xl p-8 text-center border-2 border-dashed border-slate-100">
+              <p className="text-slate-400 font-bold">No past engagements recorded</p>
             </div>
           )}
         </div>

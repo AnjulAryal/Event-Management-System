@@ -5,6 +5,7 @@ import { toast } from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import SpeakerCard from '../../components/ui/SpeakerCard';
 import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
+import { getNextUpcomingEventForSpeaker } from '../../utils/speakerEvents';
 
 const AdminSpeakers = () => {
     const navigate = useNavigate();
@@ -14,11 +15,21 @@ const AdminSpeakers = () => {
     useEffect(() => {
         const fetchSpeakers = async () => {
             try {
-                const res = await fetch('/api/speakers');
-                const data = await parseJsonSafe(res);
-                if (!res.ok) throw new Error(getErrorMessage(res, data, 'Failed to fetch speakers'));
-                if (!Array.isArray(data)) throw new Error('Failed to fetch speakers: invalid response');
-                setSpeakers(data);
+                const [speakerRes, eventRes] = await Promise.all([
+                    fetch('/api/speakers'),
+                    fetch('/api/events')
+                ]);
+                const speakerData = await parseJsonSafe(speakerRes);
+                const eventData = await parseJsonSafe(eventRes);
+                if (!speakerRes.ok) throw new Error(getErrorMessage(speakerRes, speakerData, 'Failed to fetch speakers'));
+                if (!eventRes.ok) throw new Error(getErrorMessage(eventRes, eventData, 'Failed to fetch events'));
+                if (!Array.isArray(speakerData)) throw new Error('Failed to fetch speakers: invalid response');
+                if (!Array.isArray(eventData)) throw new Error('Failed to fetch events: invalid response');
+
+                setSpeakers(speakerData.map((speaker) => ({
+                    ...speaker,
+                    nextEvent: getNextUpcomingEventForSpeaker(eventData, speaker._id || speaker.id)
+                })));
             } catch (error) {
                 console.error("Error fetching speakers:", error);
                 toast.error("Failed to load speakers");

@@ -26,8 +26,7 @@ const defaultFormData = {
     role: '',
     organization: '',
     topic: PREDEFINED_TOPICS[0],
-    eventName: '',
-    eventDate: ''
+    description: ''
 };
 
 const splitSpeakerRole = (role = '') => {
@@ -36,22 +35,6 @@ const splitSpeakerRole = (role = '') => {
         title: title?.trim() || '',
         organization: organizationParts.join(',').trim()
     };
-};
-
-const formatDateForInput = (dateValue = '') => {
-    if (!dateValue) return '';
-
-    const value = String(dateValue);
-    const isoDate = value.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
-    if (isoDate) return isoDate;
-
-    const parsedDate = new Date(value);
-    if (Number.isNaN(parsedDate.getTime())) return '';
-
-    const year = parsedDate.getFullYear();
-    const month = String(parsedDate.getMonth() + 1).padStart(2, '0');
-    const day = String(parsedDate.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
 };
 
 const mapSpeakerToFormData = (speaker) => {
@@ -64,8 +47,7 @@ const mapSpeakerToFormData = (speaker) => {
         role: title,
         organization,
         topic: speaker.category || 'UI/UX Design',
-        eventName: speaker.event || '',
-        eventDate: formatDateForInput(speaker.date)
+        description: speaker.bio || ''
     };
 };
 
@@ -85,8 +67,7 @@ const buildSpeakerPayload = (formData, profilePic) => {
         name: formData.fullName.trim(),
         role: roleParts.join(', '),
         category: formData.topic,
-        event: formData.eventName.trim() || 'TBA',
-        date: formData.eventDate || new Date().toISOString().split('T')[0],
+        bio: formData.description.trim(),
         initials: getInitials(formData.fullName),
         profilePic
     };
@@ -333,35 +314,17 @@ const SpeakerForm = ({
                                     </div>
                                 </div>
                             )}
-                        </div>
 
-                        <div className="w-full border-t border-dashed border-slate-200 mb-10"></div>
-
-                        <div className="mb-8">
-                            <h2 className="text-[22px] font-bold text-slate-900 mb-8">Event Association</h2>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5">Event Name</label>
-                                    <input
-                                        type="text"
-                                        name="eventName"
-                                        placeholder="e.g. Design Kinetic 2024"
-                                        value={formData.eventName}
-                                        onChange={handleChange}
-                                        className="w-full bg-[#f4f6f8] text-slate-800 text-[14px] rounded-2xl p-4 outline-none focus:bg-slate-100 transition-colors placeholder-[#9ca3af]"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5">Event Date</label>
-                                    <input
-                                        type="date"
-                                        name="eventDate"
-                                        value={formData.eventDate}
-                                        onChange={handleChange}
-                                        className="w-full bg-[#f4f6f8] text-slate-800 text-[14px] rounded-2xl p-4 outline-none focus:bg-slate-100 transition-colors pr-12 appearance-none placeholder-[#9ca3af]"
-                                        style={{ color: formData.eventDate ? 'inherit' : '#9ca3af' }}
-                                    />
-                                </div>
+                            <div className="mb-5">
+                                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-[0.15em] mb-2.5">Description</label>
+                                <textarea
+                                    name="description"
+                                    placeholder="Write a short speaker bio or professional summary..."
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    rows={5}
+                                    className="w-full resize-none bg-[#f4f6f8] text-slate-800 text-[14px] rounded-2xl p-4 outline-none focus:bg-slate-100 transition-colors placeholder-[#9ca3af]"
+                                />
                             </div>
                         </div>
 
