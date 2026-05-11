@@ -15,7 +15,8 @@ const AdminDashboard = () => {
         totalEvents: 0,
         activeAttendees: "0",
         todayEvents: [],
-        upcomingEvents: []
+        upcomingEvents: [],
+        previousEvents: []
     });
     const [loading, setLoading] = useState(true);
 
@@ -30,6 +31,7 @@ const AdminDashboard = () => {
                 let activeAttendees = 0;
                 const todayEvents = [];
                 const upcomingEvents = [];
+                const previousEvents = [];
 
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -76,10 +78,26 @@ const AdminDashboard = () => {
                             date: event.date,
                             category: event.category || "General"
                         });
+                    } else if (eDate < today) {
+                        const month = eDate.toLocaleString('default', { month: 'short' }).toUpperCase();
+                        const day = eDate.getDate().toString().padStart(2, '0');
+                        previousEvents.push({
+                            id: event._id || event.id || Math.random(),
+                            month: month,
+                            day: day,
+                            title: event.title || "Untitled Event",
+                            location: event.location || "TBD",
+                            attending: attendingCount >= 1000 
+                                ? (attendingCount / 1000).toFixed(1) + "k" 
+                                : attendingCount.toString(),
+                            date: event.date,
+                            category: event.category || "General"
+                        });
                     }
                 });
 
                 upcomingEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+                previousEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
 
                 let formattedAttendees = activeAttendees.toString();
                 if (activeAttendees >= 1000) {
@@ -90,7 +108,8 @@ const AdminDashboard = () => {
                     totalEvents: events.length,
                     activeAttendees: formattedAttendees,
                     todayEvents,
-                    upcomingEvents
+                    upcomingEvents,
+                    previousEvents
                 });
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
@@ -119,6 +138,7 @@ const AdminDashboard = () => {
 
     const filteredTodayEvents = getFilteredEvents(dashboardData.todayEvents);
     const filteredUpcomingEvents = getFilteredEvents(dashboardData.upcomingEvents);
+    const filteredPreviousEvents = getFilteredEvents(dashboardData.previousEvents);
 
     return (
         <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
@@ -238,6 +258,39 @@ const AdminDashboard = () => {
                             )}
                         </div>
                     </div>
+
+                    {/* Previous Events Section */}
+                    {filteredPreviousEvents.length > 0 && (
+                        <div className="mt-6">
+                            <div className="mb-4">
+                                <h2 className="text-[22px] font-bold text-slate-900 leading-none">Previous Events</h2>
+                                <p className="text-slate-400 text-xs mt-1 font-medium">Events that have already concluded</p>
+                            </div>
+                            <div className="space-y-3">
+                                {filteredPreviousEvents.map(event => (
+                                    <div
+                                        key={event.id}
+                                        onClick={() => navigate(`/admin-view-details/${event.id}`)}
+                                        className="bg-white p-3.5 rounded-[16px] shadow-sm flex items-center space-x-4 border border-slate-100 transition-all hover:bg-slate-50 cursor-pointer hover:shadow-md"
+                                    >
+                                        <div className="bg-slate-100 border border-slate-200 p-2 rounded-xl flex flex-col items-center justify-center min-w-[56px] min-h-[56px]">
+                                            <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0">{event.month}</span>
+                                            <span className="text-[18px] font-extrabold text-slate-500 leading-none mt-1">{event.day}</span>
+                                        </div>
+                                        <div className="flex-1 overflow-hidden">
+                                            <div className="flex items-center gap-2 mb-0.5">
+                                                <h4 className="font-bold text-slate-500 text-sm whitespace-nowrap overflow-hidden text-ellipsis">{event.title}</h4>
+                                                <span className="flex-shrink-0 text-[9px] font-bold uppercase tracking-wider bg-slate-100 text-slate-400 px-2 py-0.5 rounded-full">Closed</span>
+                                            </div>
+                                            <p className="text-[12px] text-slate-400 whitespace-nowrap overflow-hidden text-ellipsis">
+                                                {event.location} • {event.attending} Attended
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Right Column (Spans 1 column) */}
