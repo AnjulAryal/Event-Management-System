@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo } from "lucide-react";
 import { toast } from "react-hot-toast";
 import UserPageContainer from "../../components/user/UserPageContainer";
@@ -8,6 +8,7 @@ import Button from "../../components/ui/Button";
 export default function EventDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -139,12 +140,22 @@ export default function EventDetails() {
     const eventImage =
         event.coverImage ||
         "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=2070&auto=format&fit=crop";
+    const fromAttended = location.state?.from === "attended-events";
+    const breadcrumbLabel = fromAttended ? "Attended Events" : "Events";
+    const breadcrumbPath = fromAttended ? "/attended-events" : "/user-events";
+    const isPastEvent = Boolean(
+        parsedEventDate &&
+        !Number.isNaN(parsedEventDate.getTime()) &&
+        new Date(parsedEventDate.getFullYear(), parsedEventDate.getMonth(), parsedEventDate.getDate()) <
+            new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+    );
+    const showClosedState = fromAttended && isPastEvent;
 
     return (
         <UserPageContainer isMobile={isMobile}>
             <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 mb-8 px-1">
-                <span className="cursor-pointer hover:text-slate-600" onClick={() => navigate("/user-events")}>
-                    Events
+                <span className="cursor-pointer hover:text-slate-600" onClick={() => navigate(breadcrumbPath)}>
+                    {breadcrumbLabel}
                 </span>
                 <ChevronRight size={14} />
                 <span className="text-slate-900">View Details</span>
@@ -161,7 +172,7 @@ export default function EventDetails() {
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                         <div className="absolute bottom-8 left-8">
                             <div className="bg-indigo-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-full shadow-lg">
-                                {isAttendedEvent ? "Attended Event" : isRegistered ? "Registered Event" : "Event Details"}
+                                {showClosedState ? "Event Closed" : isAttendedEvent ? "Attended Event" : isRegistered ? "Registered Event" : "Event Details"}
                             </div>
                         </div>
                     </div>
@@ -221,7 +232,16 @@ export default function EventDetails() {
                         </div>
 
                         <div className="space-y-3 pt-1 text-center">
-                            {isAttendedEvent ? (
+                            {showClosedState ? (
+                                <>
+                                    <div className="w-full bg-[#7A96C6] text-white py-4 rounded-[18px] text-base font-black border border-[#6E88B6] shadow-[0_10px_24px_rgba(122,150,198,0.28)]">
+                                        Event Closed
+                                    </div>
+                                    <p className="text-[10px] leading-4 text-slate-400 font-medium px-5 max-w-[260px] mx-auto">
+                                        This event has already concluded.
+                                    </p>
+                                </>
+                            ) : isAttendedEvent ? (
                                 <>
                                     <div className="w-full bg-[#7A96C6] text-white py-4 rounded-[18px] text-base font-black border border-[#6E88B6] shadow-[0_10px_24px_rgba(122,150,198,0.28)]">
                                         Attended Event
