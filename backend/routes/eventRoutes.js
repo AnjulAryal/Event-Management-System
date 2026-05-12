@@ -12,6 +12,7 @@ const {
   getEventsBySpeaker,
   initiatePayment,
   verifyPaymentAndRegister,
+  getPaymentHistory,
 } = require('../controllers/eventController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
@@ -22,6 +23,9 @@ router.route('/')
 
 router.route('/recommendations')
   .get(protect, getRecommendedEvents);
+
+router.route('/payment-history')
+  .get(protect, admin, getPaymentHistory);
 
 router.route('/:id/register')
   .post(protect, registerForEvent);
@@ -44,3 +48,4 @@ router.route('/:id')
   .delete(protect, admin, deleteEvent);
 
 module.exports = router;
+
