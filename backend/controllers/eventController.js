@@ -85,7 +85,7 @@ const registerForEvent = async (req, res) => {
     res.status(400);
     throw new Error('Already registered for this event');
   }
-  
+
   // Update Event
   event.registeredParticipants.push(user._id);
   await event.save();
@@ -106,7 +106,7 @@ const registerForEvent = async (req, res) => {
 
   // Send Email
   console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title}`);
-  
+
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
       <div style="background-color: #5CB85C; padding: 40px 20px; text-align: center;">
@@ -238,10 +238,10 @@ const verifyPaymentAndRegister = async (req, res) => {
   if (!isAlreadyRegistered) {
     event.registeredParticipants.push(user._id);
     await event.save();
-    
+
     if (!user.registeredEvents.includes(event._id)) {
-        user.registeredEvents.push(event._id);
-        await user.save();
+      user.registeredEvents.push(event._id);
+      await user.save();
     }
   }
 
@@ -249,7 +249,7 @@ const verifyPaymentAndRegister = async (req, res) => {
   const recipientName = pending.registrationDetails?.name || user.name;
 
   console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title} (Paid via eSewa)`);
-  
+
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
       <div style="background-color: #5CB85C; padding: 40px 20px; text-align: center;">
@@ -386,7 +386,7 @@ const cancelRegistration = async (req, res) => {
 const getRecommendedEvents = async (req, res) => {
   try {
     const { userId } = req.query;
-    
+
     // 1. Find user's interests (categories of events they are registered for)
     const userEvents = await Event.find({ registeredParticipants: userId });
     const interests = [...new Set(userEvents.map(e => e.category))];
@@ -410,9 +410,9 @@ const getRecommendedEvents = async (req, res) => {
         ...baseQuery,
         _id: { $nin: recommended.map(e => e._id) }
       })
-      .sort({ createdAt: -1 })
-      .limit(6 - recommended.length);
-      
+        .sort({ createdAt: -1 })
+        .limit(6 - recommended.length);
+
       recommended = [...recommended, ...moreEvents];
     }
 

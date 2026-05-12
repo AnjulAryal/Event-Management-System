@@ -27,7 +27,6 @@ import AllEvents from './pages/user/AllEvents';
 import UserProfile from './pages/user/UserProfile';
 import SpeakerDetail from './pages/user/SpeakerDetail';
 import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
-import PaymentHistory from './pages/user/PaymentHistory';
 import AttendedEvents from './pages/user/AttendedEvents';
 
 import ProtectedRoute from './components/ProtectedRoute';
@@ -196,11 +195,7 @@ function AppContent({ open, setOpen, isMobile }) {
                 <UserProfile />
               </ProtectedRoute>
             } />
-            <Route path="/payment-history" element={
-              <ProtectedRoute allowedRoles={['user']}>
-                <PaymentHistory />
-              </ProtectedRoute>
-            } />
+
             <Route path="/all-events" element={
 
               <ProtectedRoute allowedRoles={['user']}>
