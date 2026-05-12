@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ArrowRight, UserPlus } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import Button from '../../components/ui/Button';
 import SpeakerCard from '../../components/ui/SpeakerCard';
 import { getErrorMessage, parseJsonSafe } from '../../utils/safeJson';
 import { getNextUpcomingEventForSpeaker } from '../../utils/speakerEvents';
@@ -68,36 +67,39 @@ const AdminSpeakers = () => {
         }
     };
 
-    const filteredSpeakers = speakers.filter(speaker => 
-        speaker.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        speaker.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        speaker.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    const normalizedSearch = searchQuery.trim().toLowerCase();
+    const filteredSpeakers = speakers.filter((speaker) => {
+        if (!normalizedSearch) return true;
+
+        const searchableText = [
+            speaker.name,
+            speaker.role,
+            speaker.category,
+            speaker.bio,
+            speaker.nextEvent?.title,
+            speaker.nextEvent?.date,
+        ].filter(Boolean).join(' ').toLowerCase();
+
+        return searchableText.includes(normalizedSearch);
+    });
 
     return (
         <div className="min-h-screen bg-[#F7F9FB] font-sans text-slate-800 flex flex-col pb-12">
             {/* Top Navigation Bar */}
-            <header className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-10 w-full animate-in fade-in duration-500">
-                <div className="w-1/3"></div>
-
+            <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm animate-in fade-in duration-500">
                 {/* Search Bar */}
-                <div className="flex-1 max-w-xl flex justify-center">
-                    <div className="relative w-full max-w-md group">
-                        <span className="absolute inset-y-0 left-4 flex items-center text-slate-400 group-focus-within:text-[#5CB85C] transition-colors">
+                <div className="relative w-full max-w-lg group">
+                        <span className="absolute inset-y-0 left-4 flex items-center text-slate-400">
                             <Search className="w-4 h-4" />
                         </span>
                         <input
                             type="text"
-                            placeholder="Search speakers by name, role, or category..."
+                            placeholder="Search speakers..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-slate-50 border border-slate-100 text-sm rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-4 focus:ring-green-500/10 focus:bg-white focus:border-[#5CB85C] transition-all shadow-sm"
+                            className="w-full bg-slate-50 border border-slate-200 text-[13px] rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:bg-white transition-all shadow-sm"
                         />
-                    </div>
                 </div>
-
-                {/* Empty placeholder for symmetry */}
-                <div className="w-1/3"></div>
             </header>
 
             <div className="pt-8 px-6 lg:px-10 max-w-7xl mx-auto w-full">

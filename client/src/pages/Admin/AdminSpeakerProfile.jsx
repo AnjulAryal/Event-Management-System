@@ -107,7 +107,14 @@ export default function AdminSpeakerProfile() {
         {/* ── Breadcrumb ── */}
         <div className="flex items-center justify-between mb-5">
           <p className="text-[13px] text-slate-500 font-medium">
-            Speaker &nbsp;<span className="text-slate-400">›</span>&nbsp;
+            <button
+              type="button"
+              onClick={() => navigate('/admin-speakers')}
+              className="transition hover:text-[#5CB85C]"
+            >
+              Speaker
+            </button>
+            &nbsp;<span className="text-slate-400">›</span>&nbsp;
             <span className="text-slate-900 font-bold">ViewProfile</span>
           </p>
           <button

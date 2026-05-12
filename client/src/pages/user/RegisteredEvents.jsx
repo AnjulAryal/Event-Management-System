@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserPageHeader from "../../components/user/UserPageHeader";
 import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
+import { Search } from "lucide-react";
 
 const parseEventDate = (value) => {
     if (!value) return null;
@@ -28,8 +29,8 @@ const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.get
 
 export default function RegisteredEvents() {
     const navigate = useNavigate();
-    const [events, setEvents] = useState([]);
-    const [recommendedEvents, setRecommendedEvents] = useState([]);
+    const [myEvents, setMyEvents] = useState([]);
+    const [allEvents, setAllEvents] = useState([]);
     const [query, setQuery] = useState("");
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("All Categories");
@@ -52,11 +53,24 @@ export default function RegisteredEvents() {
         return String(participant) === currentUserId;
     }, [currentUserId]);
 
-    const isAttendedEvent = (event) => {
+    const attachRegistrationState = useCallback((event) => {
+        const isRegistered =
+            !!currentUserId &&
+            Array.isArray(event.registeredParticipants) &&
+            event.registeredParticipants.some(isParticipantMatch);
+
+        return {
+            ...event,
+            id: event._id || event.id,
+            isRegistered,
+        };
+    }, [currentUserId, isParticipantMatch]);
+
+    const isUpcomingEvent = useCallback((event) => {
         const parsed = parseEventDate(event?.date);
         if (!parsed) return false;
-        return toLocalMidnight(parsed) < toLocalMidnight(new Date());
-    };
+        return toLocalMidnight(parsed) >= toLocalMidnight(new Date());
+    }, []);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -65,24 +79,10 @@ export default function RegisteredEvents() {
             try {
                 const res = await fetch("/api/events");
                 const data = await res.json();
+                const mappedEvents = Array.isArray(data) ? data.map(attachRegistrationState) : [];
 
-                const myEvents = data
-                    .filter(
-                        (event) =>
-                            Array.isArray(event.registeredParticipants) &&
-                            event.registeredParticipants.some(isParticipantMatch)
-                    )
-                    .map((event) => ({ ...event, id: event._id, isRegistered: true }));
-
-                setEvents(myEvents);
-
-                const recRes = await fetch(`/api/events/recommendations?userId=${user._id}`, {
-                    headers: {
-                        Authorization: `Bearer ${user.token}`,
-                    },
-                });
-                const recData = await recRes.json();
-                setRecommendedEvents((recData || []).map((event) => ({ ...event, id: event._id })));
+                setAllEvents(mappedEvents);
+                setMyEvents(mappedEvents.filter((event) => event.isRegistered));
             } catch (error) {
                 console.error("Error fetching events:", error);
             } finally {
@@ -91,7 +91,7 @@ export default function RegisteredEvents() {
         };
 
         fetchAllData();
-    }, [user, isParticipantMatch]);
+    }, [user, attachRegistrationState]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -100,8 +100,8 @@ export default function RegisteredEvents() {
     }, []);
 
     const categories = useMemo(() => (
-        [...new Set(events.map((event) => event.category).filter(Boolean))]
-    ), [events]);
+        [...new Set(allEvents.map((event) => event.category).filter(Boolean))]
+    ), [allEvents]);
 
     const matchesFilters = useCallback((event) => {
         if (query.trim()) {
@@ -127,25 +127,37 @@ export default function RegisteredEvents() {
         return true;
     }, [query, category, date]);
 
-    const filteredEvents = useMemo(() => events.filter(matchesFilters), [events, matchesFilters]);
-    const upcomingEvents = useMemo(() => filteredEvents.filter((event) => !isAttendedEvent(event)), [filteredEvents]);
+    const upcomingMyEvents = useMemo(
+        () => myEvents.filter(isUpcomingEvent).filter(matchesFilters),
+        [myEvents, isUpcomingEvent, matchesFilters]
+    );
+
+    const allUpcomingEvents = useMemo(
+        () => allEvents.filter(isUpcomingEvent).filter(matchesFilters),
+        [allEvents, isUpcomingEvent, matchesFilters]
+    );
+
+    const baseMyEventCount = useMemo(
+        () => myEvents.filter(isUpcomingEvent).length,
+        [myEvents, isUpcomingEvent]
+    );
+
+    const baseAllEventCount = useMemo(
+        () => allEvents.filter(isUpcomingEvent).length,
+        [allEvents, isUpcomingEvent]
+    );
+
     const hasActiveFilters = query.trim() !== "" || date !== "" || category !== "All Categories";
 
-    const baseUpcomingCount = useMemo(() => events.filter((event) => !isAttendedEvent(event)).length, [events]);
-
-    const renderActions = (event, attended = false) => (
+    const renderMyEventActions = (event) => (
         <div className="space-y-3">
-            {attended ? (
-                <div className="w-full py-3 rounded-xl text-sm font-bold text-center bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE]">
-                    Attended Event
-                </div>
-            ) : (
-                <button
-                    className="w-full py-3 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-[0.98] bg-[#5CB85C] text-white"
-                >
-                    Registered
-                </button>
-            )}
+            <button
+                type="button"
+                onClick={() => navigate(`/event-details/${event.id}`)}
+                className="w-full py-3 rounded-xl text-sm font-bold shadow-sm transition-all active:scale-[0.98] bg-[#5CB85C] text-white"
+            >
+                Registered
+            </button>
             <button
                 onClick={() => navigate(`/event-details/${event.id}`)}
                 className="w-full bg-[#F3F6F9] hover:bg-[#E8EDF2] text-[#5E718D] py-3 rounded-xl text-sm font-bold transition-all active:scale-[0.98]"
@@ -155,24 +167,12 @@ export default function RegisteredEvents() {
         </div>
     );
 
-    const ViewAllLink = () => (
-        <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
-            Explore more <span className="group-hover:translate-x-1 transition-transform">{'->'}</span>
-        </Link>
-    );
-
     return (
         <UserPageContainer isMobile={isMobile}>
             <UserSearch
                 value={query}
                 onChange={setQuery}
-                placeholder="Search your registered and attended events..."
-            />
-
-            <UserPageHeader
-                title="My Events"
-                subtitle={loading ? "Fetching your bookings..." : `${baseUpcomingCount} upcoming registered events`}
-                rightElement={<ViewAllLink />}
+                placeholder="Search events..."
             />
 
             <UserFilterBar
@@ -193,47 +193,58 @@ export default function RegisteredEvents() {
             <div className="space-y-12">
                 <section className="space-y-5">
                     <UserPageHeader
-                        title="Upcoming Events"
-                        subtitle={loading ? "Checking your registrations..." : `${upcomingEvents.length} upcoming event${upcomingEvents.length === 1 ? "" : "s"}`}
+                        title="My Events"
+                        subtitle={loading ? "Checking your registrations..." : `${upcomingMyEvents.length} of ${baseMyEventCount} upcoming registered event${baseMyEventCount === 1 ? "" : "s"}`}
                     />
 
                     {loading ? (
-                        <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading upcoming events...</div>
-                    ) : upcomingEvents.length > 0 ? (
+                        <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading your events...</div>
+                    ) : upcomingMyEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {upcomingEvents.map((event) => (
+                            {upcomingMyEvents.map((event) => (
                                 <EventCard
-                                    key={event.id}
+                                    key={`my-event-${event.id}`}
                                     event={event}
                                     showButtons={true}
-                                    customActions={renderActions(event, false)}
+                                    customActions={renderMyEventActions(event)}
                                 />
                             ))}
                         </div>
                     ) : (
                         <UserEmptyState
-                            icon={hasActiveFilters ? "🔎" : "📅"}
-                            title={hasActiveFilters ? "No matching upcoming events" : "No upcoming events"}
-                            description={hasActiveFilters ? "Try adjusting your search or filters." : "Your future registrations will show up here."}
+                            icon={<Search className="h-16 w-16" strokeWidth={1.5} />}
+                            title={hasActiveFilters ? "No matching events" : "No upcoming registered events"}
+                            description={hasActiveFilters ? "Try adjusting your search or filters." : "Events you register for will appear here."}
                         />
                     )}
                 </section>
 
-                {!hasActiveFilters && !loading && recommendedEvents.length > 0 && (
-                    <section className="space-y-6 pt-10 border-t border-slate-50">
-                        <UserPageHeader title="Recommend for You" />
+                <section className="space-y-5 border-t border-slate-100 pt-10">
+                    <UserPageHeader
+                        title="All Events"
+                        subtitle={loading ? "Loading upcoming events..." : `${allUpcomingEvents.length} of ${baseAllEventCount} upcoming event${baseAllEventCount === 1 ? "" : "s"}`}
+                    />
+
+                    {loading ? (
+                        <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading all events...</div>
+                    ) : allUpcomingEvents.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {recommendedEvents.map((event) => (
+                            {allUpcomingEvents.map((event) => (
                                 <EventCard
-                                    key={`recommended-${event.id}`}
+                                    key={`all-event-${event.id}`}
                                     event={event}
                                     showButtons={true}
                                 />
                             ))}
                         </div>
-                    </section>
-                )}
-
+                    ) : (
+                        <UserEmptyState
+                            icon={<Search className="h-16 w-16" strokeWidth={1.5} />}
+                            title={hasActiveFilters ? "No matching upcoming events" : "No upcoming events"}
+                            description={hasActiveFilters ? "Try adjusting your search or filters." : "Upcoming events will appear here."}
+                        />
+                    )}
+                </section>
             </div>
         </UserPageContainer>
     );

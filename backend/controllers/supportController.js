@@ -98,7 +98,7 @@ const replySupportRequest = asyncHandler(async (req, res) => {
         type: 'support_reply',
         recipientUser: user._id,
         title: 'Support team replied',
-        message: 'Admin has replied to your support request.',
+        message: 'Admin replied to your support request. Check your email to see the full reply.',
         userEmail: support.email,
         support: support._id,
         dedupeKey: `support-reply:${support._id}:${compactReplyKey}`,

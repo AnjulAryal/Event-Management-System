@@ -44,14 +44,11 @@ export default function AllEvents() {
     return (
         <UserPageContainer isMobile={isMobile}>
             <div className="space-y-8">
-                {/* Search Bar - At the very top */}
-                <div className="sticky top-0 z-20 pt-2 pb-4 bg-[#eef0ec]/90 backdrop-blur-xl -mx-4 px-4">
-                    <UserSearch 
-                        value={query} 
-                        onChange={setQuery} 
-                        placeholder="Search all events by title, location or category..." 
-                    />
-                </div>
+                <UserSearch
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Search events..."
+                />
 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-2">

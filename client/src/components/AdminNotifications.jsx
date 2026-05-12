@@ -150,11 +150,11 @@ export default function AdminNotifications() {
   if (!user?.isAdmin) return null;
 
   return (
-    <div ref={panelRef} className="absolute right-5 top-5 z-[180] md:right-9">
+    <div ref={panelRef} className="fixed right-5 top-3 z-[180] md:right-9">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="relative flex h-12 w-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#5CB85C] hover:text-[#5CB85C] focus:outline-none focus:ring-2 focus:ring-[#5CB85C]/30"
+        className="relative flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#5CB85C] hover:text-[#5CB85C] focus:outline-none focus:ring-2 focus:ring-[#5CB85C]/30"
         aria-label="Admin notifications"
       >
         <Bell className="h-5 w-5" />

@@ -6,6 +6,7 @@ import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
+import { BookOpen, CalendarCheck, Search } from "lucide-react";
 
 const parseEventDate = (value) => {
     if (!value) return null;
@@ -150,7 +151,7 @@ export default function AttendedEvents() {
             <UserSearch
                 value={query}
                 onChange={setQuery}
-                placeholder="Search attended events..."
+                placeholder="Search events..."
             />
 
             <UserFilterBar
@@ -189,7 +190,7 @@ export default function AttendedEvents() {
                         </div>
                 ) : (
                     <UserEmptyState
-                        icon={hasActiveFilters ? "🔎" : "🎉"}
+                        icon={hasActiveFilters ? <Search className="h-16 w-16" strokeWidth={1.5} /> : <CalendarCheck className="h-16 w-16" strokeWidth={1.5} />}
                         title={hasActiveFilters ? "No matching attended events" : "No attended events yet"}
                         description={hasActiveFilters ? "Try adjusting your search or filters." : "Past registered events will appear here automatically."}
                     />
@@ -217,7 +218,7 @@ export default function AttendedEvents() {
                     </div>
                 ) : (
                     <UserEmptyState
-                        icon={hasActiveFilters ? "🔎" : "📚"}
+                        icon={hasActiveFilters ? <Search className="h-16 w-16" strokeWidth={1.5} /> : <BookOpen className="h-16 w-16" strokeWidth={1.5} />}
                         title={hasActiveFilters ? "No matching past events" : "No other past events found"}
                         description={hasActiveFilters ? "Try adjusting your search or filters." : "Past event history will appear here."}
                     />

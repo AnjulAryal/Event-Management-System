@@ -170,7 +170,7 @@ export default function CompleteRegistration() {
         <UserPageContainer isMobile={isMobile}>
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-2 text-[10px] font-bold text-slate-400 mb-10 px-1 uppercase tracking-widest">
-                <span className="cursor-pointer hover:text-slate-600 transition-colors" onClick={() => navigate("/")}>Events</span>
+                <span className="cursor-pointer hover:text-slate-600 transition-colors" onClick={() => navigate("/user-events")}>Events</span>
                 <ChevronRight size={10} />
                 <span className="cursor-pointer hover:text-slate-600 transition-colors">Register</span>
                 <ChevronRight size={10} />

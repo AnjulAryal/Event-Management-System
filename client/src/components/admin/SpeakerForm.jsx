@@ -227,7 +227,14 @@ const SpeakerForm = ({
 
             <main className="flex-1 w-full max-w-[1100px] mx-auto px-6 py-8">
                 <div className="text-[13px] font-bold text-slate-500 mb-8">
-                    Speakers <span className="mx-1.5 font-normal text-slate-300">&gt;</span> <span className="text-slate-800">{pageLabel}</span>
+                    <button
+                        type="button"
+                        onClick={() => navigate('/admin-speakers')}
+                        className="transition hover:text-[#5CB85C]"
+                    >
+                        Speakers
+                    </button>
+                    <span className="mx-1.5 font-normal text-slate-300">&gt;</span> <span className="text-slate-800">{pageLabel}</span>
                 </div>
 
                 <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-10">

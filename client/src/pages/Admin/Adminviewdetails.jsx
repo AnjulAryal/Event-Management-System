@@ -12,6 +12,7 @@ const AdminViewDetails = () => {
 
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
+    const authHeader = user?.token ? `Bearer ${user.token}` : '';
 
     useEffect(() => {
         const fetchDetails = async () => {
@@ -29,7 +30,7 @@ const AdminViewDetails = () => {
 
                 const feedbackRes = await fetch('/api/feedback', {
                     headers: {
-                        Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                        Authorization: authHeader
                     }
                 });
                 
@@ -49,7 +50,7 @@ const AdminViewDetails = () => {
         if (id) {
             fetchDetails();
         }
-    }, [id]);
+    }, [id, authHeader]);
 
     const handleDelete = async () => {
         if (window.confirm("Are you sure you want to delete this event?")) {
@@ -57,7 +58,7 @@ const AdminViewDetails = () => {
                 const res = await fetch(`/api/events/${id}`, {
                     method: 'DELETE',
                     headers: {
-                        Authorization: user && user.token ? `Bearer ${user.token}` : ''
+                        Authorization: authHeader
                     }
                 });
                 if (res.ok) {
@@ -66,7 +67,7 @@ const AdminViewDetails = () => {
                 } else {
                     toast.error("Failed to delete event");
                 }
-            } catch (error) {
+            } catch {
                 toast.error("Failed to delete event");
             }
         }
@@ -92,7 +93,14 @@ const AdminViewDetails = () => {
                 {/* Header Navigation */}
                 <header className="flex justify-between items-center mb-8">
                     <div className="text-sm font-semibold text-slate-500">
-                        Events {'>'} <span className="text-slate-900 font-bold">View Details</span>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/admin-events')}
+                            className="transition hover:text-[#5CB85C]"
+                        >
+                            Events
+                        </button>
+                        {' > '}<span className="text-slate-900 font-bold">View Details</span>
                     </div>
                     <button 
                         onClick={() => navigate(-1)} 
