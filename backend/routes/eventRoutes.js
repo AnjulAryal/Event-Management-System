@@ -25,7 +25,7 @@ router.route('/recommendations')
   .get(protect, getRecommendedEvents);
 
 router.route('/payment-history')
-  .get(protect, admin, getPaymentHistory);
+  .get(protect, getPaymentHistory);
 
 router.route('/:id/register')
   .post(protect, registerForEvent);

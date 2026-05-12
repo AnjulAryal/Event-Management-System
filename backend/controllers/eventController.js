@@ -436,11 +436,22 @@ const getEventsBySpeaker = async (req, res) => {
 };
 
 const getPaymentHistory = async (req, res) => {
-  const payments = await PendingRegistration.find({ status: 'COMPLETED' })
-    .populate('user', 'name email')
-    .populate('event', 'title date venue')
-    .sort({ updatedAt: -1 });
-  res.json(payments);
+  try {
+    const query = { status: 'COMPLETED' };
+    
+    // If not admin, only show user's own payments
+    if (!req.user.isAdmin) {
+      query.user = req.user._id;
+    }
+
+    const payments = await PendingRegistration.find(query)
+      .populate('user', 'name email')
+      .populate('event', 'title date venue')
+      .sort({ updatedAt: -1 });
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 module.exports = {
