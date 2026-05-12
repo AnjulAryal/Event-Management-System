@@ -137,6 +137,10 @@ const registerForEvent = async (req, res) => {
               <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Location:</td>
               <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.location}</td>
             </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Ticket:</td>
+              <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.isFree ? '<span style="color: #5CB85C; font-weight: 800;">Free Entry</span>' : `Rs. ${event.ticketPrice}`}</td>
+            </tr>
           </table>
         </div>
         
@@ -160,17 +164,15 @@ const registerForEvent = async (req, res) => {
     </div>
   `;
 
-  try {
-    await sendEmail({
-      email: recipientEmail,
-      subject: `Registration Confirmed: ${event.title} - Eventify`,
-      message: `You have successfully registered for ${event.title}.`,
-      html: emailHtml,
-    });
-    console.log(`Email sent successfully to ${recipientEmail}`);
-  } catch (error) {
-    console.error('Email send failed:', error.message);
-  }
+  // Fire-and-forget: send email in background so user gets instant response
+  sendEmail({
+    email: recipientEmail,
+    subject: `Registration Confirmed: ${event.title} - Eventify`,
+    message: `You have successfully registered for ${event.title}.`,
+    html: emailHtml,
+  })
+    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
+    .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
     type: 'event_registered',
@@ -280,6 +282,10 @@ const verifyPaymentAndRegister = async (req, res) => {
               <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Location:</td>
               <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.location}</td>
             </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Amount Paid:</td>
+              <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">Rs. ${pending.amount} <span style="color: #5CB85C; font-size: 12px;">(Paid via eSewa)</span></td>
+            </tr>
           </table>
         </div>
         
@@ -303,17 +309,15 @@ const verifyPaymentAndRegister = async (req, res) => {
     </div>
   `;
 
-  try {
-    await sendEmail({
-      email: recipientEmail,
-      subject: `Registration Confirmed: ${event.title} - Eventify`,
-      message: `Your payment was successful and you are registered for ${event.title}.`,
-      html: emailHtml,
-    });
-    console.log(`Email sent successfully to ${recipientEmail}`);
-  } catch (error) {
-    console.error('Email send failed:', error.message);
-  }
+  // Fire-and-forget: send email in background so user gets instant response
+  sendEmail({
+    email: recipientEmail,
+    subject: `Registration Confirmed: ${event.title} - Eventify`,
+    message: `Your payment was successful and you are registered for ${event.title}.`,
+    html: emailHtml,
+  })
+    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
+    .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
     type: 'payment_completed',

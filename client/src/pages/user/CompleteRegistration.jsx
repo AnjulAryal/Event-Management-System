@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { MapPin, Calendar, ArrowRight, ChevronRight, User, Phone, Mail, ChevronDown, Wallet, UploadCloud } from "lucide-react";
+import { MapPin, Calendar, ArrowRight, ChevronRight, User, Phone, Mail, ChevronDown, Wallet } from "lucide-react";
 import { toast } from "react-hot-toast";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import Button from "../../components/ui/Button";
@@ -19,6 +19,7 @@ export default function CompleteRegistration() {
     const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [ticketCount, setTicketCount] = useState(1);
+    const [phoneError, setPhoneError] = useState("");
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -69,6 +70,15 @@ export default function CompleteRegistration() {
             toast.error("Please login to register");
             return;
         }
+
+        // Nepal phone validation: 10 digits, starts with 97 or 98
+        const phoneRegex = /^(97|98)\d{8}$/;
+        if (!phoneRegex.test(phone)) {
+            setPhoneError("Phone must be 10 digits starting with 97 or 98");
+            toast.error("Invalid phone number");
+            return;
+        }
+        setPhoneError("");
 
         if (event && !event.isFree) {
             // eSewa Payment Flow
@@ -272,12 +282,22 @@ export default function CompleteRegistration() {
                                 <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 ml-1">Phone No.</label>
                                 <input 
                                     type="text" 
-                                    placeholder="977+" 
+                                    placeholder="98XXXXXXXX" 
+                                    maxLength={10}
                                     value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                    className="w-full bg-[#f3f4f6] border border-transparent rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:bg-white focus:border-[#5CB85C]/30 transition-all outline-none" 
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                        setPhone(val);
+                                        if (val && !/^(97|98)\d{8}$/.test(val)) {
+                                            setPhoneError("Must be 10 digits starting with 97 or 98");
+                                        } else {
+                                            setPhoneError("");
+                                        }
+                                    }}
+                                    className={`w-full bg-[#f3f4f6] border rounded-xl px-4 py-3 text-sm font-medium text-slate-800 focus:bg-white transition-all outline-none ${phoneError ? 'border-red-400 focus:border-red-400' : 'border-transparent focus:border-[#5CB85C]/30'}`}
                                     required 
                                 />
+                                {phoneError && <p className="text-[11px] text-red-500 font-semibold ml-1">{phoneError}</p>}
                             </div>
                         </div>
 
@@ -313,16 +333,7 @@ export default function CompleteRegistration() {
                             </div>
                         </div>
 
-                        {/* Proof of Id */}
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-bold text-slate-900 ml-1">Proof of Id</label>
-                            <label className="block w-full border border-dashed border-[#d1d5db] rounded-2xl py-10 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors">
-                                <input type="file" className="hidden" />
-                                <UploadCloud className="w-8 h-8 mb-2 text-[#5CB85C]" strokeWidth={2} />
-                                <span className="text-[13px] text-slate-500 mb-1">Drag and drop files here</span>
-                                <span className="text-[11px] text-[#5CB85C] font-medium">Click to upload proof</span>
-                            </label>
-                        </div>
+
 
                         {/* Payment Method Section (Only for paid events) */}
                         {!loading && !event?.isFree && (

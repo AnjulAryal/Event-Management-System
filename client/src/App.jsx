@@ -1,49 +1,65 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import AdminNotifications from './components/AdminNotifications';
 import UserNotifications from './components/UserNotifications';
-
-import Login from './pages/Login';
-import Signup from "./pages/signup";
-import PublicDashboard from './pages/PublicDashboard';
-import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
-import ResetPassword from './pages/ResetPassword';
-import UserDashboard from './pages/user/UserDashboard';
-import RegisteredEvents from './pages/user/RegisteredEvents';
-import Speakers from './pages/user/Speakers';
-import UserFeedback from './pages/user/UserFeedback';
-import HelpSupport from './pages/HelpSupport';
-import CancelRegistration from './pages/user/help/CancelRegistration';
-import FindTickets from './pages/user/help/FindTickets';
-import RegisterEvent from './pages/user/help/RegisterEvent';
-import ContactOrganizer from './pages/user/help/ContactOrganizer';
-import CompleteRegistration from './pages/user/CompleteRegistration';
-import PaymentSuccess from './pages/user/PaymentSuccess';
-import EventDetails from './pages/user/EventDetails';
-import { Toaster } from 'react-hot-toast';
-import UpdatePassword from './pages/UpdatePassword';
-import AllEvents from './pages/user/AllEvents';
-import UserProfile from './pages/user/UserProfile';
-import SpeakerDetail from './pages/user/SpeakerDetail';
-import AdminSpeakersEdit from './pages/admin/AdminSpeakersEdit';
-import PaymentHistory from './pages/user/PaymentHistory';
-import AttendedEvents from './pages/user/AttendedEvents';
-
 import ProtectedRoute from './components/ProtectedRoute';
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import AdminEvents from "./pages/admin/AdminEvent";
-import AdminFeedback from "./pages/admin/AdminFeedback";
-import AdminSpeakers from "./pages/admin/AdminSpeakers";
-import AdminAddEvent from "./pages/admin/AdminAddEvent";
-import AdminEditEvent from "./pages/admin/AdminEditEvent";
-import AdminEventAttendees from "./pages/admin/AdminEventAttendees";
-import AdminHelpsupport from "./pages/admin/AdminHelpsupport";
-import Adminaddspeaker from "./pages/admin/adminaddspeaker";
-import AdminViewDetails from "./pages/admin/adminViewdetails";
-import AdminProfile from "./pages/admin/AdminProfile";
-import AdminManageUsers from "./pages/admin/AdminManageUsers";
-import AdminSpeakerProfile from "./pages/admin/AdminSpeakerProfile";
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
+
+// Lazy-loaded pages (code-split — only loaded when visited)
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/signup'));
+const PublicDashboard = lazy(() => import('./pages/PublicDashboard'));
+const ResetPassword = lazy(() => import('./pages/ResetPassword'));
+const UpdatePassword = lazy(() => import('./pages/UpdatePassword'));
+
+// User pages
+const UserDashboard = lazy(() => import('./pages/user/UserDashboard'));
+const RegisteredEvents = lazy(() => import('./pages/user/RegisteredEvents'));
+const Speakers = lazy(() => import('./pages/user/Speakers'));
+const UserFeedback = lazy(() => import('./pages/user/UserFeedback'));
+const HelpSupport = lazy(() => import('./pages/HelpSupport'));
+const CancelRegistration = lazy(() => import('./pages/user/help/CancelRegistration'));
+const FindTickets = lazy(() => import('./pages/user/help/FindTickets'));
+const RegisterEvent = lazy(() => import('./pages/user/help/RegisterEvent'));
+const ContactOrganizer = lazy(() => import('./pages/user/help/ContactOrganizer'));
+const CompleteRegistration = lazy(() => import('./pages/user/CompleteRegistration'));
+const PaymentSuccess = lazy(() => import('./pages/user/PaymentSuccess'));
+const EventDetails = lazy(() => import('./pages/user/EventDetails'));
+const AllEvents = lazy(() => import('./pages/user/AllEvents'));
+const UserProfile = lazy(() => import('./pages/user/UserProfile'));
+const SpeakerDetail = lazy(() => import('./pages/user/SpeakerDetail'));
+const PaymentHistory = lazy(() => import('./pages/user/PaymentHistory'));
+const AttendedEvents = lazy(() => import('./pages/user/AttendedEvents'));
+
+// Admin pages
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminEvents = lazy(() => import('./pages/admin/AdminEvent'));
+const AdminFeedback = lazy(() => import('./pages/admin/AdminFeedback'));
+const AdminSpeakers = lazy(() => import('./pages/admin/AdminSpeakers'));
+const AdminAddEvent = lazy(() => import('./pages/admin/AdminAddEvent'));
+const AdminEditEvent = lazy(() => import('./pages/admin/AdminEditEvent'));
+const AdminEventAttendees = lazy(() => import('./pages/admin/AdminEventAttendees'));
+const AdminHelpsupport = lazy(() => import('./pages/admin/AdminHelpsupport'));
+const Adminaddspeaker = lazy(() => import('./pages/admin/adminaddspeaker'));
+const AdminViewDetails = lazy(() => import('./pages/admin/adminViewdetails'));
+const AdminProfile = lazy(() => import('./pages/admin/AdminProfile'));
+const AdminManageUsers = lazy(() => import('./pages/admin/AdminManageUsers'));
+const AdminSpeakerProfile = lazy(() => import('./pages/admin/AdminSpeakerProfile'));
+const AdminSpeakersEdit = lazy(() => import('./pages/admin/AdminSpeakersEdit'));
+
+// Loading spinner for lazy-loaded pages
+const PageLoader = () => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
+    <div style={{
+      width: 36, height: 36, border: '3px solid #e2e8f0',
+      borderTopColor: '#5CB85C', borderRadius: '50%',
+      animation: 'spin 0.7s linear infinite',
+    }} />
+    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+  </div>
+);
 
 function AppContent({ open, setOpen, isMobile }) {
   const location = useLocation();
