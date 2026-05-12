@@ -431,6 +431,14 @@ const getEventsBySpeaker = async (req, res) => {
   }
 };
 
+const getPaymentHistory = async (req, res) => {
+  const payments = await PendingRegistration.find({ status: 'COMPLETED' })
+    .populate('user', 'name email')
+    .populate('event', 'title date venue')
+    .sort({ updatedAt: -1 });
+  res.json(payments);
+};
+
 module.exports = {
   getEvents,
   getEventById,
@@ -443,4 +451,5 @@ module.exports = {
   getEventsBySpeaker,
   initiatePayment,
   verifyPaymentAndRegister,
+  getPaymentHistory,
 };

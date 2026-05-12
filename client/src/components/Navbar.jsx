@@ -235,6 +235,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                         <Link to="/admin-users" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
                                             <div style={{ 
                                                 padding: "14px 10px", 
+                                                borderBottom: "1px solid black",
                                                 textAlign: "center", 
                                                 fontSize: "15px", 
                                                 fontWeight: "400", 
@@ -245,6 +246,21 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                                 onMouseEnter={e => { if (location.pathname !== '/admin-users') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
                                                 onMouseLeave={e => { if (location.pathname !== '/admin-users') e.currentTarget.style.backgroundColor = "transparent"; }}>
                                                 Manage User
+                                            </div>
+                                        </Link>
+                                        <Link to="/admin-payment-history" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
+                                            <div style={{ 
+                                                padding: "14px 10px", 
+                                                textAlign: "center", 
+                                                fontSize: "15px", 
+                                                fontWeight: "400", 
+                                                color: "black", 
+                                                background: location.pathname === '/admin-payment-history' ? "#5CB85C" : "transparent",
+                                                transition: "background 0.2s" 
+                                            }}
+                                                onMouseEnter={e => { if (location.pathname !== '/admin-payment-history') e.currentTarget.style.backgroundColor = "#e8dcd5"; }}
+                                                onMouseLeave={e => { if (location.pathname !== '/admin-payment-history') e.currentTarget.style.backgroundColor = "transparent"; }}>
+                                                Payment History
                                             </div>
                                         </Link>
 
