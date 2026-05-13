@@ -6,6 +6,7 @@ const {
   submitFeedback,
   removeFeedback,
   replyToFeedback,
+  getFeedbackByEvent,
 } = require('../controllers/feedbackController');
 const { protect, admin } = require('../middleware/authMiddleware');
 
@@ -15,6 +16,9 @@ router.route('/analysis')
 router.route('/')
   .get(protect, admin, getAllFeedback)
   .post(submitFeedback);
+
+router.route('/event/:title')
+  .get(getFeedbackByEvent);
 
 router.route('/:id')
   .delete(protect, admin, removeFeedback);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo } from "lucide-react";
+import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo, Star, MessageSquare } from "lucide-react";
 import { toast } from "react-hot-toast";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import Button from "../../components/ui/Button";
@@ -11,6 +11,7 @@ export default function EventDetails() {
     const location = useLocation();
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
     const [event, setEvent] = useState(null);
+    const [feedbacks, setFeedbacks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isCancelling, setIsCancelling] = useState(false);
 
@@ -29,25 +30,33 @@ export default function EventDetails() {
     };
 
     useEffect(() => {
-        const fetchEvent = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch(`/api/events/${id}`);
-                const data = await res.json();
+                // Fetch event details
+                const eventRes = await fetch(`/api/events/${id}`);
+                const eventData = await eventRes.json();
 
-                if (!res.ok) {
-                    throw new Error(data.message || "Failed to load event details");
+                if (!eventRes.ok) {
+                    throw new Error(eventData.message || "Failed to load event details");
                 }
 
-                setEvent(data);
+                setEvent(eventData);
+
+                // Fetch feedback for this event
+                const feedbackRes = await fetch(`/api/feedback/event/${encodeURIComponent(eventData.title)}`);
+                if (feedbackRes.ok) {
+                    const eventFeedbacks = await feedbackRes.json();
+                    setFeedbacks(eventFeedbacks);
+                }
             } catch (error) {
-                console.error("Error fetching event:", error);
-                toast.error(error.message || "Failed to load event details");
+                console.error("Error fetching data:", error);
+                toast.error(error.message || "Failed to load details");
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchEvent();
+        fetchData();
 
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
@@ -207,6 +216,95 @@ export default function EventDetails() {
                             </div>
                         </div>
                     </div>
+
+                    {/* Ratings & Feedbacks Section - Only shown for events that have started or ended */}
+                    {(isPastEvent || (parsedEventDate && parsedEventDate.toDateString() === new Date().toDateString())) && (
+                        <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-50 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-50 pb-6">
+                                <div className="flex items-center gap-3 text-slate-800">
+                                    <MessageSquare size={20} className="text-[#5CB85C]" />
+                                    <h3 className="text-lg font-extrabold tracking-tight">Ratings & Feedbacks</h3>
+                                </div>
+                                <div className="flex items-center gap-2 bg-yellow-50 px-4 py-2 rounded-2xl border border-yellow-100">
+                                    <div className="flex gap-0.5">
+                                        {[...Array(5)].map((_, i) => {
+                                            const avgRating = feedbacks.length > 0 
+                                                ? feedbacks.reduce((acc, curr) => acc + curr.rating, 0) / feedbacks.length 
+                                                : 0;
+                                            return (
+                                                <Star 
+                                                    key={i} 
+                                                    size={14} 
+                                                    className={i < Math.round(avgRating) ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} 
+                                                />
+                                            );
+                                        })}
+                                    </div>
+                                    <span className="text-xs font-black text-yellow-700">
+                                        {feedbacks.length > 0 
+                                            ? (feedbacks.reduce((acc, curr) => acc + curr.rating, 0) / feedbacks.length).toFixed(1) 
+                                            : "0.0"}
+                                    </span>
+                                    <span className="text-[10px] font-bold text-yellow-600/60 uppercase tracking-wider">
+                                        ({feedbacks.length} Reviews)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="grid gap-6">
+                                {feedbacks.length > 0 ? (
+                                    feedbacks.map((fb, idx) => (
+                                        <div key={fb._id || idx} className="group p-6 rounded-2xl bg-slate-50/50 border border-transparent hover:border-slate-100 hover:bg-white hover:shadow-md transition-all duration-300">
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-[#5CB85C]/10 flex items-center justify-center text-[#5CB85C] font-black text-xs uppercase">
+                                                        {fb.email?.substring(0, 2)}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs font-black text-slate-900 truncate max-w-[150px]">{fb.email}</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{fb.date}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex gap-0.5">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <Star 
+                                                            key={i} 
+                                                            size={10} 
+                                                            className={i < fb.rating ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} 
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <p className="text-sm leading-relaxed text-slate-600 font-medium">
+                                                {fb.feedback}
+                                            </p>
+                                            {fb.adminReply?.message && (
+                                                <div className="mt-4 p-4 rounded-xl bg-white border border-green-50">
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-[#5CB85C]"></div>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-[#5CB85C]">Organizer Response</span>
+                                                    </div>
+                                                    <p className="text-xs leading-relaxed text-slate-500 font-medium italic">
+                                                        "{fb.adminReply.message}"
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 bg-slate-50/30 rounded-[24px] border border-dashed border-slate-200">
+                                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-300">
+                                            <MessageSquare size={24} />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm font-bold text-slate-400">No feedbacks yet</p>
+                                            <p className="text-[10px] font-medium text-slate-400">Be the first to share your experience!</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="w-full lg:w-[360px] lg:sticky lg:top-8">

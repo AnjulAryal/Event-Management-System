@@ -192,10 +192,16 @@ const replyToFeedback = async (req, res) => {
   res.json({ message: 'Feedback reply sent successfully', feedback });
 };
 
+const getFeedbackByEvent = async (req, res) => {
+  const feedbacks = await Feedback.find({ title: req.params.title });
+  res.json(feedbacks);
+};
+
 module.exports = {
   getAllFeedback,
   getFeedbackAnalysis,
   submitFeedback,
   removeFeedback,
   replyToFeedback,
+  getFeedbackByEvent,
 };
