@@ -92,7 +92,7 @@ export default function UserProfile() {
                 const data = await res.json();
                 toast.error(data.message || "Failed to update password");
             }
-        } catch (error) {
+        } catch {
             toast.error("Error updating password");
         } finally {
             setLoading(false);
@@ -125,7 +125,7 @@ export default function UserProfile() {
             } else {
                 toast.error(data.message || "Update failed");
             }
-        } catch (error) {
+        } catch {
             toast.error("An error occurred");
         } finally {
             setLoading(false);
@@ -171,7 +171,7 @@ export default function UserProfile() {
                 } else {
                     toast.error(data.message || "Failed to update picture");
                 }
-            } catch (error) {
+            } catch {
                 toast.error("An error occurred during upload");
             } finally {
                 setLoading(false);
@@ -202,7 +202,7 @@ export default function UserProfile() {
                 window.dispatchEvent(new Event('userUpdated'));
                 toast.success("Profile picture removed");
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to remove picture");
         } finally {
             setLoading(false);

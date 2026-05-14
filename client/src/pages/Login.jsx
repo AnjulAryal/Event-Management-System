@@ -47,7 +47,7 @@ const Login = () => {
             const data = await parseJsonSafe(response);
 
             if (!response.ok) {
-                // Suspended account — show dedicated modal
+                // Suspended account: show dedicated modal
                 if (response.status === 403 && data?.suspended) {
                     setShowSuspendedModal(true);
                     return;
@@ -139,7 +139,7 @@ const Login = () => {
                 </div>
             </div>
 
-            {/* ── Suspended Account Modal ── */}
+            {/* Suspended Account Modal */}
             {showSuspendedModal && (
                 <div
                     className="fixed inset-0 z-50 flex items-center justify-center px-4"

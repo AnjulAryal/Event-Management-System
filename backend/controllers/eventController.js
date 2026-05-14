@@ -5,6 +5,27 @@ const sendEmail = require('../utils/sendEmail');
 const { createAdminNotification, createBulkUserNotifications } = require('../utils/notificationService');
 const crypto = require('crypto');
 
+const RANGE_SEPARATOR_PATTERN = /\s(?:-|\u2013|\u2014)\s/;
+const YEAR_PATTERN = /\b\d{4}\b/;
+
+const isValidDate = (date) => date instanceof Date && !Number.isNaN(date.getTime());
+
+const hasMatchingId = (items = [], targetId) => (
+  items.some((item) => item?.toString() === targetId?.toString())
+);
+
+const addRegistrationRecords = async (event, user) => {
+  if (!hasMatchingId(event.registeredParticipants, user._id)) {
+    event.registeredParticipants.push(user._id);
+    await event.save();
+  }
+
+  if (!hasMatchingId(user.registeredEvents, event._id)) {
+    user.registeredEvents.push(event._id);
+    await user.save();
+  }
+};
+
 const getEvents = async (req, res) => {
   const events = await Event.find({});
   res.json(events);
@@ -77,35 +98,18 @@ const registerForEvent = async (req, res) => {
   }
 
   // Check if already registered (using String comparison for safety)
-  const isAlreadyRegistered = event.registeredParticipants.some(
-    (id) => id.toString() === user._id.toString()
-  );
+  const isAlreadyRegistered = hasMatchingId(event.registeredParticipants, user._id);
 
   if (isAlreadyRegistered) {
     res.status(400);
     throw new Error('Already registered for this event');
   }
 
-  // Update Event
-  event.registeredParticipants.push(user._id);
-  await event.save();
-
-  // Update User (prevent duplicates)
-  const userAlreadyHasEvent = user.registeredEvents.some(
-    (id) => id.toString() === event._id.toString()
-  );
-
-  if (!userAlreadyHasEvent) {
-    user.registeredEvents.push(event._id);
-    await user.save();
-  }
+  await addRegistrationRecords(event, user);
 
   // Determine recipient details (prefer details from form)
   const recipientEmail = registrationDetails?.email || user.email;
   const recipientName = registrationDetails?.name || user.name;
-
-  // Send Email
-  console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title}`);
 
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
@@ -159,7 +163,7 @@ const registerForEvent = async (req, res) => {
       </div>
       
       <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b;">
-        © 2026 Eventify. All rights reserved.
+        &copy; 2026 Eventify. All rights reserved.
       </div>
     </div>
   `;
@@ -171,7 +175,6 @@ const registerForEvent = async (req, res) => {
     message: `You have successfully registered for ${event.title}.`,
     html: emailHtml,
   })
-    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
     .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
@@ -233,24 +236,20 @@ const verifyPaymentAndRegister = async (req, res) => {
   const event = await Event.findById(pending.event);
   const user = await User.findById(pending.user);
 
-  const isAlreadyRegistered = event.registeredParticipants.some(
-    (id) => id.toString() === user._id.toString()
-  );
-
-  if (!isAlreadyRegistered) {
-    event.registeredParticipants.push(user._id);
-    await event.save();
-
-    if (!user.registeredEvents.includes(event._id)) {
-      user.registeredEvents.push(event._id);
-      await user.save();
-    }
+  if (!event) {
+    res.status(404);
+    throw new Error('Event not found');
   }
+
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  await addRegistrationRecords(event, user);
 
   const recipientEmail = pending.registrationDetails?.email || user.email;
   const recipientName = pending.registrationDetails?.name || user.name;
-
-  console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title} (Paid via eSewa)`);
 
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
@@ -304,7 +303,7 @@ const verifyPaymentAndRegister = async (req, res) => {
       </div>
       
       <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #64748b;">
-        © 2026 Eventify. All rights reserved.
+        &copy; 2026 Eventify. All rights reserved.
       </div>
     </div>
   `;
@@ -316,7 +315,6 @@ const verifyPaymentAndRegister = async (req, res) => {
     message: `Your payment was successful and you are registered for ${event.title}.`,
     html: emailHtml,
   })
-    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
     .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
@@ -359,9 +357,12 @@ const cancelRegistration = async (req, res) => {
 
   const user = await User.findById(userId);
 
-  const isRegistered = event.registeredParticipants.some(
-    (participantId) => participantId.toString() === userId
-  );
+  if (!user) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  const isRegistered = hasMatchingId(event.registeredParticipants, userId);
 
   if (!isRegistered) {
     res.status(400);
@@ -373,6 +374,11 @@ const cancelRegistration = async (req, res) => {
   );
 
   await event.save();
+
+  user.registeredEvents = user.registeredEvents.filter(
+    (registeredEventId) => registeredEventId.toString() !== event._id.toString()
+  );
+  await user.save();
 
   await createAdminNotification({
     type: 'event_cancelled',
@@ -391,11 +397,23 @@ const parseEventDate = (value) => {
   if (!value) return null;
 
   const direct = new Date(value);
-  if (!Number.isNaN(direct.getTime())) return direct;
+  if (isValidDate(direct)) return direct;
 
-  const cleaned = String(value).split('—')[0].split('-')[0].trim();
-  const fallback = new Date(cleaned);
-  return Number.isNaN(fallback.getTime()) ? null : fallback;
+  const raw = String(value).trim();
+  const isoMatch = raw.match(/^\d{4}-\d{2}-\d{2}/);
+  if (isoMatch) {
+    const isoDate = new Date(isoMatch[0]);
+    if (isValidDate(isoDate)) return isoDate;
+  }
+
+  const firstPart = raw.split('T')[0].split(RANGE_SEPARATOR_PATTERN)[0].trim();
+  const yearMatch = raw.match(YEAR_PATTERN);
+  const normalizedPart = yearMatch && !YEAR_PATTERN.test(firstPart)
+    ? `${firstPart}, ${yearMatch[0]}`
+    : firstPart;
+  const fallback = new Date(normalizedPart);
+
+  return isValidDate(fallback) ? fallback : null;
 };
 
 const isUpcomingEvent = (event) => {
@@ -439,9 +457,12 @@ const getRecommendedEvents = async (req, res) => {
         _id: { $nin: recommended.map(e => e._id) }
       })
       .sort({ createdAt: -1 })
-      .limit(6 - recommended.length);
+      .limit(20);
       
-      recommended = [...recommended, ...moreEvents];
+      recommended = [
+        ...recommended,
+        ...moreEvents.filter(isUpcomingEvent).slice(0, 6 - recommended.length)
+      ];
     }
 
     res.json(recommended);

@@ -18,8 +18,6 @@ const AdminDashboard = () => {
         upcomingEvents: [],
         previousEvents: []
     });
-    const [loading, setLoading] = useState(true);
-
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
@@ -113,8 +111,6 @@ const AdminDashboard = () => {
                 });
             } catch (error) {
                 console.error("Error fetching dashboard data:", error);
-            } finally {
-                setLoading(false);
             }
         };
 

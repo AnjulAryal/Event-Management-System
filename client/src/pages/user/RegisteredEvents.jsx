@@ -6,26 +6,8 @@ import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
+import { getDateKey, isUpcomingEvent, parseEventDate } from "../../utils/eventDates";
 import { Search } from "lucide-react";
-
-const parseEventDate = (value) => {
-    if (!value) return null;
-
-    const direct = new Date(value);
-    if (!Number.isNaN(direct.getTime())) return direct;
-
-    const cleaned = String(value).split("T")[0].trim();
-    const fallback = new Date(cleaned);
-    if (!Number.isNaN(fallback.getTime())) return fallback;
-
-    return null;
-};
-
-const getDateKey = (dateObj) => (
-    `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`
-);
-
-const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
 
 export default function RegisteredEvents() {
     const navigate = useNavigate();
@@ -65,12 +47,6 @@ export default function RegisteredEvents() {
             isRegistered,
         };
     }, [currentUserId, isParticipantMatch]);
-
-    const isUpcomingEvent = useCallback((event) => {
-        const parsed = parseEventDate(event?.date);
-        if (!parsed) return false;
-        return toLocalMidnight(parsed) >= toLocalMidnight(new Date());
-    }, []);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -129,22 +105,22 @@ export default function RegisteredEvents() {
 
     const upcomingMyEvents = useMemo(
         () => myEvents.filter(isUpcomingEvent).filter(matchesFilters),
-        [myEvents, isUpcomingEvent, matchesFilters]
+        [myEvents, matchesFilters]
     );
 
     const allUpcomingEvents = useMemo(
         () => allEvents.filter(isUpcomingEvent).filter(matchesFilters),
-        [allEvents, isUpcomingEvent, matchesFilters]
+        [allEvents, matchesFilters]
     );
 
     const baseMyEventCount = useMemo(
         () => myEvents.filter(isUpcomingEvent).length,
-        [myEvents, isUpcomingEvent]
+        [myEvents]
     );
 
     const baseAllEventCount = useMemo(
         () => allEvents.filter(isUpcomingEvent).length,
-        [allEvents, isUpcomingEvent]
+        [allEvents]
     );
 
     const hasActiveFilters = query.trim() !== "" || date !== "" || category !== "All Categories";

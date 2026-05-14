@@ -4,17 +4,7 @@ import { MapPin, Calendar, ChevronRight, ArrowLeft, CalendarDays } from "lucide-
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserSearch from "../../components/user/UserSearch";
 import EventCard from "../../components/ui/EventCard";
-
-// Helper: parse any date string into a comparable Date object
-const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    if (!isNaN(d)) return d;
-    // Try formats like "Oct 24, 2024" or "Dec 01 - 02, 2024"
-    const cleaned = dateStr.split('—')[0].split('-')[0].trim();
-    const parsed = new Date(cleaned);
-    return isNaN(parsed) ? null : parsed;
-};
+import { parseEventDate, toLocalMidnight } from "../../utils/eventDates";
 
 export default function SpeakerDetail() {
     const { id } = useParams();
@@ -47,8 +37,7 @@ export default function SpeakerDetail() {
                 const eventsRes = await fetch(`/api/events/by-speaker/${id}`);
                 const eventsData = await eventsRes.json();
 
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
+                const today = toLocalMidnight(new Date());
 
                 const mapped = (Array.isArray(eventsData) ? eventsData : []).map(e => ({
                     ...e,
@@ -63,13 +52,13 @@ export default function SpeakerDetail() {
 
                 // Split into upcoming vs past based on event date
                 const upcoming = mapped.filter(e => {
-                    const d = parseDate(e.date);
-                    return d ? d >= today : true; // unknown date → treat as upcoming
+                    const d = parseEventDate(e.date);
+                    return d ? toLocalMidnight(d) >= today : true;
                 });
 
                 const past = mapped.filter(e => {
-                    const d = parseDate(e.date);
-                    return d ? d < today : false;
+                    const d = parseEventDate(e.date);
+                    return d ? toLocalMidnight(d) < today : false;
                 });
 
                 setUpcomingEvents(upcoming);
@@ -81,7 +70,7 @@ export default function SpeakerDetail() {
             }
         };
         fetchData();
-    }, [id]);
+    }, [id, currentUserId]);
 
     if (loading) {
         return (

@@ -89,17 +89,17 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    // Send welcome email (non-blocking — failure won't stop registration)
+    // Send welcome email (non-blocking; failure won't stop registration)
     try {
       await sendEmail({
         email: user.email,
-        subject: 'Welcome to Eventify 🎉',
+        subject: 'Welcome to Eventify',
         html: `
           <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
             <!-- Header -->
             <div style="background: linear-gradient(135deg, #5CB85C 0%, #3d8b3d 100%); padding: 40px 40px 32px;">
               <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 800; letter-spacing: -0.5px;">Eventify</h1>
-              <p style="margin: 6px 0 0; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 500;">Your account is ready 🎊</p>
+              <p style="margin: 6px 0 0; color: rgba(255,255,255,0.85); font-size: 14px; font-weight: 500;">Your account is ready</p>
             </div>
 
             <!-- Body -->
@@ -115,12 +115,12 @@ const registerUser = asyncHandler(async (req, res) => {
                 <p style="margin: 0; color: #475569; font-size: 14px;"><strong>Name:</strong> ${user.name}</p>
                 <p style="margin: 6px 0 0; color: #475569; font-size: 14px;"><strong>Email:</strong> ${user.email}</p>
                 <p style="margin: 6px 0 0; color: #475569; font-size: 14px;"><strong>Password:</strong> <span style="font-family: monospace; background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-size: 13px;">${plainPassword}</span></p>
-                <p style="margin: 10px 0 0; color: #94a3b8; font-size: 12px;">⚠️ Please keep your credentials safe and change your password after first login.</p>
+                <p style="margin: 10px 0 0; color: #94a3b8; font-size: 12px;">Please keep your credentials safe and change your password after first login.</p>
               </div>
 
               <!-- CTA -->
               <a href="http://localhost:5173/login" style="display: inline-block; background: linear-gradient(135deg, #5CB85C, #3d8b3d); color: #ffffff; text-decoration: none; font-size: 15px; font-weight: 700; padding: 14px 32px; border-radius: 10px; letter-spacing: 0.3px;">
-                Go to Dashboard →
+                Go to Dashboard &rarr;
               </a>
 
               <p style="margin: 28px 0 0; color: #94a3b8; font-size: 13px; line-height: 1.6;">
@@ -130,7 +130,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
             <!-- Footer -->
             <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 40px; text-align: center;">
-              <p style="margin: 0; color: #94a3b8; font-size: 12px;">© ${new Date().getFullYear()} Eventify. All rights reserved.</p>
+              <p style="margin: 0; color: #94a3b8; font-size: 12px;">&copy; ${new Date().getFullYear()} Eventify. All rights reserved.</p>
             </div>
           </div>
         `,

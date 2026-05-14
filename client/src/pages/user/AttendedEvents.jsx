@@ -6,26 +6,8 @@ import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
+import { getDateKey, isPastEvent, parseEventDate } from "../../utils/eventDates";
 import { CalendarCheck, Search } from "lucide-react";
-
-const parseEventDate = (value) => {
-    if (!value) return null;
-
-    const direct = new Date(value);
-    if (!Number.isNaN(direct.getTime())) return direct;
-
-    const cleaned = String(value).split("T")[0].trim();
-    const fallback = new Date(cleaned);
-    if (!Number.isNaN(fallback.getTime())) return fallback;
-
-    return null;
-};
-
-const getDateKey = (dateObj) => (
-    `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`
-);
-
-const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
 
 export default function AttendedEvents() {
     const navigate = useNavigate();
@@ -52,12 +34,6 @@ export default function AttendedEvents() {
         return String(participant) === currentUserId;
     }, [currentUserId]);
 
-    const isAttendedEvent = useCallback((event) => {
-        const parsed = parseEventDate(event?.date);
-        if (!parsed) return false;
-        return toLocalMidnight(parsed) < toLocalMidnight(new Date());
-    }, []);
-
     useEffect(() => {
         const fetchAttended = async () => {
             if (!user) return;
@@ -70,7 +46,7 @@ export default function AttendedEvents() {
                         (event) =>
                             Array.isArray(event.registeredParticipants) &&
                             event.registeredParticipants.some(isParticipantMatch) &&
-                            isAttendedEvent(event)
+                            isPastEvent(event)
                     )
                     .map((event) => ({ ...event, id: event._id, isRegistered: true }));
 
@@ -83,7 +59,7 @@ export default function AttendedEvents() {
         };
 
         fetchAttended();
-    }, [user, isParticipantMatch, isAttendedEvent]);
+    }, [user, isParticipantMatch]);
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);

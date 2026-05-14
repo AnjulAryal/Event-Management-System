@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Calendar, Users, BarChart3, Bell, Video, Search } from 'lucide-react';
+import { Calendar, Users, BarChart3, Bell, Search } from 'lucide-react';
 import BrandLogo from '../components/ui/BrandLogo';
+
+const TYPING_PHRASES = ["Register Events", "Discover Events", "Manage Events"];
 
 const PublicDashboard = () => {
   const navigate = useNavigate();
@@ -50,7 +52,6 @@ const PublicDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   // Typing animation state
-  const phrases = ["Register Events", "Discover Events", "Manage Events"];
   const [currentPhrase, setCurrentPhrase] = useState("");
   const [phraseIndex, setPhraseIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -72,7 +73,7 @@ const PublicDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const fullText = phrases[phraseIndex];
+    const fullText = TYPING_PHRASES[phraseIndex];
     let typingSpeed = isDeleting ? 50 : 100;
 
     if (!isDeleting && currentPhrase === fullText) {
@@ -81,7 +82,7 @@ const PublicDashboard = () => {
       return () => clearTimeout(timer);
     } else if (isDeleting && currentPhrase === "") {
       setIsDeleting(false);
-      setPhraseIndex((prev) => (prev + 1) % phrases.length);
+      setPhraseIndex((prev) => (prev + 1) % TYPING_PHRASES.length);
       typingSpeed = 500;
       return;
     }
@@ -190,7 +191,7 @@ const PublicDashboard = () => {
           <div className="flex justify-between items-center mb-12 border-b pb-4">
             <h2 className="text-xl font-medium text-gray-800">Upcoming Events</h2>
             <button onClick={handleRegisterClick} className="text-sm text-gray-500 hover:text-[#5CB85C] flex items-center cursor-pointer">
-              View all <span className="ml-1">→</span>
+              View all <span className="ml-1">-&gt;</span>
             </button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

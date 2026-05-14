@@ -16,8 +16,8 @@ const transporter = nodemailer.createTransport({
 
 // Verify connection on startup (logs error if credentials are wrong)
 transporter.verify()
-  .then(() => console.log('✅ Email transporter ready'))
-  .catch((err) => console.error('❌ Email transporter error:', err.message));
+  .then(() => console.log('Email transporter ready'))
+  .catch((err) => console.error('Email transporter error:', err.message));
 
 const sendEmail = async (options) => {
   const mailOptions = {

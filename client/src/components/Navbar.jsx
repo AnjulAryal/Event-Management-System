@@ -214,7 +214,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
                                 flexDirection: "column"
                             }}>
                                 {userRole === 'admin' ? (
-                                    // ── Admin popup items ──────────────────────
+                                    // Admin popup items
                                     <>
                                         <Link to="/admin-profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
                                             <div style={{ 
@@ -266,7 +266,7 @@ const Sidebar = ({ open, setOpen, isMobile }) => {
 
                                     </>
                                 ) : (
-                                    // ── User popup items ───────────────────────
+                                    // User popup items
                                     <>
                                         <Link to="/profile" style={{ textDecoration: 'none' }} onClick={() => setShowProfileMenu(false)}>
                                             <div style={{ 

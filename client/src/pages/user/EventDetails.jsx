@@ -4,6 +4,7 @@ import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo, Star, MessageSq
 import { toast } from "react-hot-toast";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import Button from "../../components/ui/Button";
+import { parseEventDate, toLocalMidnight } from "../../utils/eventDates";
 
 export default function EventDetails() {
     const { id } = useParams();
@@ -135,13 +136,14 @@ export default function EventDetails() {
         Array.isArray(event.registeredParticipants) &&
         event.registeredParticipants.some(isParticipantMatch)
     );
-    const parsedEventDate = event?.date ? new Date(event.date) : null;
+    const parsedEventDate = parseEventDate(event?.date);
+    const todayStart = toLocalMidnight(new Date());
+    const eventDateStart = parsedEventDate ? toLocalMidnight(parsedEventDate) : null;
+    const isPastEvent = Boolean(eventDateStart && eventDateStart < todayStart);
+    const isTodayEvent = Boolean(eventDateStart && eventDateStart.getTime() === todayStart.getTime());
     const isAttendedEvent = Boolean(
         isRegistered &&
-        parsedEventDate &&
-        !Number.isNaN(parsedEventDate.getTime()) &&
-        new Date(parsedEventDate.getFullYear(), parsedEventDate.getMonth(), parsedEventDate.getDate()) <
-            new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
+        isPastEvent
     );
 
     const eventTitle = event.title || "Untitled Event";
@@ -152,12 +154,6 @@ export default function EventDetails() {
     const fromAttended = location.state?.from === "attended-events";
     const breadcrumbLabel = fromAttended ? "Attended Events" : "Events";
     const breadcrumbPath = fromAttended ? "/attended-events" : "/user-events";
-    const isPastEvent = Boolean(
-        parsedEventDate &&
-        !Number.isNaN(parsedEventDate.getTime()) &&
-        new Date(parsedEventDate.getFullYear(), parsedEventDate.getMonth(), parsedEventDate.getDate()) <
-            new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
-    );
     const showClosedState = fromAttended && isPastEvent;
 
     return (
@@ -218,7 +214,7 @@ export default function EventDetails() {
                     </div>
 
                     {/* Ratings & Feedbacks Section - Only shown for events that have started or ended */}
-                    {(isPastEvent || (parsedEventDate && parsedEventDate.toDateString() === new Date().toDateString())) && (
+                    {(isPastEvent || isTodayEvent) && (
                         <div className="bg-white rounded-[32px] p-8 shadow-sm border border-slate-50 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-50 pb-6">
                                 <div className="flex items-center gap-3 text-slate-800">

@@ -53,7 +53,7 @@ const replySupportRequest = asyncHandler(async (req, res) => {
   try {
     await sendEmail({
       email: support.email,
-      subject: 'Response to Your Support Request – Eventify',
+      subject: 'Response to Your Support Request - Eventify',
       html: `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
           <!-- Header -->
@@ -81,7 +81,7 @@ const replySupportRequest = asyncHandler(async (req, res) => {
 
           <!-- Footer -->
           <div style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 20px 40px; text-align: center;">
-            <p style="margin: 0; color: #94a3b8; font-size: 12px;">© ${new Date().getFullYear()} Eventify. All rights reserved.</p>
+            <p style="margin: 0; color: #94a3b8; font-size: 12px;">&copy; ${new Date().getFullYear()} Eventify. All rights reserved.</p>
           </div>
         </div>
       `,

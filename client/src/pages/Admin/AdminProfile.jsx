@@ -36,12 +36,6 @@ const AdminProfile = () => {
         return;
       }
 
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
-
       const response = await fetch('/api/users/profile', {
         headers: {
           Authorization: `Bearer ${userInfo.token}`,
@@ -70,11 +64,6 @@ const AdminProfile = () => {
     try {
       setIsUpdating(true);
       const userInfo = JSON.parse(localStorage.getItem('user'));
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
 
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
@@ -168,11 +157,6 @@ const AdminProfile = () => {
         const base64String = reader.result;
         try {
           const userInfo = JSON.parse(localStorage.getItem('user'));
-          const config = {
-            headers: {
-              Authorization: `Bearer ${userInfo.token}`,
-            },
-          };
           
           const response = await fetch('/api/users/profile', {
             method: 'PUT',
@@ -210,11 +194,6 @@ const AdminProfile = () => {
   const handleRemoveImage = async () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem('user'));
-      const config = {
-        headers: {
-          Authorization: `Bearer ${userInfo.token}`,
-        },
-      };
       
       const response = await fetch('/api/users/profile', {
         method: 'PUT',
