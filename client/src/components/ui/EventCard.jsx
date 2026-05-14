@@ -3,6 +3,28 @@ import { MapPin, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
 
+const parseEventDate = (dateValue) => {
+  if (!dateValue) return null;
+
+  const parsed = new Date(dateValue);
+  if (!Number.isNaN(parsed.getTime())) return parsed;
+
+  const cleaned = String(dateValue).split('—')[0].split('-')[0].trim();
+  const fallback = new Date(cleaned);
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+};
+
+const isPastEvent = (event) => {
+  const parsedDate = parseEventDate(event?.date);
+  if (!parsedDate) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  parsedDate.setHours(0, 0, 0, 0);
+
+  return parsedDate < today;
+};
+
 const EventCard = ({ 
   event, 
   showButtons = true, 
@@ -11,9 +33,10 @@ const EventCard = ({
 }) => {
   const navigate = useNavigate();
   const isRegistered = Boolean(event?.isRegistered);
+  const eventIsPast = isPastEvent(event);
 
   const handleRegister = () => {
-    if (isRegistered) {
+    if (isRegistered || eventIsPast) {
       navigate(`/event-details/${event.id}`);
       return;
     }
@@ -77,12 +100,12 @@ const EventCard = ({
             <button 
               onClick={handleRegister}
               className={`w-full py-3 rounded-xl text-sm font-bold transition-all shadow-sm active:scale-[0.98] ${
-                isRegistered
+                isRegistered || eventIsPast
                   ? 'bg-[#5CB85C] text-white'
                   : 'bg-[#5CB85C] hover:bg-[#4AA14A] text-white'
               }`}
             >
-              {isRegistered ? 'Registered' : 'Register Now'}
+              {eventIsPast ? (isRegistered ? 'Attended Event' : 'Event Closed') : isRegistered ? 'Registered' : 'Register Now'}
             </button>
             <button 
               onClick={() => navigate(`/event-details/${event.id}`)}

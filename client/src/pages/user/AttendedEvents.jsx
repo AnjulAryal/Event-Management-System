@@ -6,7 +6,7 @@ import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
-import { BookOpen, CalendarCheck, Search } from "lucide-react";
+import { CalendarCheck, Search } from "lucide-react";
 
 const parseEventDate = (value) => {
     if (!value) return null;
@@ -30,7 +30,6 @@ const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.get
 export default function AttendedEvents() {
     const navigate = useNavigate();
     const [events, setEvents] = useState([]);
-    const [allPastEvents, setAllPastEvents] = useState([]);
     const [query, setQuery] = useState("");
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("All Categories");
@@ -76,11 +75,6 @@ export default function AttendedEvents() {
                     .map((event) => ({ ...event, id: event._id, isRegistered: true }));
 
                 setEvents(attended);
-                setAllPastEvents(
-                    data
-                        .filter((event) => isAttendedEvent(event))
-                        .map((event) => ({ ...event, id: event._id }))
-                );
             } catch (error) {
                 console.error("Error fetching attended events:", error);
             } finally {
@@ -126,10 +120,6 @@ export default function AttendedEvents() {
     }, [query, category, date]);
 
     const filteredEvents = useMemo(() => events.filter(matchesFilters), [events, matchesFilters]);
-    const otherPastEvents = useMemo(() => {
-        const attendedIds = new Set(events.map((event) => event.id));
-        return allPastEvents.filter((event) => !attendedIds.has(event.id)).filter(matchesFilters);
-    }, [allPastEvents, events, matchesFilters]);
     const hasActiveFilters = query.trim() !== "" || date !== "" || category !== "All Categories";
 
     const renderActions = (event, label = "Attended Event") => (
@@ -197,34 +187,6 @@ export default function AttendedEvents() {
                         icon={hasActiveFilters ? <Search className="h-16 w-16" strokeWidth={1.5} /> : <CalendarCheck className="h-16 w-16" strokeWidth={1.5} />}
                         title={hasActiveFilters ? "No matching attended events" : "No attended events yet"}
                         description={hasActiveFilters ? "Try adjusting your search or filters." : "Past registered events will appear here automatically."}
-                    />
-                )}
-            </section>
-
-            <section className="space-y-5 border-t border-slate-100 pt-10">
-                <UserPageHeader
-                    title="Other Past Events"
-                    subtitle={loading ? "Loading event history..." : `${otherPastEvents.length} past event${otherPastEvents.length === 1 ? "" : "s"}`}
-                />
-
-                {loading ? (
-                    <div className="py-12 text-center text-slate-400 font-bold animate-pulse">Loading past events...</div>
-                ) : otherPastEvents.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {otherPastEvents.map((event) => (
-                            <EventCard
-                                key={`past-${event.id}`}
-                                event={event}
-                                showButtons={true}
-                                customActions={renderActions(event, "Event Closed")}
-                            />
-                        ))}
-                    </div>
-                ) : (
-                    <UserEmptyState
-                        icon={hasActiveFilters ? <Search className="h-16 w-16" strokeWidth={1.5} /> : <BookOpen className="h-16 w-16" strokeWidth={1.5} />}
-                        title={hasActiveFilters ? "No matching past events" : "No other past events found"}
-                        description={hasActiveFilters ? "Try adjusting your search or filters." : "Past event history will appear here."}
                     />
                 )}
             </section>

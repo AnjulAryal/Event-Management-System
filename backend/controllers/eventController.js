@@ -387,6 +387,28 @@ const cancelRegistration = async (req, res) => {
   res.status(200).json({ message: 'Registration cancelled successfully' });
 };
 
+const parseEventDate = (value) => {
+  if (!value) return null;
+
+  const direct = new Date(value);
+  if (!Number.isNaN(direct.getTime())) return direct;
+
+  const cleaned = String(value).split('—')[0].split('-')[0].trim();
+  const fallback = new Date(cleaned);
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+};
+
+const isUpcomingEvent = (event) => {
+  const parsed = parseEventDate(event?.date);
+  if (!parsed) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  parsed.setHours(0, 0, 0, 0);
+
+  return parsed >= today;
+};
+
 const getRecommendedEvents = async (req, res) => {
   try {
     const { userId } = req.query;
@@ -402,10 +424,12 @@ const getRecommendedEvents = async (req, res) => {
 
     // 3. If user has interests, find events in those categories
     if (interests.length > 0) {
-      recommended = await Event.find({
+      const categoryMatches = await Event.find({
         ...baseQuery,
         category: { $in: interests }
-      }).limit(6);
+      }).sort({ date: 1, createdAt: -1 });
+
+      recommended = categoryMatches.filter(isUpcomingEvent).slice(0, 6);
     }
 
     // 4. Fill to 6 items with newest/general events if needed
@@ -414,9 +438,9 @@ const getRecommendedEvents = async (req, res) => {
         ...baseQuery,
         _id: { $nin: recommended.map(e => e._id) }
       })
-        .sort({ createdAt: -1 })
-        .limit(6 - recommended.length);
-
+      .sort({ createdAt: -1 })
+      .limit(6 - recommended.length);
+      
       recommended = [...recommended, ...moreEvents];
     }
 
