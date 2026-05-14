@@ -4,7 +4,7 @@ const sendEmail = require('../utils/sendEmail');
 const { buildEventAnalyses, generateGeminiSummaries, isEventFeedback } = require('../utils/feedbackAnalysis');
 const { createAdminNotification, createUserNotification } = require('../utils/notificationService');
 
-const ANALYSIS_VERSION = 'feedback-analysis-v2';
+const ANALYSIS_VERSION = 'feedback-analysis-v3';
 const AI_CACHE_TTL_MS = 10 * 60 * 1000;
 let feedbackAnalysisCache = null;
 

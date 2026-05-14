@@ -50,6 +50,7 @@ const positiveTerms = [
     'clear',
     'excellent',
     'fantastic',
+    'good',
     'great',
     'helpful',
     'high quality',
@@ -60,6 +61,8 @@ const positiveTerms = [
     'organized',
     'enjoyed',
     'informative',
+    'nice',
+    'satisfied',
     'valuable',
 ];
 
@@ -82,6 +85,44 @@ const negativeTerms = [
     'worst',
 ];
 
+const neutralPhrasePatterns = [
+    /\bneither\s+(?:really\s+)?good\s+(?:nor|or|not)\s+(?:really\s+)?bad\b/,
+    /\bnot\s+good\s*(?:,|and|or)?\s*not\s+bad\b/,
+    /\bnot\s+bad\s*(?:,|and|or)?\s*not\s+good\b/,
+    /\bneutral\b/,
+    /\baverage\b/,
+    /\bno\s+(?:strong\s+)?(?:opinion|complaints|issues)\b/,
+];
+
+const negativeMeaningPatterns = [
+    /\bnot\s+(?:good|great|helpful|clear|useful|organized|informative|smooth|valuable)\b/,
+    /\bnot\s+well\s+(?:received|organized|run)\b/,
+];
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const getTermPattern = (term) => (
+    new RegExp(`\\b${term.trim().split(/\s+/).map(escapeRegExp).join('\\s+')}\\b`)
+);
+
+const scoreTerms = (terms, text) => (
+    terms.filter((term) => getTermPattern(term).test(text)).length
+);
+
+const stripNegatedNegativeTerms = (text) => (
+    negativeTerms.reduce((currentText, term) => {
+        const pattern = new RegExp(`\\b(?:not|no|never|hardly|isn['’]?t|wasn['’]?t|without)\\s+${term.trim().split(/\s+/).map(escapeRegExp).join('\\s+')}\\b`, 'g');
+        return currentText.replace(pattern, ' ');
+    }, text)
+);
+
+const stripNegatedPositiveTerms = (text) => (
+    positiveTerms.reduce((currentText, term) => {
+        const pattern = new RegExp(`\\b(?:not|no|never|hardly|isn['’]?t|wasn['’]?t|without)\\s+${term.trim().split(/\s+/).map(escapeRegExp).join('\\s+')}\\b`, 'g');
+        return currentText.replace(pattern, ' ');
+    }, text)
+);
+
 const themeDefinitions = [
     { label: 'Content Quality', keywords: ['workshop', 'session', 'breakout', 'demo', 'content', 'topic', 'material', 'presentation'] },
     { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel', 'host', 'presenter', 'facilitator'] },
@@ -97,15 +138,22 @@ const themeDefinitions = [
 const eventIcons = [TrendingUp, Leaf, MessageCircle, Trophy];
 
 const getSentiment = (feedback) => {
+    const text = String(feedback.feedback || '').toLowerCase().replace(/\s+/g, ' ').trim();
+    const isBalancedNeutral = neutralPhrasePatterns.some((pattern) => pattern.test(text));
+    if (isBalancedNeutral) return 'neutral';
+
     if (Number(feedback.rating) >= 4) return 'positive';
     if (Number(feedback.rating) <= 2) return 'negative';
 
-    const text = String(feedback.feedback || '').toLowerCase();
-    const positiveScore = positiveTerms.filter((term) => text.includes(term)).length;
-    const negativeScore = negativeTerms.filter((term) => text.includes(term)).length;
+    const positiveScore = scoreTerms(positiveTerms, stripNegatedPositiveTerms(text));
+    const negativeScanText = stripNegatedNegativeTerms(text);
+    const hasNegatedNegative = negativeScanText !== text;
+    const negativeScore = scoreTerms(negativeTerms, negativeScanText)
+        + negativeMeaningPatterns.filter((pattern) => pattern.test(text)).length;
 
     if (positiveScore > negativeScore) return 'positive';
     if (negativeScore > positiveScore) return 'negative';
+    if (hasNegatedNegative) return 'neutral';
     return 'neutral';
 };
 
@@ -180,14 +228,11 @@ const createSummary = (eventName, items, themes) => {
     };
 
     const uniqueLines = (lines) => [...new Set(lines.filter(Boolean))].slice(0, 3);
-    const issueThemes = themes.filter((theme) => ['negative', 'neutral'].includes(theme.sentiment));
+    const issueThemes = themes.filter((theme) => theme.sentiment === 'negative');
 
     return {
         right: uniqueLines(positive.map((review) => `Positive attendee note: "${compactText(review.feedback)}"`)),
-        wrong: uniqueLines([
-            ...negative.map((review) => `Issue reported: "${compactText(review.feedback)}"`),
-            ...(!negative.length ? neutral.map((review) => `Mixed attendee note: "${compactText(review.feedback)}"`) : []),
-        ]),
+        wrong: uniqueLines(negative.map((review) => `Issue reported: "${compactText(review.feedback)}"`)),
         future: uniqueLines([
             ...issueThemes.map((theme) => `Review ${theme.label.toLowerCase()} for ${eventName}; ${theme.count} review${theme.count === 1 ? ' mentions' : 's mention'} this area.`),
             ...negative.map((review) => `Follow up on this reported issue: "${compactText(review.feedback, 90)}"`),
