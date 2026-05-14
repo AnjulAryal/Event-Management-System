@@ -210,12 +210,16 @@ export default function UserProfile() {
     };
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            <UserSearch 
-                value={searchQuery} 
-                onChange={setSearchQuery} 
-                placeholder="Search events..." 
-            />
+        <UserPageContainer
+            isMobile={isMobile}
+            header={
+                <UserSearch
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    placeholder="Search events..."
+                />
+            }
+        >
 
             <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-slate-100 flex flex-col md:flex-row gap-12 min-h-[500px]">
                 {/* Left side: Profile Picture */}

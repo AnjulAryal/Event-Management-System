@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 
 export default function UserSearch({ value, onChange, placeholder = "Search..." }) {
     return (
-        <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-auto -mx-4 md:-mx-7 mb-4 shadow-sm">
+        <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm">
             <div className="relative w-full max-w-lg group">
                 <span className="absolute inset-y-0 left-4 flex items-center text-slate-400">
                     <Search className="w-4 h-4" />

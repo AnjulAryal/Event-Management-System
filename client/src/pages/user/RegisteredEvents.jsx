@@ -168,12 +168,16 @@ export default function RegisteredEvents() {
     );
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            <UserSearch
-                value={query}
-                onChange={setQuery}
-                placeholder="Search events..."
-            />
+        <UserPageContainer
+            isMobile={isMobile}
+            header={
+                <UserSearch
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Search events..."
+                />
+            }
+        >
 
             <UserFilterBar
                 date={date}

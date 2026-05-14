@@ -70,8 +70,10 @@ export default function GenericCollectionPage({
     }, [handleApplyFilters]);
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            {showSearch && <UserSearch value={query} onChange={setQuery} placeholder={searchPlaceholder} />}
+        <UserPageContainer
+            isMobile={isMobile}
+            header={showSearch ? <UserSearch value={query} onChange={setQuery} placeholder={searchPlaceholder} /> : undefined}
+        >
             {showFilters && (
                 <UserFilterBar 
                     date={date} setDate={setDate}

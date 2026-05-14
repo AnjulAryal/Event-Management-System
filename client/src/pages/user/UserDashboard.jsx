@@ -130,12 +130,16 @@ export default function UserDashboard() {
     );
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            <UserSearch 
-                value={query} 
-                onChange={setQuery} 
-                placeholder="Search events by title, location or category..." 
-            />
+        <UserPageContainer
+            isMobile={isMobile}
+            header={
+                <UserSearch
+                    value={query}
+                    onChange={setQuery}
+                    placeholder="Search events by title, location or category..."
+                />
+            }
+        >
 
             {/* Main Welcome Section */}
             <UserPageHeader 

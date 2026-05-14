@@ -42,13 +42,17 @@ export default function AllEvents() {
     }, [query, events]);
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            <div className="space-y-8">
+        <UserPageContainer
+            isMobile={isMobile}
+            header={
                 <UserSearch
                     value={query}
                     onChange={setQuery}
                     placeholder="Search events..."
                 />
+            }
+        >
+            <div className="space-y-8">
 
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-2">

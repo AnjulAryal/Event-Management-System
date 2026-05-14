@@ -123,8 +123,12 @@ export default function SpeakerDetail() {
     );
 
     return (
-        <UserPageContainer isMobile={isMobile}>
-            <UserSearch value={searchQuery} onChange={setSearchQuery} placeholder="Search events..." />
+        <UserPageContainer
+            isMobile={isMobile}
+            header={
+                <UserSearch value={searchQuery} onChange={setSearchQuery} placeholder="Search events..." />
+            }
+        >
 
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 text-xs text-slate-400 font-bold mb-4">
