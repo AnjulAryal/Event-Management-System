@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Mail, Calendar, ArrowRight } from "lucide-react";
 import { toast } from "react-hot-toast";
 import Button from "../../components/ui/Button";
@@ -7,11 +7,20 @@ import Rating from "../../components/ui/Rating";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserPageHeader from "../../components/user/UserPageHeader";
 import Select from "../../components/ui/Select";
+import { isPastEvent } from "../../utils/eventDates";
 
 export default function UserFeedback() {
     const [rating, setRating] = useState(0);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = useMemo(() => {
+        try {
+            const userString = localStorage.getItem("user");
+            return userString ? JSON.parse(userString) : null;
+        } catch {
+            return null;
+        }
+    }, []);
+    const currentUserId = user?._id ? String(user._id) : "";
     const [formData, setFormData] = useState({
         eventTitle: "",
         email: user?.email || "",
@@ -23,6 +32,22 @@ export default function UserFeedback() {
     const [eligibleEvents, setEligibleEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const isParticipantMatch = useCallback((participant) => {
+        if (!participant || !currentUserId) return false;
+        if (typeof participant === "string") return participant === currentUserId;
+        if (typeof participant === "object") {
+            if (participant._id) return String(participant._id) === currentUserId;
+            if (participant.id) return String(participant.id) === currentUserId;
+        }
+        return String(participant) === currentUserId;
+    }, [currentUserId]);
+
+    const isRegisteredByCurrentUser = useCallback((event) => (
+        !!currentUserId &&
+        Array.isArray(event.registeredParticipants) &&
+        event.registeredParticipants.some(isParticipantMatch)
+    ), [currentUserId, isParticipantMatch]);
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
@@ -32,14 +57,9 @@ export default function UserFeedback() {
                 const res = await fetch('/api/events');
                 if (res.ok) {
                     const data = await res.json();
-                    const now = new Date();
-                    now.setHours(0, 0, 0, 0); // Start of today
-
-                    const filtered = data.filter(event => {
-                        const eventDate = new Date(event.date);
-                        // Check if event date is today or in the past
-                        return eventDate <= now || eventDate.toDateString() === now.toDateString();
-                    });
+                    const filtered = Array.isArray(data)
+                        ? data.filter((event) => isRegisteredByCurrentUser(event) && isPastEvent(event))
+                        : [];
                     setEligibleEvents(filtered);
                 }
             } catch (error) {
@@ -51,7 +71,7 @@ export default function UserFeedback() {
 
         fetchEvents();
         return () => window.removeEventListener("resize", handleResize);
-    }, []);
+    }, [isRegisteredByCurrentUser]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -149,7 +169,7 @@ export default function UserFeedback() {
                         />
                         {eligibleEvents.length === 0 && !loading && (
                             <p className="text-[10px] font-bold text-amber-600 ml-1 -mt-4">
-                                No events available for feedback yet.
+                                No attended events available for feedback yet.
                             </p>
                         )}
                         <Input 
