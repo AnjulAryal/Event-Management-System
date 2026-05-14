@@ -12,8 +12,6 @@ const AdminEvent = () => {
     const [categoryFilter, setCategoryFilter] = useState('All Categories');
     const [appliedFilters, setAppliedFilters] = useState({ date: '', category: 'All Categories' });
 
-    const [loading, setLoading] = useState(true);
-
     const userString = localStorage.getItem('user');
     const user = userString ? JSON.parse(userString) : null;
 
@@ -30,8 +28,6 @@ const AdminEvent = () => {
             } catch (error) {
                 console.error("Error fetching events:", error);
                 toast.error("Failed to load events");
-            } finally {
-                setLoading(false);
             }
         };
         fetchEvents();

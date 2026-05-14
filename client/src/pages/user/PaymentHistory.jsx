@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Loader2, CreditCard, Calendar, MapPin, ReceiptText } from 'lucide-react';
 
-/* ─── helpers ─────────────────────────────────────────── */
 const getToken = () => {
   try {
     const u = JSON.parse(localStorage.getItem('user'));
@@ -12,7 +11,7 @@ const getToken = () => {
 };
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) return 'N/A';
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -20,13 +19,11 @@ const formatDate = (iso) => {
   });
 };
 
-/* ════════════════════════════════════════════════════ */
 export default function PaymentHistory() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  /* ── fetch ─────────────────────────────────────── */
   useEffect(() => {
     (async () => {
       try {
@@ -44,7 +41,6 @@ export default function PaymentHistory() {
     })();
   }, []);
 
-  /* ── filter ────────────────────────────────────── */
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return payments.filter((p) =>

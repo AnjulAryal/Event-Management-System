@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Loader2 } from 'lucide-react';
 
-/* ─── helper ─────────────────────────────────────────── */
 const getToken = () => {
   try {
     const u = JSON.parse(localStorage.getItem('user'));
@@ -12,7 +11,7 @@ const getToken = () => {
 };
 
 const formatDate = (iso) => {
-  if (!iso) return '—';
+  if (!iso) return 'N/A';
   return new Date(iso).toLocaleDateString('en-US', {
     month: '2-digit',
     day: '2-digit',
@@ -20,13 +19,11 @@ const formatDate = (iso) => {
   });
 };
 
-/* ════════════════════════════════════════════════════ */
 export default function AdminPaymentHistory() {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  /* ── fetch ─────────────────────────────────────── */
   useEffect(() => {
     (async () => {
       try {
@@ -44,7 +41,6 @@ export default function AdminPaymentHistory() {
     })();
   }, []);
 
-  /* ── filter + sort ─────────────────────────────── */
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     return payments
@@ -59,11 +55,10 @@ export default function AdminPaymentHistory() {
   }, [payments, searchQuery]);
 
 
-  /* ════════════════════════════════════════════════ */
   return (
     <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] font-sans">
 
-      {/* ── Top search bar ── */}
+      {/* Top search bar */}
       <div className="flex justify-center px-6 pt-6 pb-2">
         <div className="relative w-full max-w-[340px]">
           <Search
@@ -83,13 +78,13 @@ export default function AdminPaymentHistory() {
 
       <div className="w-full px-6 py-4">
 
-        {/* ── Page title ── */}
+        {/* Page title */}
         <h1 className="text-[28px] font-extrabold text-[#1a1a2e] tracking-tight mb-5">
           Payment History
         </h1>
 
 
-        {/* ── Table ── */}
+        {/* Table */}
         <div className="rounded-lg overflow-hidden" style={{ border: '1.5px solid #5b8abf' }}>
 
           {/* Header row */}
@@ -112,7 +107,7 @@ export default function AdminPaymentHistory() {
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-14 bg-white text-[#64748b]">
               <Loader2 size={16} className="animate-spin" />
-              <span className="text-[13px]">Loading payments…</span>
+              <span className="text-[13px]">Loading payments...</span>
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-14 text-center text-[13px] text-[#94a3b8] bg-white">
@@ -136,7 +131,7 @@ export default function AdminPaymentHistory() {
 
                 {/* Email */}
                 <span className="text-[13px] text-[#374151] truncate pr-2">
-                  {p.user?.email || '—'}
+                  {p.user?.email || 'N/A'}
                 </span>
 
                 {/* Event Title */}

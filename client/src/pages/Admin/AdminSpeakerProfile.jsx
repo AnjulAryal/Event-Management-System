@@ -10,7 +10,8 @@ import {
   Search,
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import { getEventsForSpeaker, parseEventDate } from '../../utils/speakerEvents';
+import { getEventsForSpeaker } from '../../utils/speakerEvents';
+import { parseEventDate, toLocalMidnight } from '../../utils/eventDates';
 
 export default function AdminSpeakerProfile() {
   const { id } = useParams();
@@ -19,7 +20,6 @@ export default function AdminSpeakerProfile() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /* ── fetch speaker + all events ── */
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,19 +44,17 @@ export default function AdminSpeakerProfile() {
     fetchData();
   }, [id]);
 
-  /* ── derive upcoming / past events ── */
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const today = toLocalMidnight(new Date());
 
   const speakerEvents = speaker ? getEventsForSpeaker(events, speaker._id || speaker.id) : [];
 
   const upcomingEvents = speakerEvents.filter((e) => {
     const parsedDate = parseEventDate(e.date);
-    return parsedDate ? parsedDate >= now : true;
+    return parsedDate ? toLocalMidnight(parsedDate) >= today : true;
   });
   const pastEvents = speakerEvents.filter((e) => {
     const parsedDate = parseEventDate(e.date);
-    return parsedDate ? parsedDate < now : false;
+    return parsedDate ? toLocalMidnight(parsedDate) < today : false;
   });
 
   const fmtDate = (iso) => {
@@ -69,7 +67,6 @@ export default function AdminSpeakerProfile() {
 
   const firstName = speaker?.name?.split(' ')[0] || '';
 
-  /* ── loading / error states ── */
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F5F7FA] flex items-center justify-center">
@@ -85,11 +82,10 @@ export default function AdminSpeakerProfile() {
     );
   }
 
-  /* ════════════════════════════════════════════════ */
   return (
     <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800">
 
-      {/* ── Top search bar (matches AdminSpeakers header) ── */}
+      {/* Top search bar */}
       <header className="bg-white border-b border-slate-100 px-6 py-3 flex items-center justify-center sticky top-0 z-10 w-full">
         <div className="relative w-full max-w-lg">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
@@ -104,7 +100,7 @@ export default function AdminSpeakerProfile() {
 
       <div className="max-w-[860px] mx-auto px-6 py-7">
 
-        {/* ── Breadcrumb ── */}
+        {/* Breadcrumb */}
         <div className="flex items-center justify-between mb-5">
           <p className="text-[13px] text-slate-500 font-medium">
             <button
@@ -125,9 +121,9 @@ export default function AdminSpeakerProfile() {
           </button>
         </div>
 
-        {/* ── Profile Card ── */}
+        {/* Profile Card */}
         <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-100 flex gap-8 mb-6 items-start">
-          {/* Avatar — square rounded */}
+          {/* Avatar: square rounded */}
           <div
             className="w-[130px] h-[130px] rounded-2xl flex-shrink-0 overflow-hidden flex items-center justify-center text-white text-3xl font-extrabold shadow-sm"
             style={{ background: speaker.profilePic ? 'transparent' : '#d1e8ff' }}
@@ -153,7 +149,7 @@ export default function AdminSpeakerProfile() {
 
           {/* Info */}
           <div className="flex flex-col justify-start pt-1 flex-1">
-            {/* Full name — large bold */}
+            {/* Full name: large bold */}
             <h1 className="text-[34px] font-extrabold text-slate-900 leading-tight mb-1">
               {speaker.name}
             </h1>
@@ -169,7 +165,7 @@ export default function AdminSpeakerProfile() {
           </div>
         </div>
 
-        {/* ── Stats Card ── */}
+        {/* Stats Card */}
         <div className="mb-8">
           <div className="inline-flex items-center gap-4 bg-white rounded-2xl px-6 py-4 shadow-sm border border-slate-100">
             <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
@@ -184,7 +180,7 @@ export default function AdminSpeakerProfile() {
           </div>
         </div>
 
-        {/* ── Upcoming Events ── */}
+        {/* Upcoming Events */}
         <div className="mb-10">
           <h2 className="text-[22px] font-extrabold text-slate-900 leading-tight">
             Upcoming Events
@@ -251,7 +247,7 @@ export default function AdminSpeakerProfile() {
           )}
         </div>
 
-        {/* ── Past Engagements ── */}
+        {/* Past Engagements */}
         <div>
           <h2 className="text-[22px] font-extrabold text-slate-900 mb-5">Past Engagements</h2>
 

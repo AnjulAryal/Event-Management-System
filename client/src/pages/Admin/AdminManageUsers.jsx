@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import { Search, Loader2, ShieldOff, Shield, Trash2 } from 'lucide-react';
 
-/* ─── helper ─────────────────────────────────────────── */
 const getToken = () => {
   try {
     const u = JSON.parse(localStorage.getItem('user'));
@@ -12,14 +11,12 @@ const getToken = () => {
   }
 };
 
-/* ════════════════════════════════════════════════════ */
 export default function AdminManageUsers() {
   const [users, setUsers]             = useState([]);
   const [loading, setLoading]         = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionLoading, setActionLoading] = useState({});
 
-  /* ── fetch ─────────────────────────────────────── */
   useEffect(() => {
     (async () => {
       try {
@@ -37,7 +34,6 @@ export default function AdminManageUsers() {
     })();
   }, []);
 
-  /* ── search filter ─────────────────────────────── */
   const filtered = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return users;
@@ -48,7 +44,6 @@ export default function AdminManageUsers() {
     );
   }, [users, searchQuery]);
 
-  /* ── suspend toggle ────────────────────────────── */
   const handleSuspend = async (user) => {
     setActionLoading((p) => ({ ...p, [user._id]: 'suspend' }));
     try {
@@ -69,7 +64,6 @@ export default function AdminManageUsers() {
     }
   };
 
-  /* ── remove ────────────────────────────────────── */
   const handleRemove = async (user) => {
     if (!window.confirm(`Remove "${user.name}" permanently?`)) return;
     setActionLoading((p) => ({ ...p, [user._id]: 'remove' }));
@@ -88,11 +82,10 @@ export default function AdminManageUsers() {
     }
   };
 
-  /* ════════════════════════════════════════════════ */
   return (
     <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] font-sans">
 
-      {/* ── Top search bar (centered, matches screenshot) ── */}
+      {/* Top search bar */}
       <div className="flex justify-center px-6 pt-6 pb-2">
         <div className="relative w-full max-w-[340px]">
           <Search
@@ -111,12 +104,12 @@ export default function AdminManageUsers() {
 
       <div className="w-full px-6 py-6">
 
-        {/* ── Page title ── */}
+        {/* Page title */}
         <h1 className="text-[28px] font-extrabold text-[#1a1a2e] mb-5 tracking-tight">
           Manage Users
         </h1>
 
-        {/* ── Table ── */}
+        {/* Table */}
         <div
           className="rounded-lg overflow-hidden"
           style={{ border: '1.5px solid #5b8abf' }}
@@ -139,7 +132,7 @@ export default function AdminManageUsers() {
           {loading ? (
             <div className="flex items-center justify-center gap-2 py-14 bg-white text-[#64748b]">
               <Loader2 size={16} className="animate-spin" />
-              <span className="text-[13px]">Loading users…</span>
+              <span className="text-[13px]">Loading users...</span>
             </div>
           ) : filtered.length === 0 ? (
             <div className="py-14 text-center text-[13px] text-[#94a3b8] bg-white">

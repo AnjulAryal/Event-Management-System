@@ -2,28 +2,7 @@ import React from 'react';
 import { MapPin, CalendarDays } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Badge from './Badge';
-
-const parseEventDate = (dateValue) => {
-  if (!dateValue) return null;
-
-  const parsed = new Date(dateValue);
-  if (!Number.isNaN(parsed.getTime())) return parsed;
-
-  const cleaned = String(dateValue).split('—')[0].split('-')[0].trim();
-  const fallback = new Date(cleaned);
-  return Number.isNaN(fallback.getTime()) ? null : fallback;
-};
-
-const isPastEvent = (event) => {
-  const parsedDate = parseEventDate(event?.date);
-  if (!parsedDate) return false;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  parsedDate.setHours(0, 0, 0, 0);
-
-  return parsedDate < today;
-};
+import { isPastEvent } from '../../utils/eventDates';
 
 const EventCard = ({ 
   event, 

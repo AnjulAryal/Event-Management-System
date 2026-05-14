@@ -6,38 +6,8 @@ import UserSearch from "../../components/user/UserSearch";
 import UserFilterBar from "../../components/user/UserFilterBar";
 import UserEmptyState from "../../components/user/UserEmptyState";
 import EventCard from "../../components/ui/EventCard";
+import { getDateKey, isPastEvent, isUpcomingEvent, parseEventDate } from "../../utils/eventDates";
 import { BookOpen, Search } from "lucide-react";
-
-const parseEventDate = (value) => {
-    if (!value) return null;
-
-    const direct = new Date(value);
-    if (!Number.isNaN(direct.getTime())) return direct;
-
-    const cleaned = String(value).split("—")[0].split("-")[0].trim();
-    const fallback = new Date(cleaned);
-    if (!Number.isNaN(fallback.getTime())) return fallback;
-
-    return null;
-};
-
-const toLocalMidnight = (dateObj) => new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate());
-
-const isUpcomingEvent = (event) => {
-    const parsed = parseEventDate(event?.date);
-    if (!parsed) return false;
-    return toLocalMidnight(parsed) >= toLocalMidnight(new Date());
-};
-
-const isPastEvent = (event) => {
-    const parsed = parseEventDate(event?.date);
-    if (!parsed) return false;
-    return toLocalMidnight(parsed) < toLocalMidnight(new Date());
-};
-
-const getDateKey = (dateObj) => (
-    `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`
-);
 
 export default function UserDashboard() {
     const navigate = useNavigate();
@@ -190,7 +160,7 @@ export default function UserDashboard() {
 
     const ViewAllLink = () => (
         <Link to="/all-events" className="text-[#5CB85C] text-sm font-bold flex items-center gap-1 hover:underline group">
-            View all <span className="group-hover:translate-x-1 transition-transform">→</span>
+            View all <span className="group-hover:translate-x-1 transition-transform">-&gt;</span>
         </Link>
     );
 
@@ -247,7 +217,7 @@ export default function UserDashboard() {
                     </div>
                 ) : (
                     <UserEmptyState 
-                        icon="🔍" 
+                        icon={<Search className="h-16 w-16" strokeWidth={1.5} />}
                         title="No events matches your criteria" 
                         description="Try adjusting your search or filters to find what you're looking for." 
                     />

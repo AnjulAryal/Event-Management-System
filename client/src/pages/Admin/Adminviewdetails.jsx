@@ -241,7 +241,7 @@ const AdminViewDetails = () => {
                             </div>
                         </div>
 
-                        {/* Rating & Feedbacks — only available for past events */}
+                        {/* Rating & Feedbacks: only available for past events */}
                         {isPastEvent ? (
                             <>
                                 {/* Rating Card */}

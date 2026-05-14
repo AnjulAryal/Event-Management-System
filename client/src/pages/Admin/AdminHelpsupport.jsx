@@ -14,7 +14,6 @@ import {
   Loader2,
 } from 'lucide-react';
 
-/* ─── small rich-text helpers ─────────────────────────────────────────── */
 function applyFormat(textarea, format) {
   const { selectionStart: s, selectionEnd: e, value } = textarea;
   const selected = value.substring(s, e) || 'text';
@@ -24,7 +23,7 @@ function applyFormat(textarea, format) {
   if (format === 'ul') {
     replacement = selected
       .split('\n')
-      .map((l) => `• ${l}`)
+      .map((l) => `- ${l}`)
       .join('\n');
   } else if (format === 'ol') {
     replacement = selected
@@ -38,7 +37,6 @@ function applyFormat(textarea, format) {
   return value.substring(0, s) + replacement + value.substring(e);
 }
 
-/* ═══════════════════════════════════════════════════════════════════════ */
 export default function AdminHelpSupport() {
   const [supportRequests, setSupportRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,7 +47,6 @@ export default function AdminHelpSupport() {
   const [sending, setSending] = useState(false);
   const textareaRef = useRef(null);
 
-  /* ── fetch tickets ──────────────────────────────────────────────────── */
   useEffect(() => {
     const fetchSupportRequests = async () => {
       try {
@@ -71,13 +68,11 @@ export default function AdminHelpSupport() {
     fetchSupportRequests();
   }, []);
 
-  /* ── open reply modal ───────────────────────────────────────────────── */
   const openReply = (ticket) => {
     setActiveReply(ticket);
     setReplyText('');
   };
 
-  /* ── send reply ─────────────────────────────────────────────────────── */
   const handleSendReply = async () => {
     if (!replyText.trim()) {
       toast.error('Please enter a reply message.');
@@ -120,7 +115,6 @@ export default function AdminHelpSupport() {
     }
   };
 
-  /* ── remove ticket ──────────────────────────────────────────────────── */
   const handleRemove = async (id) => {
     if (!window.confirm('Are you sure you want to remove this support ticket?')) return;
     try {
@@ -139,7 +133,6 @@ export default function AdminHelpSupport() {
     }
   };
 
-  /* ── format toolbar action ──────────────────────────────────────────── */
   const handleFormat = (format) => {
     if (!textareaRef.current) return;
     const newVal = applyFormat(textareaRef.current, format);
@@ -147,7 +140,6 @@ export default function AdminHelpSupport() {
     textareaRef.current.focus();
   };
 
-  /* ── date helpers ───────────────────────────────────────────────────── */
   const fmtDate = (iso) =>
     new Date(iso).toLocaleDateString('en-US', {
       month: 'short',
@@ -160,7 +152,6 @@ export default function AdminHelpSupport() {
       minute: '2-digit',
     });
 
-  /* ════════════════════════════════════════════════════════════════════ */
   return (
     <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] p-6 sm:p-8 md:p-12 lg:p-16 font-sans">
       <div className="max-w-[1100px] mx-auto">
@@ -175,10 +166,10 @@ export default function AdminHelpSupport() {
           </p>
         </div>
 
-        {/* ── Tickets grid ── */}
+        {/* Tickets grid */}
         {loading ? (
           <div className="py-8 text-center text-[#64748b] animate-pulse font-medium">
-            Loading support requests…
+            Loading support requests...
           </div>
         ) : supportRequests.length > 0 ? (
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
@@ -215,8 +206,8 @@ export default function AdminHelpSupport() {
 
                 {/* Timestamp */}
                 <div className="flex items-center gap-4 text-[11px] text-[#94a3b8]">
-                  <span>📅 {fmtDate(card.createdAt)}</span>
-                  <span>🕐 {fmtTime(card.createdAt)}</span>
+                  <span>Date: {fmtDate(card.createdAt)}</span>
+                  <span>Time: {fmtTime(card.createdAt)}</span>
                 </div>
 
                 {/* Actions */}
@@ -244,9 +235,7 @@ export default function AdminHelpSupport() {
         )}
       </div>
 
-      {/* ══════════════════════════════════════════════════════════════════
-          REPLY MODAL  (matches the screenshot design)
-      ══════════════════════════════════════════════════════════════════ */}
+      {/* Reply modal */}
       {activeReply && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(4px)' }}>
@@ -299,8 +288,8 @@ export default function AdminHelpSupport() {
                 </p>
 
                 <div className="flex items-center gap-5 text-[11px] text-[#94a3b8]">
-                  <span>📅 {fmtDate(activeReply.createdAt)}</span>
-                  <span>🕐 {fmtTime(activeReply.createdAt)}</span>
+                  <span>{fmtDate(activeReply.createdAt)}</span>
+                  <span>{fmtTime(activeReply.createdAt)}</span>
                 </div>
               </div>
             </div>
@@ -333,7 +322,7 @@ export default function AdminHelpSupport() {
                 ref={textareaRef}
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your reply here…"
+                placeholder="Type your reply here..."
                 rows={6}
                 className="w-full border border-t-0 border-slate-200 rounded-b-lg px-4 py-3 text-[14px] text-[#1e293b] placeholder-[#94a3b8] resize-none focus:outline-none focus:ring-2 focus:ring-[#22c55e]/30 focus:border-[#22c55e] transition-all"
               />
@@ -362,7 +351,7 @@ export default function AdminHelpSupport() {
                   ) : (
                     <Send size={13} />
                   )}
-                  {sending ? 'Sending…' : 'Send Reply'}
+                  {sending ? 'Sending...' : 'Send Reply'}
                 </button>
               </div>
             </div>
