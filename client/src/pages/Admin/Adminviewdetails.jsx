@@ -241,41 +241,61 @@ const AdminViewDetails = () => {
                             </div>
                         </div>
 
-                        {/* Rating Card */}
-                        <div className="flex items-center gap-4 px-2">
-                            <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">RATING</h3>
-                            <div className="flex gap-1.5">
-                                {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-6 h-6 fill-[#EAB308] text-[#EAB308]" />
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Feedbacks Header */}
-                        <div className="px-2">
-                             <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">TOP LIKED FEEDBACKS</h3>
-                        </div>
-
-                        {/* Feedback List */}
-                        <div className="flex flex-col gap-4">
-                            {feedbacks.length > 0 ? feedbacks.map((fb) => (
-                                <div key={fb._id || fb.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-50 flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-green-100 flex-shrink-0 mt-1"></div>
-                                    <div className="flex-1 flex flex-col pt-0.5">
-                                        <div className="flex justify-between items-center mb-1.5">
-                                            <span className="font-bold text-[14px] text-slate-900">{fb.email}</span>
-                                        </div>
-                                        <p className="text-slate-400 text-[13px] font-medium leading-relaxed pr-2">
-                                            {fb.feedback}
-                                        </p>
+                        {/* Rating & Feedbacks — only available for past events */}
+                        {isPastEvent ? (
+                            <>
+                                {/* Rating Card */}
+                                <div className="flex items-center gap-4 px-2">
+                                    <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">RATING</h3>
+                                    <div className="flex gap-1.5">
+                                        {[...Array(5)].map((_, i) => (
+                                            <Star key={i} className="w-6 h-6 fill-[#EAB308] text-[#EAB308]" />
+                                        ))}
                                     </div>
                                 </div>
-                            )) : (
-                                <div className="bg-white rounded-2xl p-8 border border-dashed border-slate-200 text-center text-slate-500 font-medium">
-                                    No feedbacks found for this event.
+
+                                {/* Feedbacks Header */}
+                                <div className="px-2">
+                                    <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">TOP LIKED FEEDBACKS</h3>
                                 </div>
-                            )}
-                        </div>
+
+                                {/* Feedback List */}
+                                <div className="flex flex-col gap-4">
+                                    {feedbacks.length > 0 ? feedbacks.map((fb) => (
+                                        <div key={fb._id || fb.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-50 flex items-start gap-4">
+                                            <div className="w-10 h-10 rounded-full bg-green-100 flex-shrink-0 mt-1"></div>
+                                            <div className="flex-1 flex flex-col pt-0.5">
+                                                <div className="flex justify-between items-center mb-1.5">
+                                                    <span className="font-bold text-[14px] text-slate-900">{fb.email}</span>
+                                                </div>
+                                                <p className="text-slate-400 text-[13px] font-medium leading-relaxed pr-2">
+                                                    {fb.feedback}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="bg-white rounded-2xl p-8 border border-dashed border-slate-200 text-center text-slate-500 font-medium">
+                                            No feedbacks found for this event.
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            /* Disabled placeholder for upcoming / not-yet-started events */
+                            <div className="bg-white rounded-2xl p-7 border border-dashed border-slate-200 flex flex-col items-center gap-3 select-none">
+                                <div className="flex gap-1.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <Star key={i} className="w-6 h-6 text-slate-300" />
+                                    ))}
+                                </div>
+                                <p className="text-slate-400 text-sm font-semibold text-center">
+                                    Ratings &amp; feedbacks are not available yet.
+                                </p>
+                                <p className="text-slate-300 text-xs font-medium text-center">
+                                    Users can only submit feedback after the event has taken place.
+                                </p>
+                            </div>
+                        )}
 
                     </div>
                 </div>

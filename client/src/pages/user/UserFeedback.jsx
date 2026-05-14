@@ -6,27 +6,66 @@ import Input from "../../components/ui/Input";
 import Rating from "../../components/ui/Rating";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import UserPageHeader from "../../components/user/UserPageHeader";
+import Select from "../../components/ui/Select";
 
 export default function UserFeedback() {
     const [rating, setRating] = useState(0);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const user = JSON.parse(localStorage.getItem('user'));
     const [formData, setFormData] = useState({
         eventTitle: "",
-        email: "",
+        email: user?.email || "",
         date: "",
         message: ""
     });
     const [errors, setErrors] = useState({});
 
+    const [eligibleEvents, setEligibleEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener("resize", handleResize);
+
+        const fetchEvents = async () => {
+            try {
+                const res = await fetch('/api/events');
+                if (res.ok) {
+                    const data = await res.json();
+                    const now = new Date();
+                    now.setHours(0, 0, 0, 0); // Start of today
+
+                    const filtered = data.filter(event => {
+                        const eventDate = new Date(event.date);
+                        // Check if event date is today or in the past
+                        return eventDate <= now || eventDate.toDateString() === now.toDateString();
+                    });
+                    setEligibleEvents(filtered);
+                }
+            } catch (error) {
+                console.error("Failed to fetch events:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchEvents();
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        
+        // If event title is changed, automatically update the date
+        if (name === "eventTitle") {
+            const selectedEvent = eligibleEvents.find(ev => ev.title === value);
+            setFormData(prev => ({ 
+                ...prev, 
+                date: selectedEvent ? selectedEvent.date : "" 
+            }));
+        }
+
         if (errors[name]) {
             setErrors(prev => ({ ...prev, [name]: "" }));
         }
@@ -95,14 +134,24 @@ export default function UserFeedback() {
             <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-slate-50 max-w-2xl animate-in slide-in-from-bottom-4 duration-700">
                 <form className="space-y-8" onSubmit={handleSubmit}>
                     <div className="space-y-6">
-                        <Input 
+                        <Select 
                             label="Event Title"
                             name="eventTitle"
                             value={formData.eventTitle}
                             onChange={handleChange}
-                            placeholder="e.g. Global Tech Summit 2024"
+                            placeholder={loading ? "Loading events..." : "Select an event you attended"}
                             error={errors.eventTitle}
+                            options={eligibleEvents.map(ev => ({
+                                value: ev.title,
+                                label: ev.title
+                            }))}
+                            disabled={loading || eligibleEvents.length === 0}
                         />
+                        {eligibleEvents.length === 0 && !loading && (
+                            <p className="text-[10px] font-bold text-amber-600 ml-1 -mt-4">
+                                No events available for feedback yet.
+                            </p>
+                        )}
                         <Input 
                             label="Email"
                             type="email"
@@ -114,13 +163,15 @@ export default function UserFeedback() {
                             error={errors.email}
                         />
                         <Input 
-                            label="Date"
-                            type="date"
+                            label="Event Date"
                             name="date"
                             value={formData.date}
                             onChange={handleChange}
                             icon={Calendar}
                             error={errors.date}
+                            readOnly
+                            placeholder="Select an event to see the date"
+                            className="bg-slate-100 cursor-not-allowed"
                         />
                         <Input 
                             label="Feedback Message"

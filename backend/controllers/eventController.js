@@ -85,7 +85,7 @@ const registerForEvent = async (req, res) => {
     res.status(400);
     throw new Error('Already registered for this event');
   }
-  
+
   // Update Event
   event.registeredParticipants.push(user._id);
   await event.save();
@@ -106,7 +106,7 @@ const registerForEvent = async (req, res) => {
 
   // Send Email
   console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title}`);
-  
+
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
       <div style="background-color: #5CB85C; padding: 40px 20px; text-align: center;">
@@ -137,6 +137,10 @@ const registerForEvent = async (req, res) => {
               <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Location:</td>
               <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.location}</td>
             </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Ticket:</td>
+              <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.isFree ? '<span style="color: #5CB85C; font-weight: 800;">Free Entry</span>' : `Rs. ${event.ticketPrice}`}</td>
+            </tr>
           </table>
         </div>
         
@@ -160,17 +164,15 @@ const registerForEvent = async (req, res) => {
     </div>
   `;
 
-  try {
-    await sendEmail({
-      email: recipientEmail,
-      subject: `Registration Confirmed: ${event.title} - Eventify`,
-      message: `You have successfully registered for ${event.title}.`,
-      html: emailHtml,
-    });
-    console.log(`Email sent successfully to ${recipientEmail}`);
-  } catch (error) {
-    console.error('Email send failed:', error.message);
-  }
+  // Fire-and-forget: send email in background so user gets instant response
+  sendEmail({
+    email: recipientEmail,
+    subject: `Registration Confirmed: ${event.title} - Eventify`,
+    message: `You have successfully registered for ${event.title}.`,
+    html: emailHtml,
+  })
+    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
+    .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
     type: 'event_registered',
@@ -238,10 +240,10 @@ const verifyPaymentAndRegister = async (req, res) => {
   if (!isAlreadyRegistered) {
     event.registeredParticipants.push(user._id);
     await event.save();
-    
+
     if (!user.registeredEvents.includes(event._id)) {
-        user.registeredEvents.push(event._id);
-        await user.save();
+      user.registeredEvents.push(event._id);
+      await user.save();
     }
   }
 
@@ -249,7 +251,7 @@ const verifyPaymentAndRegister = async (req, res) => {
   const recipientName = pending.registrationDetails?.name || user.name;
 
   console.log(`Attempting to send registration email to: ${recipientEmail} (User: ${user.email}) for event: ${event.title} (Paid via eSewa)`);
-  
+
   const emailHtml = `
     <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border: 1px solid #e2e8f0;">
       <div style="background-color: #5CB85C; padding: 40px 20px; text-align: center;">
@@ -280,6 +282,10 @@ const verifyPaymentAndRegister = async (req, res) => {
               <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Location:</td>
               <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">${event.location}</td>
             </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #64748b; font-weight: 600;">Amount Paid:</td>
+              <td style="padding: 8px 0; color: #0f172a; font-weight: 700;">Rs. ${pending.amount} <span style="color: #5CB85C; font-size: 12px;">(Paid via eSewa)</span></td>
+            </tr>
           </table>
         </div>
         
@@ -303,17 +309,15 @@ const verifyPaymentAndRegister = async (req, res) => {
     </div>
   `;
 
-  try {
-    await sendEmail({
-      email: recipientEmail,
-      subject: `Registration Confirmed: ${event.title} - Eventify`,
-      message: `Your payment was successful and you are registered for ${event.title}.`,
-      html: emailHtml,
-    });
-    console.log(`Email sent successfully to ${recipientEmail}`);
-  } catch (error) {
-    console.error('Email send failed:', error.message);
-  }
+  // Fire-and-forget: send email in background so user gets instant response
+  sendEmail({
+    email: recipientEmail,
+    subject: `Registration Confirmed: ${event.title} - Eventify`,
+    message: `Your payment was successful and you are registered for ${event.title}.`,
+    html: emailHtml,
+  })
+    .then(() => console.log(`Email sent successfully to ${recipientEmail}`))
+    .catch((error) => console.error('Email send failed:', error.message));
 
   await createAdminNotification({
     type: 'payment_completed',
@@ -408,7 +412,7 @@ const isUpcomingEvent = (event) => {
 const getRecommendedEvents = async (req, res) => {
   try {
     const { userId } = req.query;
-    
+
     // 1. Find user's interests (categories of events they are registered for)
     const userEvents = await Event.find({ registeredParticipants: userId });
     const interests = [...new Set(userEvents.map(e => e.category))];
@@ -434,12 +438,10 @@ const getRecommendedEvents = async (req, res) => {
         ...baseQuery,
         _id: { $nin: recommended.map(e => e._id) }
       })
-      .sort({ date: 1, createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .limit(6 - recommended.length);
       
-      recommended = [
-        ...recommended,
-        ...moreEvents.filter(isUpcomingEvent).slice(0, 6 - recommended.length)
-      ];
+      recommended = [...recommended, ...moreEvents];
     }
 
     res.json(recommended);
@@ -457,6 +459,25 @@ const getEventsBySpeaker = async (req, res) => {
   }
 };
 
+const getPaymentHistory = async (req, res) => {
+  try {
+    const query = { status: 'COMPLETED' };
+    
+    // If not admin, only show user's own payments
+    if (!req.user.isAdmin) {
+      query.user = req.user._id;
+    }
+
+    const payments = await PendingRegistration.find(query)
+      .populate('user', 'name email')
+      .populate('event', 'title date venue')
+      .sort({ updatedAt: -1 });
+    res.json(payments);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getEvents,
   getEventById,
@@ -469,4 +490,5 @@ module.exports = {
   getEventsBySpeaker,
   initiatePayment,
   verifyPaymentAndRegister,
+  getPaymentHistory,
 };
