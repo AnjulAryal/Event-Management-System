@@ -31,7 +31,7 @@ const EventCard = ({
       >
         {event.coverImage ? (
           <img 
-            src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000/${event.coverImage.replace(/^\/+/, '')}`}
+            src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5001/${event.coverImage.replace(/^\/+/, '')}`}
             alt={event.title}
             className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
           />

@@ -158,7 +158,7 @@ const AdminEvent = () => {
                             <div className="relative h-40 w-full flex items-center justify-center bg-[#1c2331] overflow-hidden">
                                 {event.coverImage ? (
                                     <img 
-                                        src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000${event.coverImage}`}
+                                        src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5001${event.coverImage}`}
                                         alt={event.title}
                                         className="w-full h-full object-cover"
                                     />

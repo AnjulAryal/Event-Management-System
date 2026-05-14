@@ -117,7 +117,7 @@ const AdminViewDetails = () => {
                         <div className="relative rounded-[32px] overflow-hidden shadow-md h-[400px]">
                             {event.coverImage ? (
                                 <img 
-                                    src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000/${event.coverImage.replace(/^\/+/, '')}`}
+                                    src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5001/${event.coverImage.replace(/^\/+/, '')}`}
                                     alt={event.title}
                                     className="w-full h-full object-cover"
                                 />
@@ -245,14 +245,30 @@ const AdminViewDetails = () => {
                         {isPastEvent ? (
                             <>
                                 {/* Rating Card */}
-                                <div className="flex items-center gap-4 px-2">
-                                    <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">RATING</h3>
-                                    <div className="flex gap-1.5">
-                                        {[...Array(5)].map((_, i) => (
-                                            <Star key={i} className="w-6 h-6 fill-[#EAB308] text-[#EAB308]" />
-                                        ))}
-                                    </div>
-                                </div>
+                                {(() => {
+                                    const averageRating = feedbacks.length > 0 
+                                        ? Math.round(feedbacks.reduce((acc, curr) => acc + (curr.rating || 0), 0) / feedbacks.length)
+                                        : 0;
+                                    
+                                    return (
+                                        <div className="flex items-center gap-4 px-2">
+                                            <h3 className="text-[#5CB85C] font-extrabold uppercase tracking-wide">RATING</h3>
+                                            <div className="flex gap-1.5">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star 
+                                                        key={i} 
+                                                        className={`w-6 h-6 ${i < averageRating ? 'fill-[#EAB308] text-[#EAB308]' : 'text-slate-300'}`} 
+                                                    />
+                                                ))}
+                                                {feedbacks.length > 0 && (
+                                                    <span className="text-slate-400 text-xs font-bold ml-1">
+                                                        ({(feedbacks.reduce((acc, curr) => acc + (curr.rating || 0), 0) / feedbacks.length).toFixed(1)})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* Feedbacks Header */}
                                 <div className="px-2">
@@ -263,12 +279,23 @@ const AdminViewDetails = () => {
                                 <div className="flex flex-col gap-4">
                                     {feedbacks.length > 0 ? feedbacks.map((fb) => (
                                         <div key={fb._id || fb.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-50 flex items-start gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-green-100 flex-shrink-0 mt-1"></div>
+                                            <div className="w-10 h-10 rounded-full bg-green-100 flex-shrink-0 mt-1 flex items-center justify-center text-[#5CB85C] font-bold text-xs">
+                                                {fb.email?.substring(0, 2).toUpperCase()}
+                                            </div>
                                             <div className="flex-1 flex flex-col pt-0.5">
                                                 <div className="flex justify-between items-center mb-1.5">
                                                     <span className="font-bold text-[14px] text-slate-900">{fb.email}</span>
+                                                    <div className="flex gap-0.5">
+                                                        {[...Array(5)].map((_, i) => (
+                                                            <Star 
+                                                                key={i} 
+                                                                size={10} 
+                                                                className={i < (fb.rating || 0) ? "fill-yellow-400 text-yellow-400" : "text-slate-200"} 
+                                                            />
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                                <p className="text-slate-400 text-[13px] font-medium leading-relaxed pr-2">
+                                                <p className="text-slate-500 text-[13px] font-medium leading-relaxed pr-2">
                                                     {fb.feedback}
                                                 </p>
                                             </div>
