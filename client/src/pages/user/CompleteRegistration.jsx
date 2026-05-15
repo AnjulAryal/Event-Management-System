@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { MapPin, Calendar, ArrowRight, ChevronRight, User, Phone, Mail, ChevronDown, Wallet } from "lucide-react";
 import { toast } from "react-hot-toast";
@@ -12,14 +12,43 @@ export default function CompleteRegistration() {
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    const userString = localStorage.getItem('user');
-    const user = userString ? JSON.parse(userString) : null;
+    const user = useMemo(() => {
+        const userString = localStorage.getItem('user');
+        return userString ? JSON.parse(userString) : null;
+    }, []);
 
-    const [name, setName] = useState("");
+    const [name, setName] = useState(user?.name || "");
     const [phone, setPhone] = useState("");
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(user?.email || "");
     const [ticketCount, setTicketCount] = useState(1);
     const [phoneError, setPhoneError] = useState("");
+
+    useEffect(() => {
+        if (!user) return;
+
+        setName(user.name || "");
+        setEmail(user.email || "");
+
+        const fetchCurrentUser = async () => {
+            if (!user.token) return;
+
+            try {
+                const res = await fetch("/api/users/profile", {
+                    headers: { Authorization: `Bearer ${user.token}` },
+                });
+                const data = await res.json();
+
+                if (res.ok) {
+                    setName(data.name || user.name || "");
+                    setEmail(data.email || user.email || "");
+                }
+            } catch (error) {
+                console.error("Error loading profile for registration:", error);
+            }
+        };
+
+        fetchCurrentUser();
+    }, [user]);
 
     useEffect(() => {
         const fetchEvent = async () => {

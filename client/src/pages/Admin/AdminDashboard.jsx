@@ -218,11 +218,15 @@ const AdminDashboard = () => {
                         
                         <div className="space-y-4">
                             {filteredTodayEvents.map(event => (
-                                <div key={event.id} className="bg-white p-4 rounded-[16px] shadow-sm flex flex-col sm:flex-row gap-5 border border-slate-50 relative overflow-hidden transition-all hover:shadow-md">
+                                <div 
+                                    key={event.id} 
+                                    onClick={() => navigate(`/admin-view-details/${event.id}`)}
+                                    className="bg-white p-4 rounded-[16px] shadow-sm flex flex-col sm:flex-row gap-5 border border-slate-50 relative overflow-hidden transition-all hover:shadow-md cursor-pointer hover:bg-slate-50/50"
+                                >
                                     <div className="w-full sm:w-[140px] h-[140px] rounded-[16px] flex-shrink-0 relative overflow-hidden" style={{ backgroundColor: event.color }}>
                                         {event.coverImage && (
                                             <img 
-                                                src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5000${event.coverImage}`}
+                                                src={event.coverImage.startsWith('data:image') || event.coverImage.startsWith('http') ? event.coverImage : `http://localhost:5001${event.coverImage}`}
                                                 alt={event.title}
                                                 className="w-full h-full object-cover absolute inset-0"
                                             />

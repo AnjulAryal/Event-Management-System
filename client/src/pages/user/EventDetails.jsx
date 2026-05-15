@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo, Star, MessageSquare } from "lucide-react";
+import { Calendar, Clock, MapPin, User, ChevronRight, BadgeInfo, Star, MessageSquare, Ticket } from "lucide-react";
 import { toast } from "react-hot-toast";
 import UserPageContainer from "../../components/user/UserPageContainer";
 import Button from "../../components/ui/Button";
@@ -124,11 +124,17 @@ export default function EventDetails() {
         );
     }
 
+    const ticketPrice = Number(event.ticketPrice || 0);
+    const ticketValue = event.isFree
+        ? "Free Entry"
+        : `Standard Ticket / Rs. ${ticketPrice.toLocaleString("en-NP")}`;
+
     const details = [
         { icon: <Calendar size={18} className="text-green-600" />, label: "DATE", value: event.date || "TBA", bg: "bg-green-50" },
         { icon: <Clock size={18} className="text-yellow-600" />, label: "TIME", value: event.time || "TBA", bg: "bg-yellow-50" },
         { icon: <MapPin size={18} className="text-blue-600" />, label: "VENUE", value: event.venue || event.location || "TBA", bg: "bg-blue-50" },
         { icon: <User size={18} className="text-purple-600" />, label: "ORGANIZER", value: event.organizer || "Eventify", bg: "bg-purple-50" },
+        { icon: <Ticket size={18} className="text-violet-600" />, label: "TICKET", value: ticketValue, bg: "bg-violet-50" },
     ];
 
     const isRegistered = Boolean(

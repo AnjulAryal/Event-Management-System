@@ -289,7 +289,7 @@ const AdminEditEvent = () => {
                                 />
                                 {formData.coverImage ? (
                                     <>
-                                        <img src={formData.coverImage.startsWith('data:image') || formData.coverImage.startsWith('http') ? formData.coverImage : `http://localhost:5000${formData.coverImage}`} className="w-full h-full object-cover absolute inset-0" alt="Preview" />
+                                        <img src={formData.coverImage.startsWith('data:image') || formData.coverImage.startsWith('http') ? formData.coverImage : `http://localhost:5001${formData.coverImage}`} className="w-full h-full object-cover absolute inset-0" alt="Preview" />
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 w-full h-full">
                                             <p className="text-white font-bold text-sm text-center">Click to change<br/>Upload</p>
                                         </div>

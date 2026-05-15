@@ -4,6 +4,7 @@ const positiveTerms = [
   'clear',
   'excellent',
   'fantastic',
+  'good',
   'great',
   'helpful',
   'high quality',
@@ -14,6 +15,8 @@ const positiveTerms = [
   'organized',
   'enjoyed',
   'informative',
+  'nice',
+  'satisfied',
   'valuable',
 ];
 
@@ -36,6 +39,37 @@ const negativeTerms = [
   'worst',
 ];
 
+const neutralPhrasePatterns = [
+  /\bneither\s+(?:really\s+)?good\s+(?:nor|or|not)\s+(?:really\s+)?bad\b/,
+  /\bnot\s+good\s*(?:,|and|or)?\s*not\s+bad\b/,
+  /\bnot\s+bad\s*(?:,|and|or)?\s*not\s+good\b/,
+  /\bneutral\b/,
+  /\baverage\b/,
+  /\bno\s+(?:strong\s+)?(?:opinion|complaints|issues)\b/,
+];
+
+const negativeMeaningPatterns = [
+  /\bnot\s+(?:good|great|helpful|clear|useful|organized|informative|smooth|valuable)\b/,
+  /\bnot\s+well\s+(?:received|organized|run)\b/,
+];
+
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const getTermPattern = (term) => (
+  new RegExp(`\\b${term.trim().split(/\s+/).map(escapeRegExp).join('\\s+')}\\b`)
+);
+
+const scoreTerms = (terms, text) => (
+  terms.filter((term) => getTermPattern(term).test(text)).length
+);
+
+const stripNegatedTerms = (text, terms) => (
+  terms.reduce((currentText, term) => {
+    const pattern = new RegExp(`\\b(?:not|no|never|hardly|isn['’]?t|wasn['’]?t|without)\\s+${term.trim().split(/\s+/).map(escapeRegExp).join('\\s+')}\\b`, 'g');
+    return currentText.replace(pattern, ' ');
+  }, text)
+);
+
 const themeDefinitions = [
   { label: 'Content Quality', keywords: ['workshop', 'session', 'breakout', 'demo', 'content', 'topic', 'material', 'presentation'] },
   { label: 'Speaker Quality', keywords: ['speaker', 'keynote', 'panel', 'host', 'presenter', 'facilitator'] },
@@ -49,15 +83,21 @@ const themeDefinitions = [
 ];
 
 const getSentiment = (feedback) => {
+  const text = String(feedback.feedback || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  if (neutralPhrasePatterns.some((pattern) => pattern.test(text))) return 'neutral';
+
   if (Number(feedback.rating) >= 4) return 'positive';
   if (Number(feedback.rating) <= 2) return 'negative';
 
-  const text = String(feedback.feedback || '').toLowerCase();
-  const positiveScore = positiveTerms.filter((term) => text.includes(term)).length;
-  const negativeScore = negativeTerms.filter((term) => text.includes(term)).length;
+  const positiveScore = scoreTerms(positiveTerms, stripNegatedTerms(text, positiveTerms));
+  const negativeScanText = stripNegatedTerms(text, negativeTerms);
+  const hasNegatedNegative = negativeScanText !== text;
+  const negativeScore = scoreTerms(negativeTerms, negativeScanText)
+    + negativeMeaningPatterns.filter((pattern) => pattern.test(text)).length;
 
   if (positiveScore > negativeScore) return 'positive';
   if (negativeScore > positiveScore) return 'negative';
+  if (hasNegatedNegative) return 'neutral';
   return 'neutral';
 };
 
@@ -129,16 +169,13 @@ const createFallbackSummary = (eventName, items, themes) => {
   const positive = items.filter((item) => item.sentiment === 'positive');
   const neutral = items.filter((item) => item.sentiment === 'neutral');
   const negative = items.filter((item) => item.sentiment === 'negative');
-  const issueThemes = themes.filter((theme) => ['negative', 'neutral'].includes(theme.sentiment));
+  const issueThemes = themes.filter((theme) => theme.sentiment === 'negative');
 
   const right = uniqueLines([
     ...positive.map((review) => reviewLine('Positive attendee note', review)),
   ]);
 
-  const wrong = uniqueLines([
-    ...negative.map((review) => reviewLine('Issue reported', review)),
-    ...(!negative.length ? neutral.map((review) => reviewLine('Mixed attendee note', review)) : []),
-  ]);
+  const wrong = uniqueLines(negative.map((review) => reviewLine('Issue reported', review)));
 
   const future = uniqueLines([
     ...issueThemes.map((theme) => `Review ${theme.label.toLowerCase()} for ${eventName}; ${theme.count} review${theme.count === 1 ? ' mentions' : 's mention'} this area.`),
@@ -206,6 +243,9 @@ Rules:
 - Use specific wording from the feedback data where possible.
 - Keep each bullet concise and event-specific.
 - Never reuse the same generic summary across different events.
+- Treat neutral reviews as neutral or mixed, not as complaints.
+- Phrases like "neither good nor bad", "neither good not bad", or "not bad" are neutral unless the review also states a concrete problem.
+- Put items in "wrong" only when the review explicitly reports a problem, complaint, or negative experience.
 
 Keep this exact schema:
 {
