@@ -130,8 +130,15 @@ const AdminEditEvent = () => {
     };
 
     return (
-        <div className="flex-1 w-full bg-[#f8fafc] p-6 lg:p-10 font-sans min-h-screen">
-            <div className="max-w-[1200px] mx-auto">
+        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
+
+            {/* Sticky header */}
+            <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center sticky top-0 z-10 w-full shadow-sm">
+                <h2 className="text-[15px] font-bold text-slate-900">Edit Event</h2>
+            </header>
+
+            <main className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-500">
+                <div className="max-w-[1200px] mx-auto">
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-[32px] font-extrabold text-[#111827] tracking-tight mb-2">
@@ -353,6 +360,7 @@ const AdminEditEvent = () => {
                     </div>
                 </form>
             </div>
+            </main>
         </div>
     );
 };

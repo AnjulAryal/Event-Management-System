@@ -229,20 +229,14 @@ const AdminProfile = () => {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto font-sans">
-      {/* Search Bar at top */}
-      <div className="mb-6">
-        <div className="relative w-full max-w-md">
-          <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
-          <input 
-            type="text" 
-            placeholder="Search events..." 
-            className="w-full pl-10 pr-4 py-2 border border-gray-100 bg-gray-50 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-gray-200"
-          />
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
+
+      {/* Sticky header */}
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center sticky top-0 z-10 w-full shadow-sm">
+        <h2 className="text-[15px] font-bold text-slate-900">Admin Profile</h2>
+      </header>
+
+      <main className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-500">
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
         <div className="flex flex-col md:flex-row gap-12">
@@ -444,6 +438,7 @@ const AdminProfile = () => {
           </div>
         </div>
       )}
+      </main>
     </div>
   );
 };

@@ -153,15 +153,22 @@ export default function AdminHelpSupport() {
     });
 
   return (
-    <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] p-6 sm:p-8 md:p-12 lg:p-16 font-sans">
-      <div className="max-w-[1100px] mx-auto">
+    <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
+
+      {/* Sticky header */}
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center sticky top-0 z-10 w-full shadow-sm">
+        <h2 className="text-[15px] font-bold text-slate-900">Help &amp; Support</h2>
+      </header>
+
+      <main className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-500">
+        <div>
 
         {/* Page header */}
-        <div className="mb-8 md:mb-10">
-          <h1 className="text-[28px] md:text-3xl font-bold text-[#1e293b] mb-1 tracking-tight">
+        <div className="mb-8">
+          <h1 className="text-[32px] font-extrabold text-slate-900 tracking-tight mb-1">
             Help &amp; Support
           </h1>
-          <p className="text-[#64748b] text-sm md:text-base font-medium">
+          <p className="text-slate-500 text-sm font-medium">
             Browse FAQs or get in touch with our team.
           </p>
         </div>
@@ -233,7 +240,8 @@ export default function AdminHelpSupport() {
             No support requests found.
           </div>
         )}
-      </div>
+        </div>
+      </main>
 
       {/* Reply modal */}
       {activeReply && (

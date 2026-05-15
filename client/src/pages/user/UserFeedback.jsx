@@ -56,13 +56,13 @@ export default function UserFeedback() {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        
+
         // If event title is changed, automatically update the date
         if (name === "eventTitle") {
             const selectedEvent = eligibleEvents.find(ev => ev.title === value);
-            setFormData(prev => ({ 
-                ...prev, 
-                date: selectedEvent ? selectedEvent.date : "" 
+            setFormData(prev => ({
+                ...prev,
+                date: selectedEvent ? selectedEvent.date : ""
             }));
         }
 
@@ -93,9 +93,9 @@ export default function UserFeedback() {
             toast.error("Please fix the errors in the form");
             return;
         }
-        
+
         const loadingToast = toast.loading("Sending feedback...");
-        
+
         try {
             const res = await fetch('/api/feedback', {
                 method: 'POST',
@@ -126,15 +126,15 @@ export default function UserFeedback() {
 
     return (
         <UserPageContainer isMobile={isMobile}>
-            <UserPageHeader 
-                title="Submit Feedback" 
-                subtitle="Share your event experience with the team." 
+            <UserPageHeader
+                title="Submit Feedback"
+                subtitle="Share your event experience with the team."
             />
 
             <div className="bg-white rounded-[32px] p-8 md:p-12 shadow-sm border border-slate-50 max-w-2xl animate-in slide-in-from-bottom-4 duration-700">
                 <form className="space-y-8" onSubmit={handleSubmit}>
                     <div className="space-y-6">
-                        <Select 
+                        <Select
                             label="Event Title"
                             name="eventTitle"
                             value={formData.eventTitle}
@@ -152,7 +152,7 @@ export default function UserFeedback() {
                                 No events available for feedback yet.
                             </p>
                         )}
-                        <Input 
+                        <Input
                             label="Email"
                             type="email"
                             name="email"
@@ -162,7 +162,7 @@ export default function UserFeedback() {
                             icon={Mail}
                             error={errors.email}
                         />
-                        <Input 
+                        <Input
                             label="Event Date"
                             name="date"
                             value={formData.date}
@@ -173,7 +173,7 @@ export default function UserFeedback() {
                             placeholder="Select an event to see the date"
                             className="bg-slate-100 cursor-not-allowed"
                         />
-                        <Input 
+                        <Input
                             label="Feedback Message"
                             name="message"
                             value={formData.message}
@@ -184,11 +184,11 @@ export default function UserFeedback() {
                         />
                         <div className="flex flex-col gap-3">
                             <label className="text-[10px] font-extrabold uppercase tracking-widest text-[#5CB85C] ml-1">Overall Rating</label>
-                            <Rating 
-                                value={rating} 
+                            <Rating
+                                value={rating}
                                 onChange={(val) => {
-                                  setRating(val);
-                                  if (errors.rating) setErrors(prev => ({ ...prev, rating: "" }));
+                                    setRating(val);
+                                    if (errors.rating) setErrors(prev => ({ ...prev, rating: "" }));
                                 }}
                                 error={!!errors.rating}
                             />
@@ -196,7 +196,7 @@ export default function UserFeedback() {
                         </div>
                     </div>
 
-                    <Button 
+                    <Button
                         type="submit"
                         fullWidth
                         className="py-4 text-base"

@@ -139,7 +139,6 @@ const AdminDashboard = () => {
     return (
         <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
             <main className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-700">
-
             {/* Header Section */}
             <div className="flex flex-col mb-8">
                 <h1 className="text-[32px] font-extrabold tracking-tight text-slate-800">

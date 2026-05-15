@@ -83,29 +83,29 @@ export default function AdminManageUsers() {
   };
 
   return (
-    <div className="flex-1 w-full min-h-screen bg-[#F5F7FA] font-sans">
+    <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12 w-full">
 
-      {/* Top search bar */}
-      <div className="flex justify-center px-6 pt-6 pb-2">
-        <div className="relative w-full max-w-[340px]">
+      {/* Sticky search header */}
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm">
+        <div className="relative w-full max-w-lg group">
           <Search
-            size={13}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-[#94a3b8] pointer-events-none"
+            size={14}
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
           />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search events..."
-            className="w-full pl-8 pr-3 py-2 rounded-full border border-slate-300 bg-white text-[12px] text-[#1e293b] placeholder-[#94a3b8] focus:outline-none focus:ring-1 focus:ring-slate-400 transition-all shadow-sm"
+            placeholder="Search users..."
+            className="w-full bg-slate-50 border border-slate-200 text-[13px] rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-200 focus:bg-white transition-all shadow-sm"
           />
         </div>
-      </div>
+      </header>
 
-      <div className="w-full px-6 py-6">
+      <div className="flex-1 p-8 max-w-7xl w-full mx-auto animate-in fade-in duration-500">
 
         {/* Page title */}
-        <h1 className="text-[28px] font-extrabold text-[#1a1a2e] mb-5 tracking-tight">
+        <h1 className="text-[32px] font-extrabold text-slate-900 tracking-tight mb-6">
           Manage Users
         </h1>
 
