@@ -92,7 +92,7 @@ const AdminViewDetails = () => {
         : `Rs. ${ticketPrice.toLocaleString("en-NP")}`;
 
     return (
-        <div className="min-h-screen bg-[#F9FAFB] font-sans text-slate-800 p-6 md:p-10">
+        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header Navigation */}
                 <header className="flex justify-between items-center mb-8">

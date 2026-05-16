@@ -86,19 +86,19 @@ export default function AdminSpeakerProfile() {
     <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800">
 
       {/* Top search bar */}
-      <header className="bg-white border-b border-slate-100 px-6 py-3 flex items-center justify-center sticky top-0 z-10 w-full">
+      <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm">
         <div className="relative w-full max-w-lg">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
           <input
             type="text"
             readOnly
             placeholder="Search events..."
-            className="w-full bg-slate-50 border border-slate-100 text-sm rounded-full py-2.5 pl-11 pr-4 focus:outline-none shadow-sm"
+            className="w-full bg-slate-50 border border-slate-200 text-[13px] rounded-full py-2.5 pl-11 pr-4 focus:outline-none shadow-sm"
           />
         </div>
       </header>
 
-      <div className="max-w-[860px] mx-auto px-6 py-7">
+      <div className="max-w-7xl mx-auto px-6 py-7 animate-in fade-in duration-500">
 
         {/* Breadcrumb */}
         <div className="flex items-center justify-between mb-5">

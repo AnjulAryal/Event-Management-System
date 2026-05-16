@@ -84,7 +84,7 @@ const AdminSpeakers = () => {
     });
 
     return (
-        <div className="min-h-screen bg-[#F7F9FB] font-sans text-slate-800 flex flex-col pb-12">
+        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 flex flex-col pb-12">
             {/* Top Navigation Bar */}
             <header className="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-center sticky top-0 z-10 w-full shadow-sm animate-in fade-in duration-500">
                 {/* Search Bar */}

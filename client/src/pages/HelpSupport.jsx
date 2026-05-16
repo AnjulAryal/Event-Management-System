@@ -110,7 +110,7 @@ export default function HelpSupport() {
     return (
         <div className="min-h-screen bg-[#eef0ec] font-sans">
             <div className={`max-w-[1100px] mx-auto px-4 md:px-7 ${isMobile ? 'py-6' : 'py-10'} animate-in fade-in duration-700`}>
-                
+
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-extrabold text-slate-900 leading-tight">Help & Support</h1>
@@ -128,10 +128,10 @@ export default function HelpSupport() {
                 <div className="bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-slate-50">
                     <h2 className="text-2xl font-extrabold text-slate-900 mb-2">Still need help? Contact Us</h2>
                     <p className="text-slate-500 text-sm mb-8 font-medium">Our support team usually responds within 24 hours.</p>
-                    
+
                     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <Input 
+                            <Input
                                 label="Name"
                                 name="name"
                                 value={formData.name}
@@ -140,7 +140,7 @@ export default function HelpSupport() {
                                 icon={User}
                                 error={errors.name}
                             />
-                            <Input 
+                            <Input
                                 label="Email"
                                 type="email"
                                 name="email"
@@ -152,7 +152,7 @@ export default function HelpSupport() {
                             />
                         </div>
 
-                        <Input 
+                        <Input
                             label="Message"
                             name="message"
                             value={formData.message}
@@ -162,7 +162,7 @@ export default function HelpSupport() {
                             error={errors.message}
                         />
 
-                        <Button 
+                        <Button
                             type="submit"
                             className="self-start py-4"
                             icon={ArrowRight}
