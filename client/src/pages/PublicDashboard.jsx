@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Calendar, Users, BarChart3, Bell, Search } from 'lucide-react';
 import BrandLogo from '../components/ui/BrandLogo';
+import { isFutureEvent, parseEventDate } from '../utils/eventDates';
 
 const TYPING_PHRASES = ["Register Events", "Discover Events", "Manage Events"];
 
@@ -61,8 +62,13 @@ const PublicDashboard = () => {
       try {
         const res = await fetch('/api/events');
         const data = await res.json();
-        // Take up to 4 events for the public dashboard
-        setEvents(data.slice(0, 4));
+        const upcomingEvents = Array.isArray(data)
+          ? data
+              .filter(isFutureEvent)
+              .sort((a, b) => parseEventDate(a.date) - parseEventDate(b.date))
+              .slice(0, 4)
+          : [];
+        setEvents(upcomingEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
       } finally {
@@ -199,7 +205,7 @@ const PublicDashboard = () => {
               <div className="col-span-full text-center py-10 text-gray-500">Loading events...</div>
             ) : events.length > 0 ? (
               events.map((event, index) => {
-                const dateObj = new Date(event.date);
+                const dateObj = parseEventDate(event.date);
                 const day = dateObj.getDate() || "12";
                 const month = dateObj.toLocaleString('en-US', { month: 'short' }).toUpperCase() || "OCT";
                 const tag = event.category ? event.category.toUpperCase() : "EVENT";
