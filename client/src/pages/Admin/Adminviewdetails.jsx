@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CalendarDays, Clock, MapPin, User, Star, ArrowLeft } from 'lucide-react';
+import { CalendarDays, Clock, MapPin, User, Star, ArrowLeft, Ticket } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const AdminViewDetails = () => {
@@ -86,6 +86,10 @@ const AdminViewDetails = () => {
     const eDate = new Date(event.date);
     eDate.setHours(0, 0, 0, 0);
     const isPastEvent = eDate < today;
+    const ticketPrice = Number(event.ticketPrice || 0);
+    const ticketValue = event.isFree === true || (event.isFree === undefined && ticketPrice <= 0)
+        ? "Free Entry"
+        : `Rs. ${ticketPrice.toLocaleString("en-NP")}`;
 
     return (
         <div className="min-h-screen bg-[#F9FAFB] font-sans text-slate-800 p-6 md:p-10">
@@ -237,6 +241,16 @@ const AdminViewDetails = () => {
                                 <div className="space-y-0.5">
                                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">ORGANIZER</p>
                                     <p className="text-[15px] font-bold text-slate-800">{event.organizer || "N/A"}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-5">
+                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <Ticket className="w-6 h-6 text-[#5CB85C]" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">TICKET</p>
+                                    <p className="text-[15px] font-bold text-slate-800">{ticketValue}</p>
                                 </div>
                             </div>
                         </div>
