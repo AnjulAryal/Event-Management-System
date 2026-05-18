@@ -92,10 +92,10 @@ const AdminViewDetails = () => {
         : `Rs. ${ticketPrice.toLocaleString("en-NP")}`;
 
     return (
-        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 p-8">
+        <div className="min-h-screen bg-[#F5F7FA] font-sans text-slate-800 p-8 pt-16">
             <div className="max-w-7xl mx-auto">
                 {/* Header Navigation */}
-                <header className="flex justify-between items-center mb-8">
+                <header className="flex justify-between items-center mb-8 pr-12">
                     <div className="text-sm font-semibold text-slate-500">
                         <button
                             type="button"
